@@ -14,7 +14,8 @@ const dependencySelection = () => ({extensionArtifactIds: ($('#extension-artifac
 const show = (message, error = false) => { $('#notice').textContent = message || ''; $('#notice').classList.toggle('error', error); };
 async function api(path, options = {}) {
   const response = await fetch(`/api/developer${path}`, {credentials: 'same-origin', ...options});
-  const result = await response.json(); if (!response.ok || result.status === 'failed') throw Object.assign(Error(typeof result.error === 'string' ? result.error : result.error?.message || result.message || result.code || 'Developer operation failed.'), {code: result.code || result.error?.code, status: response.status}); return result;
+  // A completed failed job is a successful status response, with its report.
+  const result = await response.json(); if (!response.ok) throw Object.assign(Error(typeof result.error === 'string' ? result.error : result.error?.message || result.message || result.code || 'Developer operation failed.'), {code: result.code || result.error?.code, status: response.status}); return result;
 }
 const post = (path, body) => api(path, {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(body)});
 const call = (name, args = {}) => post('/call', {name: `saverift_${name}`, arguments: args});
@@ -57,6 +58,9 @@ async function renderWorkspace() {
     const button = el('button', file.path); button.disabled = !workspaceToolsEnabled(); button.classList.toggle('active', editingPath === file.path); button.onclick = () => task(() => openFile(file.path)); $('#file-list').append(button);
     const label = el('label'), checkbox = el('input'); checkbox.type = 'checkbox'; checkbox.value = file.path; checkbox.checked = true; label.append(checkbox, document.createTextNode(file.path)); $('#release-files').append(label);
   }
+  const selectedJob = $('#job-history').value; $('#job-history').replaceChildren();
+  for (const job of workspace.jobs || []) { const option = el('option', `${job.type} · ${job.id}`); option.value = job.id; $('#job-history').append(option); }
+  if ((workspace.jobs || []).some(job => job.id === selectedJob)) $('#job-history').value = selectedJob;
   renderFixtures(); renderMigration(); updateProjectControls();
   if (!editingPath || !workspace.files.some(f => f.path === editingPath)) editingPath = workspace.files[0]?.path;
   if (editingPath && !sourceOnly) await openFile(editingPath);
@@ -89,13 +93,14 @@ action('#query-catalog', async () => { $('#catalog-results').textContent = JSON.
 async function waitForJob(job) {
   for (let i = 0; i < 180; i++) {
     const result = await call('job_status', {workspaceId: workspace.id, jobId: job.jobId}); $('#job-results').textContent = JSON.stringify(result, null, 2);
-    if (!['pending', 'running'].includes(result.status)) { await refreshWorkspace(); if (result.status === 'failed') throw Error(result.job.result?.error || 'The isolated job failed.'); return result.job; }
+    if (!['pending', 'running'].includes(result.status)) { await refreshWorkspace(); if (result.status === 'failed') throw Error([result.job.result?.code, result.job.result?.error || result.job.result?.reason || 'The isolated job failed.'].filter(Boolean).join(': ')); return result.job; }
     await new Promise(resolve => setTimeout(resolve, 350));
   }
   throw Error('This job is still running. Reopen Build & test to check its durable status.');
 }
 action('#build-plugin', async () => { const job = await waitForJob(await call('plugin_build', {workspaceId: workspace.id, expectedRevision: workspace.revision})); artifactId = job.result.artifactId; $('#artifact-state').textContent = `Built source revision ${job.result.sourceRevision} · ${artifactId}`; show('Immutable source package built. Run conformance before preparing a release.'); });
 action('#run-tests', async () => { if (!artifactId) throw Error('Build a source package first.'); const job = await waitForJob(await call('tests_run', {workspaceId: workspace.id, artifactId, fixtureIds: fixtures(), ...dependencySelection()})); show(job.status === 'passed' ? 'Isolated lifecycle, no-op byte parity and fresh-engine re-open passed. Game acceptance remains unverified.' : `Tests: ${job.status}. ${job.result.reason || ''}`); });
+action('#open-job', async () => { const jobId = $('#job-history').value; if (!workspace || !(workspace.jobs || []).some(job => job.id === jobId)) throw Error('Choose a saved job from this workspace.'); const job = await waitForJob({jobId}); show(`Saved ${job.type} job: ${job.status}. Game acceptance remains unverified.`); });
 async function candidate(args) {
   if (!artifactId) throw Error('Build a source package first.');
   const job = await waitForJob(await call('candidate_prepare', {workspaceId: workspace.id, artifactId, fixtureIds: fixtures(), ...dependencySelection(), ...args}));
@@ -151,7 +156,7 @@ function updateProjectControls() {
   $('#publish-work').disabled = !remote || !githubReady || !workPublicationReview || workPublicationUnknown;
   $('#reconcile-work-publication').disabled = !remote || !githubReady || !workPublicationTarget || workPublicationTarget.gameId !== project?.id;
   $('#developer-opt-in').disabled = membership?.state === 'suspended';
-  for (const id of ['save-file', 'new-file', 'import-catalog', 'query-catalog', 'build-plugin', 'run-tests', 'prepare-candidate', 'open-preview', 'prepare-preview-draft', 'prepare-release', 'fixture-upload']) $('#' + id).disabled = !workspaceToolsEnabled();
+  for (const id of ['save-file', 'new-file', 'import-catalog', 'query-catalog', 'build-plugin', 'run-tests', 'prepare-candidate', 'open-preview', 'prepare-preview-draft', 'prepare-release', 'fixture-upload', 'open-job', 'job-history']) $('#' + id).disabled = !workspaceToolsEnabled();
   $('#export-source').disabled = !workspace; $('#source-editor').disabled = !workspaceToolsEnabled();
   for (const control of document.querySelectorAll('#fixture-list button, #fixture-list input')) control.disabled = !workspaceToolsEnabled() || (control.type === 'checkbox' && control.dataset.synthetic === 'true');
   updateMigrationControls();

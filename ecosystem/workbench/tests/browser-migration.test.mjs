@@ -191,6 +191,36 @@ test('owner controls disappear when the server revokes setup access', async () =
   await b.nodes.get('begin-github-setup').click();
   assert.ok(!b.calls.some(call => call.name === '/github/setup/begin'));
 });
+test('completed failed jobs display their durable report after reopening without creating another job', async () => {
+  const workspace = {id: 'ws_test', gameId: 'synthetic', name: 'Synthetic job recovery', revision: 2, files: [], fixtures: [], jobs: [{id: 'job_failed', type: 'tests'}, {id: 'job_build', type: 'build'}]};
+  const b = await browser({configure({handlers}) {
+    handlers.workspace_list = () => ({workspaces: [workspace]});
+    handlers.workspace_status = () => ({workspace});
+    handlers.job_status = args => args.jobId === 'job_build' ? {status: 'passed', job: {result: {artifactId: 'artifact_built', sourceRevision: 1}}} : {status: 'failed', job: {id: args.jobId, type: 'tests', status: 'failed', result: {code: 'CPU_LIMIT', error: 'The bounded phase expired.'}}};
+  }});
+  await b.enroll(); await b.openWorkspace(workspace.id); await b.change('job-history', 'job_failed');
+  await b.nodes.get('open-job').click();
+  assert.equal(JSON.parse(b.nodes.get('job-results').textContent).job.id, 'job_failed');
+  assert.match(b.nodes.get('job-results').textContent, /CPU_LIMIT/);
+  assert.match(b.nodes.get('notice').textContent, /CPU_LIMIT: The bounded phase expired/);
+  assert.ok(!b.calls.some(call => ['tests_run', 'candidate_prepare', 'plugin_build'].includes(call.name)));
+  b.nodes.get('job-history').value = 'job_unlisted'; await b.nodes.get('open-job').click();
+  assert.ok(!b.calls.some(call => call.name === 'job_status' && call.args.jobId === 'job_unlisted'));
+});
+
+test('new conformance failures keep their actual report visible instead of the previous running result', async () => {
+  const workspace = {id: 'ws_test', gameId: 'synthetic', name: 'Synthetic conformance', revision: 2, files: [], fixtures: [], jobs: [{id: 'job_build', type: 'build'}]};
+  const b = await browser({configure({handlers}) {
+    handlers.workspace_status = () => ({workspace});
+    handlers.tests_run = () => ({jobId: 'job_new'});
+    handlers.job_status = args => args.jobId === 'job_build' ? {status: 'passed', job: {result: {artifactId: 'artifact_built', sourceRevision: 1}}} : {status: 'failed', job: {id: args.jobId, result: {code: 'MEMORY_LIMIT', error: 'The guest memory limit was reached.'}}};
+  }});
+  await b.enroll(); await b.openWorkspace(workspace.id); await b.nodes.get('run-tests').click();
+  assert.equal(JSON.parse(b.nodes.get('job-results').textContent).status, 'failed');
+  assert.match(b.nodes.get('notice').textContent, /MEMORY_LIMIT/);
+  assert.equal(b.calls.filter(call => call.name === 'tests_run').length, 1);
+});
+
 async function browser({configured = false, discoveryUnavailable = false, configure} = {}) {
   const nodes = new Map(), classNodes = new Map(), tabs = [], panels = [];
   const html = await readFile(new URL('../index.html', import.meta.url), 'utf8');
