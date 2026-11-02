@@ -1,7 +1,7 @@
 {
   "schema": "saverift.package-build.v1",
-  "packageDigest": "8fd6680c1f65ec9c3564acf082f2000836fd5f8848d1c3a00a293c8cad1a7a20",
-  "byteLength": 1055327,
+  "packageDigest": "cd0d2095c4f683e4d5ff69aec73ba73db99f357cb54d062e8dc5e1509aaaa0c9",
+  "byteLength": 1074091,
   "files": [
     {
       "path": "data/provider-requirements.json",
@@ -85,13 +85,13 @@
     },
     {
       "path": "runtime/connector.mjs",
-      "byteLength": 415153,
-      "sha256": "9a4360d74c69631c222eaba6c4d2c28486eed2541e603dcd93592a119e52e505"
+      "byteLength": 432385,
+      "sha256": "69cd259e6fce7ebe8ab17a9f9d5bce898664a43b89e6c7e5c83c9f1b31357d44"
     },
     {
       "path": "ui/dist/entry.js",
-      "byteLength": 503106,
-      "sha256": "02bf8ada55bce1ae6b614e0663a0d879ce12771b5cc3f363a73f3f5daf7e3030"
+      "byteLength": 504638,
+      "sha256": "a0950286a0c99adfc6020fe6414ef8caddbe8e8bff98fc2fe7446efbc06ae3b8"
     },
     {
       "path": "ui/dist/style.css",

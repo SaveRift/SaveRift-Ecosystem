@@ -11,9 +11,10 @@ const fail=(message)=>{throw new CodecError(message,'PARC_TYPED_INVALID');};
 // Original plaintext is the lossless document. All slices, including unknown
 // scalars, flags, masks and all 13 list metadata bytes, retain their original
 // bytes and absolute offsets here. UI projections are deliberately not writers.
-export function readDocument(raw,{listLimit=200,fieldListLimits={},captureTypes,onScalar,onLocator,onObject,compareTo}={}){
+export function readDocument(raw,{listLimit=200,fieldListLimits={},captureTypes,onScalar,onLocator,onObject,compareTo,hashPlaintext=true}={}){
   // Internal projection control only: every field is still strictly walked.
   if(captureTypes!==undefined&&(!Array.isArray(captureTypes)||captureTypes.some(t=>typeof t!=='string')))fail('Invalid typed projection.');
+  if(typeof hashPlaintext!=='boolean')fail('Invalid plaintext digest option.');
   if(!fieldListLimits||typeof fieldListLimits!=='object'||Array.isArray(fieldListLimits)||Object.values(fieldListLimits).some(n=>!Number.isInteger(n)||n<0||n>1024))fail('Invalid field projection limit.');
   const schema=parcSchema(raw),audit={objects:0,fields:0,absentScalars:0,omittedListMarkers:0,objectLists:0,nonzeroListMetadata:0,nonzeroListSamples:[],advisoryLocators:0,unconsumedBytes:0},blocks=[];
   if(compareTo&&compareTo.length!==raw.length)fail('A decoded diff requires unchanged document length.');
@@ -50,12 +51,12 @@ export function readDocument(raw,{listLimit=200,fieldListLimits={},captureTypes,
     if(depth>48||++budget>1500000)fail('Typed document traversal limit exceeded.');
     audit.objects++;let p=start+4;need(start,4,end);const fields=capture?{}:null;
     for(let i=0;i<type.fields.length;i++){
-      const def=type.fields[i],present=Boolean(mask[i>>3]&(1<<(i&7))),begin=p,fieldPath=capture||onScalar?path+'.'+def.name:path,retainedLimit=fieldListLimits[type.name+'.'+def.name]??listLimit;let value=null,count;
+      const def=type.fields[i],present=Boolean(mask[i>>3]&(1<<(i&7))),begin=p,fieldPath=capture||onScalar?path+'.'+def.name:path,retainedLimit=capture?(fieldListLimits[type.name+'.'+def.name]??listLimit):listLimit;let value=null,count;
       if(++audit.fields>3000000)fail('Typed field traversal limit exceeded.');
       if(!present){
-        if([3,6,7].includes(def.kind)){need(p,1,end);if(raw[p]!==1)fail(`Missing omitted-list marker at ${fieldPath} (${p}).`);p++;audit.omittedListMarkers++;}
+        if(def.kind===3||def.kind===6||def.kind===7){need(p,1,end);if(raw[p]!==1)fail(`Missing omitted-list marker at ${fieldPath} (${p}).`);p++;audit.omittedListMarkers++;}
         else audit.absentScalars++;
-      }else if([0,2].includes(def.kind)&&def.size>0){
+      }else if((def.kind===0||def.kind===2)&&def.size>0){
         need(p,def.size,end);if(capture||onScalar)value=scalar(p,def,end);p+=def.size;onScalar?.({path:fieldPath,offset:begin,bytes:def.size,present:true,value,type:def.type});
       }else if(def.kind===1&&def.size>0){
         count=u32(p,end);p+=4;need(p,count*def.size,end);
@@ -65,9 +66,9 @@ export function readDocument(raw,{listLimit=200,fieldListLimits={},captureTypes,
         need(p,5,end);if(raw[p]!==0)fail(`Invalid dynamic-array tag at ${fieldPath}.`);count=u32(p+1,end);p+=5;need(p,count*def.size,end);
         if(count>100000)fail('Primitive array exceeds inspection limit.');
         if(capture)value=Array.from({length:Math.min(count,retainedLimit)},(_,j)=>scalar(p+j*def.size,def,end));p+=count*def.size;
-      }else if([4,5].includes(def.kind)){
+      }else if(def.kind===4||def.kind===5){
         value=locator(p,end,fieldPath,capture,depth,def.kind);p=value.end;
-      }else if([6,7].includes(def.kind)){
+      }else if(def.kind===6||def.kind===7){
         need(p,18,end);if(raw[p]!==0)fail(`Invalid object-list tag at ${fieldPath} (${p}).`);
         count=u32(p+1,end);if(count>100000)fail('Object list exceeds inspection limit.');
         const metadataStart=p+5,meta=raw.subarray(metadataStart,p+18);audit.objectLists++;
@@ -101,7 +102,7 @@ export function readDocument(raw,{listLimit=200,fieldListLimits={},captureTypes,
     const block=object(type,raw.subarray(e.offset+2,e.offset+2+maskCount),e.offset+2+maskCount,end,`$[${i}].${type.name}`,capture,0,false);blocks.push(block);
   }
   if(previous!==raw.length)fail('Unconsumed bytes after the final block.');
-  return {revision:DECODER_REVISION,plaintext:raw,plaintextSha256:hash(raw),schemaSha256:hash(JSON.stringify(schema.types)),schema,audit,blocks,lossless:true,...(compareTo?{decodedDiff,comparison:{comparedLeafFields,changedLeafFields:decodedDiff.length}}:{})};
+  return {revision:DECODER_REVISION,plaintext:raw,plaintextSha256:hashPlaintext?hash(raw):null,schemaSha256:hash(JSON.stringify(schema.types)),schema,audit,blocks,lossless:true,...(compareTo?{decodedDiff,comparison:{comparedLeafFields,changedLeafFields:decodedDiff.length}}:{})};
 }
 export const field=(object,name)=>object?.fields?.[name];
 export const value=(object,name)=>field(object,name)?.present?field(object,name).value:null;

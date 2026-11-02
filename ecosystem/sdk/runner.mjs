@@ -3,6 +3,7 @@ import {newVariant,newQuickJSWASMModuleFromVariant} from 'quickjs-emscripten-cor
 import {Buffer} from './buffer.mjs';
 import {hash,canonicalJson} from './crypto.mjs';
 import {LIMITS,LIFECYCLE,RUNTIME_PROFILE,PluginError,fail,jsonCopy,logicalPath,validatePackage,createSaveBundle,digest} from './contracts.mjs';
+import {executionProfile} from './execution-profiles.mjs';
 import {createExecutionLock as createPinnedLock,verifyExecutionLock} from './registry.mjs';
 
 const PAGE=65536;
@@ -10,8 +11,9 @@ const own=(object,key)=>Object.hasOwn(object,key);
 export function createExecutionLock(packageInput){
   const pkg=validatePackage(packageInput);return createPinnedLock({connector:{id:pkg.manifest.id,version:pkg.manifest.version,digest:pkg.packageDigest}});
 }
-function boundedLimits(input={}){
-  const limits={...LIMITS};for(const [key,value]of Object.entries(input)){if(!own(LIMITS,key)||!Number.isSafeInteger(value)||value<1||value>LIMITS[key])fail('LIMITS_INVALID','Execution limits may only reduce documented quotas.');limits[key]=value;}
+function boundedLimits(input={},profile){
+  const ceilings={...LIMITS,timeoutMs:profile.maxPhaseMs};
+  const limits={...ceilings};for(const [key,value]of Object.entries(input)){if(!own(ceilings,key)||!Number.isSafeInteger(value)||value<1||value>ceilings[key])fail('LIMITS_INVALID','Execution limits may only reduce documented quotas.');limits[key]=value;}
   if(limits.memoryBytes<16*1024*1024||limits.memoryBytes%PAGE||limits.heapBytes>=limits.memoryBytes)fail('LIMITS_INVALID','Wasm memory must be page aligned and larger than the heap limit.');return limits;
 }
 function verifyLock(lock,pkg){
@@ -30,7 +32,9 @@ function normalizedModule(request,base){
  * imported WebAssembly.Module, never a plugin URL or a module chosen by guests.
  */
 export async function createPluginSession(options,host={}){
-  const limits=boundedLimits(options?.limits),pkg=validatePackage(options?.package,limits),lock=verifyLock(options?.executionLock,pkg),signal=options?.signal;
+  const pkg=validatePackage(options?.package),profile=executionProfile(options?.executionProfile,pkg.packageDigest),limits=boundedLimits(options?.limits,profile),lock=verifyLock(options?.executionLock,pkg),signal=options?.signal;
+  if(pkg.descriptors.length>limits.packageFiles||pkg.byteLength>limits.packageBytes)fail('PACKAGE_LIMIT','The package exceeds its reduced byte or file limit.');
+  if(pkg.descriptors.some(file=>/\.(?:mjs|js)$/.test(file.path)&&file.byteLength>limits.sourceBytes))fail('SOURCE_LIMIT','An executable module exceeds its reduced source limit.');
   if(pkg.manifest.kind&&!['game','extension'].includes(pkg.manifest.kind))fail('PACKAGE_NOT_EXECUTABLE','Only connector and system-extension packages execute in the runner.');
   const source=options.artifacts instanceof Map?options.artifacts:new Map(Object.entries(options.artifacts||{}));
   const bundle=jsonCopy(options.bundle||createSaveBundle([])),normalized=createSaveBundle(bundle.artifacts,{id:bundle.id,hints:bundle.hints});if(canonicalJson(bundle)!==canonicalJson(normalized))fail('BUNDLE_DIGEST_MISMATCH','Input bundle has changed or contains nonpublic fields.');

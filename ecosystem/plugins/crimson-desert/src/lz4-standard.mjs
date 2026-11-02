@@ -36,26 +36,28 @@ const MAX_INPUT=8*1024*1024;
 export function compressStandardLz4(data){
   if(!(data instanceof Uint8Array)||data.length<1||data.length>MAX_INPUT)throw new RangeError('Standard LZ4 input must be 1 byte to 8 MiB.');
   const size=data.length,small=size<65547,table=new Uint32Array(small?8192:4096);
-  const input=Buffer.from(data.buffer,data.byteOffset,data.byteLength);
+  const input=Buffer.from(data.buffer,data.byteOffset,data.byteLength),view=new DataView(input.buffer,input.byteOffset,input.byteLength);
   const out=Buffer.allocUnsafe(size+Math.floor(size/255)+16);
   let ip=0,anchor=0,op=0;
-  const read32=p=>input.readUInt32LE(p);
+  const read32=p=>view.getUint32(p,true);
   function positionHash(p){
     const a=read32(p);
     if(small)return (Math.imul(a,2654435761)>>>0)>>>19;
     // ((LE64 << 24) * 889523592379 mod 2^64) >> 52. Only five input
     // bytes matter. Exact 16-bit products avoid floating-point/BigInt drift.
-    const a0=a&65535,a1=a>>>16;
-    const high=Math.floor((a1*0xdcbb+a0*0x1bbc+Math.floor(a0*0xdcbb/65536))/65536)+a1*0x1bbc;
-    const highByte=(high+Math.imul(a,0xcf)+input[p+4]*0x1bbcdcbb)&255;
-    return (highByte<<4)|((Math.imul(a,0x1bbcdcbb)>>>0)>>>28);
+    const a0=a&65535,a1=a>>>16,low=a0*0xdcbb,middle=a1*0xdcbb+a0*0x1bbc+(low>>>16);
+    // These limb sums stay below 2^32. Reuse their exact carry instead of
+    // recomputing two multiplications and floating-point floor calls.
+    const high=(middle>>>16)+a1*0x1bbc;
+    const highByte=(high+(a0&255)*0xcf+input[p+4]*0xbb)&255;
+    return (highByte<<4)|((middle>>>12)&15);
   }
   function length(n){while(n>=255){out[op++]=255;n-=255;}out[op++]=n;}
   function literals(end){
     const count=end-anchor,token=op++;
     out[token]=Math.min(count,15)<<4;
     if(count>=15)length(count-15);
-    input.copy(out,op,anchor,end);op+=count;return token;
+    out.set(input.subarray(anchor,end),op);op+=count;return token;
   }
   if(size>=13){
     table[positionHash(0)]=0;
@@ -73,7 +75,7 @@ export function compressStandardLz4(data){
       while(ip>anchor&&match>0&&input[ip-1]===input[match-1]){ip--;match--;}
       let token=literals(ip);
       for(;;){
-        const offset=ip-match;out.writeUInt16LE(offset,op);op+=2;
+        const offset=ip-match;out[op++]=offset;out[op++]=offset>>>8;
         let end=ip+4,ref=match+4;
         while(end<matchLimit&&input[end]===input[ref]){end++;ref++;}
         const matchCode=end-ip-4;ip=end;

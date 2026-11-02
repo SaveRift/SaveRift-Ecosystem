@@ -7,7 +7,7 @@ import {readDocument,field,value,elements,DECODER_REVISION} from './crimson-docu
 import {FISH_QUANTITY_RULE,quantityTarget} from './crimson-policy.mjs';
 const PREVIOUS_HOUSING_SCHEMA='606d393978b53c27a3e827fb6a592ce2a6c2e91f2de82dd063e5be93d0cfdedf';
 import {CATALOG_REVISION,catalogItem} from './crimson-domain.mjs';
-import {assertOfflineDraftCapability,assertSourceBinding} from './source-binding.mjs';
+import {assertOfflineDraftCapability,assertSourceBinding,preparedSource} from './source-binding.mjs';
 import {STANDARD_LZ4_PROFILE} from './lz4-standard.mjs';
 import {existingStackQuantityProfile,validInventoryKey} from './inventory-quantity-profile.mjs';
 
@@ -120,11 +120,11 @@ export function createCrimsonDraftCompiler({schemaPins=CRIMSON_DRAFT_SCHEMAS,ass
     if(metadata.sha256!==input.backupSha256||backup.revision!==input.backupRevision)fail('CRIMSON_DRAFT_STALE','The original snapshot binding changed.');
     const containers=backup.containers.filter(c=>c.index.fileName===input.container),blobs=containers.length===1?containers[0].blobs.filter(b=>b.name===input.payload):[];
     if(blobs.length!==1||blobs[0].sha256!==input.payloadSha256)fail('CRIMSON_DRAFT_STALE','The original payload binding changed.');
-    const source=Buffer.from(blobs[0].data,'base64');
-    if(source.length>8*1024*1024||source.toString('base64')!==blobs[0].data)fail('CRIMSON_DRAFT_PAYLOAD_INVALID');
-    const decoded=await decodeSave(source);
+    const prepared=preparedSource(backup,metadata,input),source=prepared?.encoded||Buffer.from(blobs[0].data,'base64');
+    if(source.length>8*1024*1024||!prepared&&source.toString('base64')!==blobs[0].data)fail('CRIMSON_DRAFT_PAYLOAD_INVALID');
+    const decoded=prepared?.decoded||await decodeSave(source);
     if(decoded.version!==2)fail('CRIMSON_DRAFT_WRAPPER_UNSUPPORTED');
-    const projection={fieldListLimits:{'InventoryElementSaveData._itemList':1024}},before=readDocument(decoded.plaintext,projection),pin=pins.get(before.schemaSha256);
+    const projection=prepared?.projection||{fieldListLimits:{'InventoryElementSaveData._itemList':1024}},before=prepared?.document||readDocument(decoded.plaintext,projection),pin=pins.get(before.schemaSha256);
     if(!pin||input.schemaSha256!==before.schemaSha256)fail('CRIMSON_DRAFT_SCHEMA_UNSUPPORTED','This snapshot schema is outside the reviewed offline composition pins.');
     if(input.plaintextSha256!==before.plaintextSha256)fail('CRIMSON_DRAFT_STALE','The original plaintext binding changed.');
     assertCapability({schemaSha256:before.schemaSha256,saveVersion:decoded.version,container:input.container,payload:input.payload});

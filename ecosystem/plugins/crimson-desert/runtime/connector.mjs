@@ -1885,12 +1885,13 @@ function createHasher(hashCons) {
   hashC.create = () => hashCons();
   return hashC;
 }
-var Hash;
+var Hash, wrapConstructor;
 var init_utils = __esm({
   "../../sdk/node_modules/@noble/hashes/esm/utils.js"() {
     /*! noble-hashes - MIT License (c) 2022 Paul Miller (paulmillr.com) */
     Hash = class {
     };
+    wrapConstructor = createHasher;
   }
 });
 
@@ -2021,7 +2022,7 @@ var init_md = __esm({
 });
 
 // ../../sdk/node_modules/@noble/hashes/esm/sha2.js
-var SHA256_K, SHA256_W, SHA256, sha256;
+var SHA256_K, SHA256_W, SHA256;
 var init_sha2 = __esm({
   "../../sdk/node_modules/@noble/hashes/esm/sha2.js"() {
     init_md();
@@ -2163,16 +2164,15 @@ var init_sha2 = __esm({
         clean(this.buffer);
       }
     };
-    sha256 = /* @__PURE__ */ createHasher(() => new SHA256());
   }
 });
 
 // ../../sdk/node_modules/@noble/hashes/esm/sha256.js
-var sha2562;
+var SHA2562;
 var init_sha256 = __esm({
   "../../sdk/node_modules/@noble/hashes/esm/sha256.js"() {
     init_sha2();
-    sha2562 = sha256;
+    SHA2562 = SHA256;
   }
 });
 
@@ -2287,7 +2287,7 @@ function canonicalJson(value2) {
 }
 function createHash(algorithm) {
   if (algorithm !== "sha256") throw new TypeError("Only SHA-256 is supported.");
-  const state2 = sha2562.create();
+  const state2 = nobleSha256.create();
   let finished = false;
   const api = { update(value2) {
     if (finished) throw new Error("Hash already finalized.");
@@ -2315,16 +2315,130 @@ function equal(a, b) {
   for (let i = 0; i < a.length; i++) diff |= a[i] ^ b[i];
   return diff === 0;
 }
-var bytes, sha2563, hash, hmacSha256, formatCrypto;
+var SHA256_K2, InterpreterSHA256, nobleSha256, bytes, sha2562, hash, hmacSha256, formatCrypto;
 var init_crypto = __esm({
   "../../sdk/crypto.mjs"() {
     init_sha256();
+    init_utils();
     init_hmac();
     init_buffer();
+    SHA256_K2 = new Int32Array([
+      1116352408,
+      1899447441,
+      3049323471,
+      3921009573,
+      961987163,
+      1508970993,
+      2453635748,
+      2870763221,
+      3624381080,
+      310598401,
+      607225278,
+      1426881987,
+      1925078388,
+      2162078206,
+      2614888103,
+      3248222580,
+      3835390401,
+      4022224774,
+      264347078,
+      604807628,
+      770255983,
+      1249150122,
+      1555081692,
+      1996064986,
+      2554220882,
+      2821834349,
+      2952996808,
+      3210313671,
+      3336571891,
+      3584528711,
+      113926993,
+      338241895,
+      666307205,
+      773529912,
+      1294757372,
+      1396182291,
+      1695183700,
+      1986661051,
+      2177026350,
+      2456956037,
+      2730485921,
+      2820302411,
+      3259730800,
+      3345764771,
+      3516065817,
+      3600352804,
+      4094571909,
+      275423344,
+      430227734,
+      506948616,
+      659060556,
+      883997877,
+      958139571,
+      1322822218,
+      1537002063,
+      1747873779,
+      1955562222,
+      2024104815,
+      2227730452,
+      2361852424,
+      2428436474,
+      2756734187,
+      3204031479,
+      3329325298
+    ]);
+    InterpreterSHA256 = class extends SHA2562 {
+      constructor() {
+        super();
+        this.words = new Int32Array(64);
+      }
+      process(view, offset) {
+        const w = this.words;
+        for (let i = 0; i < 16; i++, offset += 4) w[i] = view.getUint32(offset, false);
+        for (let i = 16; i < 64; i++) {
+          const x = w[i - 15], y = w[i - 2];
+          const s0 = (x >>> 7 | x << 25) ^ (x >>> 18 | x << 14) ^ x >>> 3;
+          const s1 = (y >>> 17 | y << 15) ^ (y >>> 19 | y << 13) ^ y >>> 10;
+          w[i] = s1 + w[i - 7] + s0 + w[i - 16] | 0;
+        }
+        let a = this.A, b = this.B, c = this.C, d = this.D, e = this.E, f = this.F, g = this.G, h = this.H;
+        for (let i = 0; i < 64; i++) {
+          const s1 = (e >>> 6 | e << 26) ^ (e >>> 11 | e << 21) ^ (e >>> 25 | e << 7);
+          const t1 = h + s1 + (e & f ^ ~e & g) + SHA256_K2[i] + w[i] | 0;
+          const s0 = (a >>> 2 | a << 30) ^ (a >>> 13 | a << 19) ^ (a >>> 22 | a << 10);
+          const t2 = s0 + (a & b ^ a & c ^ b & c) | 0;
+          h = g;
+          g = f;
+          f = e;
+          e = d + t1 | 0;
+          d = c;
+          c = b;
+          b = a;
+          a = t1 + t2 | 0;
+        }
+        this.A = this.A + a | 0;
+        this.B = this.B + b | 0;
+        this.C = this.C + c | 0;
+        this.D = this.D + d | 0;
+        this.E = this.E + e | 0;
+        this.F = this.F + f | 0;
+        this.G = this.G + g | 0;
+        this.H = this.H + h | 0;
+      }
+      roundClean() {
+        this.words.fill(0);
+      }
+      destroy() {
+        super.destroy();
+        this.words.fill(0);
+      }
+    };
+    nobleSha256 = wrapConstructor(() => new InterpreterSHA256());
     bytes = (value2) => typeof value2 === "string" ? import_buffer.Buffer.from(value2) : value2 instanceof Uint8Array ? value2 : new Uint8Array(value2);
-    sha2563 = (value2) => import_buffer.Buffer.from(sha2562(bytes(value2))).toString("hex");
-    hash = sha2563;
-    hmacSha256 = (key, value2) => import_buffer.Buffer.from(hmac(sha2562, bytes(key), bytes(value2)));
+    sha2562 = (value2) => import_buffer.Buffer.from(nobleSha256(bytes(value2))).toString("hex");
+    hash = sha2562;
+    hmacSha256 = (key, value2) => import_buffer.Buffer.from(hmac(nobleSha256, bytes(key), bytes(value2)));
     formatCrypto = Object.freeze({
       getRandomValues(array) {
         const data6 = randomBytes(array.byteLength);
@@ -2379,9 +2493,9 @@ function configureDataProviders(providers = [], { expected = [], synthetic = fal
   for (const provider of providers) {
     const { id: id2 } = provider;
     if (typeof id2 !== "string" || !/^[a-z0-9-]+\.json$/.test(id2) || stores.has(id2)) throw Object.assign(new Error("Duplicate or invalid data provider."), { code: "DATA_PROVIDER_INVALID" });
-    const bytes2 = provider.bytes ? import_buffer.Buffer.from(provider.bytes) : null, byteLength = bytes2?.length ?? provider.byteLength, verified = verifiedArtifacts.find((a) => a.id === provider.artifactId && a.sha256 === provider.sha256 && a.byteLength === byteLength), sha2564 = verified ? verified.sha256 : bytes2 ? hash(bytes2) : null, pin = pins.get(id2);
-    if (!Number.isSafeInteger(byteLength) || byteLength > 4 * 1024 * 1024 || sha2564 !== provider.sha256 || !bytes2 && (!verified || typeof provider.read !== "function") || !synthetic && (!pin || pin.sha256 !== sha2564 || pin.byteLength !== byteLength)) throw Object.assign(new Error("The data provider does not match its immutable pin."), { code: "DATA_PROVIDER_DIGEST_MISMATCH" });
-    stores.set(id2, { bytes: bytes2, read: provider.read, verified: Boolean(verified), value: null, sha256: sha2564, byteLength, distribution: synthetic ? "synthetic_test_only" : "restricted_pending_review" });
+    const bytes2 = provider.bytes ? import_buffer.Buffer.from(provider.bytes) : null, byteLength = bytes2?.length ?? provider.byteLength, verified = verifiedArtifacts.find((a) => a.id === provider.artifactId && a.sha256 === provider.sha256 && a.byteLength === byteLength), sha2563 = verified ? verified.sha256 : bytes2 ? hash(bytes2) : null, pin = pins.get(id2);
+    if (!Number.isSafeInteger(byteLength) || byteLength > 4 * 1024 * 1024 || sha2563 !== provider.sha256 || !bytes2 && (!verified || typeof provider.read !== "function") || !synthetic && (!pin || pin.sha256 !== sha2563 || pin.byteLength !== byteLength)) throw Object.assign(new Error("The data provider does not match its immutable pin."), { code: "DATA_PROVIDER_DIGEST_MISMATCH" });
+    stores.set(id2, { bytes: bytes2, read: provider.read, verified: Boolean(verified), value: null, sha256: sha2563, byteLength, distribution: synthetic ? "synthetic_test_only" : "restricted_pending_review" });
   }
   installed = true;
   return dataProviderStatus();
@@ -2399,6 +2513,7 @@ var init_data_provider = __esm({
 
 // src/source-binding.mjs
 function verifyBackup(source) {
+  if (verifiedSources.has(source)) return true;
   if (source?.schema !== "saverift.crimson-artifact-source.v1" || source.source !== "plugin_bundle" || !Array.isArray(source.containers) || source.containers.length > 128) return false;
   let total = 0, count2 = 0;
   const seen = /* @__PURE__ */ new Set();
@@ -2428,27 +2543,69 @@ function assertSourceBinding(source, metadata3, input) {
 function assertOfflineDraftCapability({ schemaSha256, saveVersion, payload }) {
   if (!digest.test(schemaSha256 || "") || saveVersion !== 2 || payload !== "save") throw new ProbeError("This format cannot be compiled.", 409, "CRIMSON_FORMAT_CAPABILITY_UNSUPPORTED");
 }
-function sourceFromBundle(bundle, ctx) {
-  const grouped = /* @__PURE__ */ new Map(), ids2 = /* @__PURE__ */ new Map();
-  for (const artifact of bundle.artifacts) {
+function sourceFromBundle(bundle, ctx, { lazy = false } = {}) {
+  if (typeof bundle?.id !== "string" || !bundle.id || !digest.test(bundle.bundleDigest || "") || !Array.isArray(bundle.artifacts)) throw new ProbeError("Selected artifact bundle metadata is invalid.", 409, "CRIMSON_ARTIFACT_SOURCE_INVALID");
+  const ids2 = /* @__PURE__ */ new Map(), selected2 = [];
+  for (const entry of bundle.artifacts) {
+    const artifact = Object.freeze({ ...entry });
     if (["reference-data", "preset-source"].includes(artifact.role)) continue;
     const parts = artifact.logicalPath.split("/"), name = artifact.role === "main" || artifact.role === "save" ? "save" : artifact.role === "sidecar" || artifact.role === "lobby" ? "lobby" : parts.at(-1);
     if (!["save", "lobby"].includes(name)) continue;
-    const container = parts.length > 1 ? parts.slice(0, -1).join("/") : bundle.hints?.container || "slot100,savedgame";
+    const container = parts.length > 1 ? parts.slice(0, -1).join("/") : bundle.hints?.container || "slot100,savedgame", key = container + "/" + name;
     if (!/^slot\d{1,3},savedgame$/.test(container)) throw new ProbeError("The selected game file mapping is unsupported.", 409, "CRIMSON_CONTAINER_MAPPING_UNSUPPORTED");
-    const bytes2 = import_buffer.Buffer.from(ctx.readArtifact(artifact.id));
-    if (bytes2.length !== artifact.byteLength || hash(bytes2) !== artifact.sha256) throw new ProbeError("Selected artifact bytes changed.", 409, "CRIMSON_ARTIFACT_SOURCE_CHANGED");
-    const row = { name, size: bytes2.length, data: bytes2.toString("base64"), sha256: artifact.sha256, artifactId: artifact.id }, c = grouped.get(container) || { index: { fileName: container }, blobs: [] };
-    c.blobs.push(row);
-    grouped.set(container, c);
-    ids2.set(`${container}/${name}`, artifact);
+    if (ids2.has(key) || !Number.isSafeInteger(artifact.byteLength) || artifact.byteLength < 0 || artifact.byteLength > 8 * 1024 * 1024 || !digest.test(artifact.sha256 || "")) throw new ProbeError("Selected artifact descriptors are incomplete or duplicate.", 409, "CRIMSON_ARTIFACT_SOURCE_INVALID");
+    ids2.set(key, artifact);
+    selected2.push({ artifact, container, name });
   }
-  const containers = [...grouped.values()], source = { schema: "saverift.crimson-artifact-source.v1", source: "plugin_bundle", revision: bundle.bundleDigest, containers, totalBytes: containers.reduce((n, c) => n + c.blobs.reduce((m, b) => m + b.size, 0), 0), blobCount: containers.reduce((n, c) => n + c.blobs.length, 0) };
-  const metadata3 = { id: bundle.id, complete: true, sha256: bundle.bundleDigest };
-  assertSourceBinding(source, metadata3);
-  return { source, metadata: metadata3, ids: ids2 };
+  const metadata3 = Object.freeze({ id: bundle.id, complete: true, sha256: bundle.bundleDigest });
+  let source;
+  function materialize() {
+    if (source) return source;
+    const grouped = /* @__PURE__ */ new Map(), encoded = /* @__PURE__ */ new Map();
+    let totalBytes = 0, blobCount = 0;
+    for (const { artifact, container, name } of selected2) {
+      const bytes2 = import_buffer.Buffer.from(ctx.readArtifact(artifact.id));
+      if (bytes2.length !== artifact.byteLength || hash(bytes2) !== artifact.sha256) throw new ProbeError("Selected artifact bytes changed.", 409, "CRIMSON_ARTIFACT_SOURCE_CHANGED");
+      encoded.set(container + "/" + name, bytes2);
+      totalBytes += bytes2.length;
+      blobCount++;
+      if (totalBytes > 8 * 1024 * 1024) throw new ProbeError("Selected artifact bytes exceed the format-source limit.", 409, "CRIMSON_ARTIFACT_SOURCE_INVALID");
+      const row = Object.freeze({ name, size: bytes2.length, data: bytes2.toString("base64"), sha256: artifact.sha256, artifactId: artifact.id }), c = grouped.get(container) || { index: Object.freeze({ fileName: container }), blobs: [] };
+      c.blobs.push(row);
+      grouped.set(container, c);
+    }
+    if (grouped.size > 128) throw new ProbeError("Selected artifact containers exceed the format-source limit.", 409, "CRIMSON_ARTIFACT_SOURCE_INVALID");
+    const containers = Object.freeze([...grouped.values()].map((c) => Object.freeze({ ...c, blobs: Object.freeze(c.blobs) })));
+    const result2 = Object.freeze({ schema: "saverift.crimson-artifact-source.v1", source: "plugin_bundle", revision: metadata3.sha256, containers, totalBytes, blobCount });
+    verifiedSources.add(result2);
+    sourceContexts.set(result2, ctx);
+    sourceBytes.set(result2, encoded);
+    assertSourceBinding(result2, metadata3);
+    source = result2;
+    return source;
+  }
+  const result = { metadata: metadata3, ids: ids2, get source() {
+    return materialize();
+  } };
+  if (!lazy) materialize();
+  return result;
 }
-var ProbeError, digest;
+function bindPreparedSource(source, metadata3, { context, container, payload, payloadSha256, decoded, document, projection }) {
+  assertSourceBinding(source, metadata3);
+  const blob = source.containers.find((c) => c.index.fileName === container)?.blobs.find((b) => b.name === payload);
+  if (!verifiedSources.has(source) || sourceContexts.get(source) !== context || !blob || blob.sha256 !== payloadSha256 || document?.plaintext !== decoded?.plaintext || !digest.test(document?.plaintextSha256 || "") || !digest.test(document?.schemaSha256 || "")) throw new ProbeError("Prepared format source is not this verified snapshot.", 409, "CRIMSON_PREPARED_SOURCE_INVALID");
+  const encoded = sourceBytes.get(source)?.get(container + "/" + payload);
+  if (!encoded || encoded.length !== blob.size) throw new ProbeError("Prepared format bytes are unavailable.", 409, "CRIMSON_PREPARED_SOURCE_INVALID");
+  preparedSources.set(source, Object.freeze({ context, lockDigest: context.executionLock?.digest, revision: source.revision, container, payload, payloadSha256, encoded, decoded, document, projection }));
+}
+function preparedSource(source, metadata3, input) {
+  const snapshot = preparedSources.get(source);
+  if (!snapshot) return null;
+  assertSourceBinding(source, metadata3, input);
+  if (!verifiedSources.has(source) || snapshot.context !== sourceContexts.get(source) || snapshot.lockDigest !== snapshot.context.executionLock?.digest || snapshot.revision !== source.revision || snapshot.container !== input.container || snapshot.payload !== input.payload || snapshot.payloadSha256 !== input.payloadSha256 || snapshot.document.plaintextSha256 !== input.plaintextSha256 || snapshot.document.schemaSha256 !== input.schemaSha256) throw new ProbeError("Prepared format source belongs to a different snapshot.", 409, "CRIMSON_PREPARED_SOURCE_CHANGED");
+  return snapshot;
+}
+var ProbeError, digest, verifiedSources, sourceContexts, sourceBytes, preparedSources;
 var init_source_binding = __esm({
   "src/source-binding.mjs"() {
     init_buffer();
@@ -2462,6 +2619,10 @@ var init_source_binding = __esm({
       }
     };
     digest = /^[a-f0-9]{64}$/;
+    verifiedSources = /* @__PURE__ */ new WeakSet();
+    sourceContexts = /* @__PURE__ */ new WeakMap();
+    sourceBytes = /* @__PURE__ */ new WeakMap();
+    preparedSources = /* @__PURE__ */ new WeakMap();
   }
 });
 
@@ -2469,17 +2630,17 @@ var init_source_binding = __esm({
 function compressStandardLz4(data6) {
   if (!(data6 instanceof Uint8Array) || data6.length < 1 || data6.length > MAX_INPUT) throw new RangeError("Standard LZ4 input must be 1 byte to 8 MiB.");
   const size = data6.length, small = size < 65547, table = new Uint32Array(small ? 8192 : 4096);
-  const input = import_buffer.Buffer.from(data6.buffer, data6.byteOffset, data6.byteLength);
+  const input = import_buffer.Buffer.from(data6.buffer, data6.byteOffset, data6.byteLength), view = new DataView(input.buffer, input.byteOffset, input.byteLength);
   const out = import_buffer.Buffer.allocUnsafe(size + Math.floor(size / 255) + 16);
   let ip = 0, anchor = 0, op = 0;
-  const read32 = (p) => input.readUInt32LE(p);
+  const read32 = (p) => view.getUint32(p, true);
   function positionHash(p) {
     const a = read32(p);
     if (small) return Math.imul(a, 2654435761) >>> 0 >>> 19;
-    const a0 = a & 65535, a1 = a >>> 16;
-    const high = Math.floor((a1 * 56507 + a0 * 7100 + Math.floor(a0 * 56507 / 65536)) / 65536) + a1 * 7100;
-    const highByte = high + Math.imul(a, 207) + input[p + 4] * 465362107 & 255;
-    return highByte << 4 | Math.imul(a, 465362107) >>> 0 >>> 28;
+    const a0 = a & 65535, a1 = a >>> 16, low = a0 * 56507, middle = a1 * 56507 + a0 * 7100 + (low >>> 16);
+    const high = (middle >>> 16) + a1 * 7100;
+    const highByte = high + (a0 & 255) * 207 + input[p + 4] * 187 & 255;
+    return highByte << 4 | middle >>> 12 & 15;
   }
   function length(n) {
     while (n >= 255) {
@@ -2492,7 +2653,7 @@ function compressStandardLz4(data6) {
     const count2 = end - anchor, token = op++;
     out[token] = Math.min(count2, 15) << 4;
     if (count2 >= 15) length(count2 - 15);
-    input.copy(out, op, anchor, end);
+    out.set(input.subarray(anchor, end), op);
     op += count2;
     return token;
   }
@@ -2521,8 +2682,8 @@ function compressStandardLz4(data6) {
       let token = literals(ip);
       for (; ; ) {
         const offset = ip - match;
-        out.writeUInt16LE(offset, op);
-        op += 2;
+        out[op++] = offset;
+        out[op++] = offset >>> 8;
         let end = ip + 4, ref = match + 4;
         while (end < matchLimit && input[end] === input[ref]) {
           end++;
@@ -2570,8 +2731,9 @@ __export(crimson_document_exports, {
   readDocument: () => readDocument,
   value: () => value
 });
-function readDocument(raw, { listLimit = 200, fieldListLimits = {}, captureTypes, onScalar, onLocator, onObject, compareTo } = {}) {
+function readDocument(raw, { listLimit = 200, fieldListLimits = {}, captureTypes, onScalar, onLocator, onObject, compareTo, hashPlaintext = true } = {}) {
   if (captureTypes !== void 0 && (!Array.isArray(captureTypes) || captureTypes.some((t) => typeof t !== "string"))) fail2("Invalid typed projection.");
+  if (typeof hashPlaintext !== "boolean") fail2("Invalid plaintext digest option.");
   if (!fieldListLimits || typeof fieldListLimits !== "object" || Array.isArray(fieldListLimits) || Object.values(fieldListLimits).some((n) => !Number.isInteger(n) || n < 0 || n > 1024)) fail2("Invalid field projection limit.");
   const schema = parcSchema(raw), audit = { objects: 0, fields: 0, absentScalars: 0, omittedListMarkers: 0, objectLists: 0, nonzeroListMetadata: 0, nonzeroListSamples: [], advisoryLocators: 0, unconsumedBytes: 0 }, blocks = [];
   if (compareTo && compareTo.length !== raw.length) fail2("A decoded diff requires unchanged document length.");
@@ -2636,17 +2798,17 @@ function readDocument(raw, { listLimit = 200, fieldListLimits = {}, captureTypes
     need(start, 4, end);
     const fields = capture ? {} : null;
     for (let i = 0; i < type.fields.length; i++) {
-      const def = type.fields[i], present = Boolean(mask[i >> 3] & 1 << (i & 7)), begin = p, fieldPath = capture || onScalar ? path + "." + def.name : path, retainedLimit = fieldListLimits[type.name + "." + def.name] ?? listLimit;
+      const def = type.fields[i], present = Boolean(mask[i >> 3] & 1 << (i & 7)), begin = p, fieldPath = capture || onScalar ? path + "." + def.name : path, retainedLimit = capture ? fieldListLimits[type.name + "." + def.name] ?? listLimit : listLimit;
       let value2 = null, count2;
       if (++audit.fields > 3e6) fail2("Typed field traversal limit exceeded.");
       if (!present) {
-        if ([3, 6, 7].includes(def.kind)) {
+        if (def.kind === 3 || def.kind === 6 || def.kind === 7) {
           need(p, 1, end);
           if (raw[p] !== 1) fail2(`Missing omitted-list marker at ${fieldPath} (${p}).`);
           p++;
           audit.omittedListMarkers++;
         } else audit.absentScalars++;
-      } else if ([0, 2].includes(def.kind) && def.size > 0) {
+      } else if ((def.kind === 0 || def.kind === 2) && def.size > 0) {
         need(p, def.size, end);
         if (capture || onScalar) value2 = scalar(p, def, end);
         p += def.size;
@@ -2670,10 +2832,10 @@ function readDocument(raw, { listLimit = 200, fieldListLimits = {}, captureTypes
         if (count2 > 1e5) fail2("Primitive array exceeds inspection limit.");
         if (capture) value2 = Array.from({ length: Math.min(count2, retainedLimit) }, (_, j) => scalar(p + j * def.size, def, end));
         p += count2 * def.size;
-      } else if ([4, 5].includes(def.kind)) {
+      } else if (def.kind === 4 || def.kind === 5) {
         value2 = locator(p, end, fieldPath, capture, depth, def.kind);
         p = value2.end;
-      } else if ([6, 7].includes(def.kind)) {
+      } else if (def.kind === 6 || def.kind === 7) {
         need(p, 18, end);
         if (raw[p] !== 0) fail2(`Invalid object-list tag at ${fieldPath} (${p}).`);
         count2 = u323(p + 1, end);
@@ -2726,7 +2888,7 @@ function readDocument(raw, { listLimit = 200, fieldListLimits = {}, captureTypes
     blocks.push(block);
   }
   if (previous !== raw.length) fail2("Unconsumed bytes after the final block.");
-  return { revision: DECODER_REVISION, plaintext: raw, plaintextSha256: hash(raw), schemaSha256: hash(JSON.stringify(schema.types)), schema, audit, blocks, lossless: true, ...compareTo ? { decodedDiff, comparison: { comparedLeafFields, changedLeafFields: decodedDiff.length } } : {} };
+  return { revision: DECODER_REVISION, plaintext: raw, plaintextSha256: hashPlaintext ? hash(raw) : null, schemaSha256: hash(JSON.stringify(schema.types)), schema, audit, blocks, lossless: true, ...compareTo ? { decodedDiff, comparison: { comparedLeafFields, changedLeafFields: decodedDiff.length } } : {} };
 }
 var DECODER_REVISION, selected, fail2, field, value, elements;
 var init_crimson_document = __esm({
@@ -3102,38 +3264,214 @@ function saveKey(version) {
   for (let i = 0; i < 31; i++) key[i] = base[i] ^ material[i];
   return key;
 }
-function quarter(s, a, b, c, d) {
-  s[a] = s[a] + s[b] >>> 0;
-  s[d] = rot(s[d] ^ s[a], 16);
-  s[c] = s[c] + s[d] >>> 0;
-  s[b] = rot(s[b] ^ s[c], 12);
-  s[a] = s[a] + s[b] >>> 0;
-  s[d] = rot(s[d] ^ s[a], 8);
-  s[c] = s[c] + s[d] >>> 0;
-  s[b] = rot(s[b] ^ s[c], 7);
-}
 function chacha20(data6, key, nonce) {
   if (key.length !== 32 || nonce.length !== 16) fail3("Invalid ChaCha20 key or nonce.");
   const state2 = new Uint32Array(16);
   state2.set([1634760805, 857760878, 2036477234, 1797285236]);
   for (let i = 0; i < 8; i++) state2[4 + i] = key.readUInt32LE(i * 4);
   for (let i = 0; i < 4; i++) state2[12 + i] = nonce.readUInt32LE(i * 4);
-  const output = import_buffer.Buffer.alloc(data6.length), block = import_buffer.Buffer.alloc(64), working = new Uint32Array(16);
+  const output = import_buffer.Buffer.alloc(data6.length), block = import_buffer.Buffer.alloc(64);
   for (let pos = 0; pos < data6.length; pos += 64) {
-    const s = working;
-    s.set(state2);
+    let x0 = state2[0], x1 = state2[1], x2 = state2[2], x3 = state2[3], x4 = state2[4], x5 = state2[5], x6 = state2[6], x7 = state2[7], x8 = state2[8], x9 = state2[9], x10 = state2[10], x11 = state2[11], x12 = state2[12], x13 = state2[13], x14 = state2[14], x15 = state2[15];
     for (let i = 0; i < 10; i++) {
-      quarter(s, 0, 4, 8, 12);
-      quarter(s, 1, 5, 9, 13);
-      quarter(s, 2, 6, 10, 14);
-      quarter(s, 3, 7, 11, 15);
-      quarter(s, 0, 5, 10, 15);
-      quarter(s, 1, 6, 11, 12);
-      quarter(s, 2, 7, 8, 13);
-      quarter(s, 3, 4, 9, 14);
+      x0 = x0 + x4 >>> 0;
+      x12 ^= x0;
+      x12 = (x12 << 16 | x12 >>> 16) >>> 0;
+      x8 = x8 + x12 >>> 0;
+      x4 ^= x8;
+      x4 = (x4 << 12 | x4 >>> 20) >>> 0;
+      x0 = x0 + x4 >>> 0;
+      x12 ^= x0;
+      x12 = (x12 << 8 | x12 >>> 24) >>> 0;
+      x8 = x8 + x12 >>> 0;
+      x4 ^= x8;
+      x4 = (x4 << 7 | x4 >>> 25) >>> 0;
+      x1 = x1 + x5 >>> 0;
+      x13 ^= x1;
+      x13 = (x13 << 16 | x13 >>> 16) >>> 0;
+      x9 = x9 + x13 >>> 0;
+      x5 ^= x9;
+      x5 = (x5 << 12 | x5 >>> 20) >>> 0;
+      x1 = x1 + x5 >>> 0;
+      x13 ^= x1;
+      x13 = (x13 << 8 | x13 >>> 24) >>> 0;
+      x9 = x9 + x13 >>> 0;
+      x5 ^= x9;
+      x5 = (x5 << 7 | x5 >>> 25) >>> 0;
+      x2 = x2 + x6 >>> 0;
+      x14 ^= x2;
+      x14 = (x14 << 16 | x14 >>> 16) >>> 0;
+      x10 = x10 + x14 >>> 0;
+      x6 ^= x10;
+      x6 = (x6 << 12 | x6 >>> 20) >>> 0;
+      x2 = x2 + x6 >>> 0;
+      x14 ^= x2;
+      x14 = (x14 << 8 | x14 >>> 24) >>> 0;
+      x10 = x10 + x14 >>> 0;
+      x6 ^= x10;
+      x6 = (x6 << 7 | x6 >>> 25) >>> 0;
+      x3 = x3 + x7 >>> 0;
+      x15 ^= x3;
+      x15 = (x15 << 16 | x15 >>> 16) >>> 0;
+      x11 = x11 + x15 >>> 0;
+      x7 ^= x11;
+      x7 = (x7 << 12 | x7 >>> 20) >>> 0;
+      x3 = x3 + x7 >>> 0;
+      x15 ^= x3;
+      x15 = (x15 << 8 | x15 >>> 24) >>> 0;
+      x11 = x11 + x15 >>> 0;
+      x7 ^= x11;
+      x7 = (x7 << 7 | x7 >>> 25) >>> 0;
+      x0 = x0 + x5 >>> 0;
+      x15 ^= x0;
+      x15 = (x15 << 16 | x15 >>> 16) >>> 0;
+      x10 = x10 + x15 >>> 0;
+      x5 ^= x10;
+      x5 = (x5 << 12 | x5 >>> 20) >>> 0;
+      x0 = x0 + x5 >>> 0;
+      x15 ^= x0;
+      x15 = (x15 << 8 | x15 >>> 24) >>> 0;
+      x10 = x10 + x15 >>> 0;
+      x5 ^= x10;
+      x5 = (x5 << 7 | x5 >>> 25) >>> 0;
+      x1 = x1 + x6 >>> 0;
+      x12 ^= x1;
+      x12 = (x12 << 16 | x12 >>> 16) >>> 0;
+      x11 = x11 + x12 >>> 0;
+      x6 ^= x11;
+      x6 = (x6 << 12 | x6 >>> 20) >>> 0;
+      x1 = x1 + x6 >>> 0;
+      x12 ^= x1;
+      x12 = (x12 << 8 | x12 >>> 24) >>> 0;
+      x11 = x11 + x12 >>> 0;
+      x6 ^= x11;
+      x6 = (x6 << 7 | x6 >>> 25) >>> 0;
+      x2 = x2 + x7 >>> 0;
+      x13 ^= x2;
+      x13 = (x13 << 16 | x13 >>> 16) >>> 0;
+      x8 = x8 + x13 >>> 0;
+      x7 ^= x8;
+      x7 = (x7 << 12 | x7 >>> 20) >>> 0;
+      x2 = x2 + x7 >>> 0;
+      x13 ^= x2;
+      x13 = (x13 << 8 | x13 >>> 24) >>> 0;
+      x8 = x8 + x13 >>> 0;
+      x7 ^= x8;
+      x7 = (x7 << 7 | x7 >>> 25) >>> 0;
+      x3 = x3 + x4 >>> 0;
+      x14 ^= x3;
+      x14 = (x14 << 16 | x14 >>> 16) >>> 0;
+      x9 = x9 + x14 >>> 0;
+      x4 ^= x9;
+      x4 = (x4 << 12 | x4 >>> 20) >>> 0;
+      x3 = x3 + x4 >>> 0;
+      x14 ^= x3;
+      x14 = (x14 << 8 | x14 >>> 24) >>> 0;
+      x9 = x9 + x14 >>> 0;
+      x4 ^= x9;
+      x4 = (x4 << 7 | x4 >>> 25) >>> 0;
     }
-    for (let i = 0; i < 16; i++) block.writeUInt32LE(s[i] + state2[i] >>> 0, i * 4);
-    for (let i = 0; i < 64 && pos + i < data6.length; i++) output[pos + i] = data6[pos + i] ^ block[i];
+    if (pos + 64 <= data6.length) {
+      let word;
+      word = x0 + state2[0] >>> 0;
+      output[pos + 0] = data6[pos + 0] ^ word;
+      output[pos + 1] = data6[pos + 1] ^ word >>> 8;
+      output[pos + 2] = data6[pos + 2] ^ word >>> 16;
+      output[pos + 3] = data6[pos + 3] ^ word >>> 24;
+      word = x1 + state2[1] >>> 0;
+      output[pos + 4] = data6[pos + 4] ^ word;
+      output[pos + 5] = data6[pos + 5] ^ word >>> 8;
+      output[pos + 6] = data6[pos + 6] ^ word >>> 16;
+      output[pos + 7] = data6[pos + 7] ^ word >>> 24;
+      word = x2 + state2[2] >>> 0;
+      output[pos + 8] = data6[pos + 8] ^ word;
+      output[pos + 9] = data6[pos + 9] ^ word >>> 8;
+      output[pos + 10] = data6[pos + 10] ^ word >>> 16;
+      output[pos + 11] = data6[pos + 11] ^ word >>> 24;
+      word = x3 + state2[3] >>> 0;
+      output[pos + 12] = data6[pos + 12] ^ word;
+      output[pos + 13] = data6[pos + 13] ^ word >>> 8;
+      output[pos + 14] = data6[pos + 14] ^ word >>> 16;
+      output[pos + 15] = data6[pos + 15] ^ word >>> 24;
+      word = x4 + state2[4] >>> 0;
+      output[pos + 16] = data6[pos + 16] ^ word;
+      output[pos + 17] = data6[pos + 17] ^ word >>> 8;
+      output[pos + 18] = data6[pos + 18] ^ word >>> 16;
+      output[pos + 19] = data6[pos + 19] ^ word >>> 24;
+      word = x5 + state2[5] >>> 0;
+      output[pos + 20] = data6[pos + 20] ^ word;
+      output[pos + 21] = data6[pos + 21] ^ word >>> 8;
+      output[pos + 22] = data6[pos + 22] ^ word >>> 16;
+      output[pos + 23] = data6[pos + 23] ^ word >>> 24;
+      word = x6 + state2[6] >>> 0;
+      output[pos + 24] = data6[pos + 24] ^ word;
+      output[pos + 25] = data6[pos + 25] ^ word >>> 8;
+      output[pos + 26] = data6[pos + 26] ^ word >>> 16;
+      output[pos + 27] = data6[pos + 27] ^ word >>> 24;
+      word = x7 + state2[7] >>> 0;
+      output[pos + 28] = data6[pos + 28] ^ word;
+      output[pos + 29] = data6[pos + 29] ^ word >>> 8;
+      output[pos + 30] = data6[pos + 30] ^ word >>> 16;
+      output[pos + 31] = data6[pos + 31] ^ word >>> 24;
+      word = x8 + state2[8] >>> 0;
+      output[pos + 32] = data6[pos + 32] ^ word;
+      output[pos + 33] = data6[pos + 33] ^ word >>> 8;
+      output[pos + 34] = data6[pos + 34] ^ word >>> 16;
+      output[pos + 35] = data6[pos + 35] ^ word >>> 24;
+      word = x9 + state2[9] >>> 0;
+      output[pos + 36] = data6[pos + 36] ^ word;
+      output[pos + 37] = data6[pos + 37] ^ word >>> 8;
+      output[pos + 38] = data6[pos + 38] ^ word >>> 16;
+      output[pos + 39] = data6[pos + 39] ^ word >>> 24;
+      word = x10 + state2[10] >>> 0;
+      output[pos + 40] = data6[pos + 40] ^ word;
+      output[pos + 41] = data6[pos + 41] ^ word >>> 8;
+      output[pos + 42] = data6[pos + 42] ^ word >>> 16;
+      output[pos + 43] = data6[pos + 43] ^ word >>> 24;
+      word = x11 + state2[11] >>> 0;
+      output[pos + 44] = data6[pos + 44] ^ word;
+      output[pos + 45] = data6[pos + 45] ^ word >>> 8;
+      output[pos + 46] = data6[pos + 46] ^ word >>> 16;
+      output[pos + 47] = data6[pos + 47] ^ word >>> 24;
+      word = x12 + state2[12] >>> 0;
+      output[pos + 48] = data6[pos + 48] ^ word;
+      output[pos + 49] = data6[pos + 49] ^ word >>> 8;
+      output[pos + 50] = data6[pos + 50] ^ word >>> 16;
+      output[pos + 51] = data6[pos + 51] ^ word >>> 24;
+      word = x13 + state2[13] >>> 0;
+      output[pos + 52] = data6[pos + 52] ^ word;
+      output[pos + 53] = data6[pos + 53] ^ word >>> 8;
+      output[pos + 54] = data6[pos + 54] ^ word >>> 16;
+      output[pos + 55] = data6[pos + 55] ^ word >>> 24;
+      word = x14 + state2[14] >>> 0;
+      output[pos + 56] = data6[pos + 56] ^ word;
+      output[pos + 57] = data6[pos + 57] ^ word >>> 8;
+      output[pos + 58] = data6[pos + 58] ^ word >>> 16;
+      output[pos + 59] = data6[pos + 59] ^ word >>> 24;
+      word = x15 + state2[15] >>> 0;
+      output[pos + 60] = data6[pos + 60] ^ word;
+      output[pos + 61] = data6[pos + 61] ^ word >>> 8;
+      output[pos + 62] = data6[pos + 62] ^ word >>> 16;
+      output[pos + 63] = data6[pos + 63] ^ word >>> 24;
+    } else {
+      block.writeUInt32LE(x0 + state2[0] >>> 0, 0);
+      block.writeUInt32LE(x1 + state2[1] >>> 0, 4);
+      block.writeUInt32LE(x2 + state2[2] >>> 0, 8);
+      block.writeUInt32LE(x3 + state2[3] >>> 0, 12);
+      block.writeUInt32LE(x4 + state2[4] >>> 0, 16);
+      block.writeUInt32LE(x5 + state2[5] >>> 0, 20);
+      block.writeUInt32LE(x6 + state2[6] >>> 0, 24);
+      block.writeUInt32LE(x7 + state2[7] >>> 0, 28);
+      block.writeUInt32LE(x8 + state2[8] >>> 0, 32);
+      block.writeUInt32LE(x9 + state2[9] >>> 0, 36);
+      block.writeUInt32LE(x10 + state2[10] >>> 0, 40);
+      block.writeUInt32LE(x11 + state2[11] >>> 0, 44);
+      block.writeUInt32LE(x12 + state2[12] >>> 0, 48);
+      block.writeUInt32LE(x13 + state2[13] >>> 0, 52);
+      block.writeUInt32LE(x14 + state2[14] >>> 0, 56);
+      block.writeUInt32LE(x15 + state2[15] >>> 0, 60);
+      for (let i = 0; i < 64 && pos + i < data6.length; i++) output[pos + i] = data6[pos + i] ^ block[i];
+    }
     state2[12] = state2[12] + 1 >>> 0;
     if (!state2[12]) state2[13] = state2[13] + 1 >>> 0;
   }
@@ -3308,7 +3646,7 @@ async function inspectCrimson(bytes2, { typedCache } = {}) {
   }
   return result;
 }
-var CodecError, fail3, limit, rot;
+var CodecError, fail3, limit;
 var init_crimson_codec = __esm({
   "src/crimson-codec.mjs"() {
     init_buffer();
@@ -3325,7 +3663,6 @@ var init_crimson_codec = __esm({
       throw new CodecError(message, code);
     };
     limit = 32 * 1024 * 1024;
-    rot = (x, n) => (x << n | x >>> 32 - n) >>> 0;
   }
 });
 
@@ -3502,11 +3839,11 @@ function createCrimsonDraftCompiler({ schemaPins = CRIMSON_DRAFT_SCHEMAS, assert
     if (metadata3.sha256 !== input.backupSha256 || backup.revision !== input.backupRevision) fail4("CRIMSON_DRAFT_STALE", "The original snapshot binding changed.");
     const containers = backup.containers.filter((c) => c.index.fileName === input.container), blobs = containers.length === 1 ? containers[0].blobs.filter((b) => b.name === input.payload) : [];
     if (blobs.length !== 1 || blobs[0].sha256 !== input.payloadSha256) fail4("CRIMSON_DRAFT_STALE", "The original payload binding changed.");
-    const source = import_buffer.Buffer.from(blobs[0].data, "base64");
-    if (source.length > 8 * 1024 * 1024 || source.toString("base64") !== blobs[0].data) fail4("CRIMSON_DRAFT_PAYLOAD_INVALID");
-    const decoded = await decodeSave(source);
+    const prepared = preparedSource(backup, metadata3, input), source = prepared?.encoded || import_buffer.Buffer.from(blobs[0].data, "base64");
+    if (source.length > 8 * 1024 * 1024 || !prepared && source.toString("base64") !== blobs[0].data) fail4("CRIMSON_DRAFT_PAYLOAD_INVALID");
+    const decoded = prepared?.decoded || await decodeSave(source);
     if (decoded.version !== 2) fail4("CRIMSON_DRAFT_WRAPPER_UNSUPPORTED");
-    const projection = { fieldListLimits: { "InventoryElementSaveData._itemList": 1024 } }, before = readDocument(decoded.plaintext, projection), pin = pins.get(before.schemaSha256);
+    const projection = prepared?.projection || { fieldListLimits: { "InventoryElementSaveData._itemList": 1024 } }, before = prepared?.document || readDocument(decoded.plaintext, projection), pin = pins.get(before.schemaSha256);
     if (!pin || input.schemaSha256 !== before.schemaSha256) fail4("CRIMSON_DRAFT_SCHEMA_UNSUPPORTED", "This snapshot schema is outside the reviewed offline composition pins.");
     if (input.plaintextSha256 !== before.plaintextSha256) fail4("CRIMSON_DRAFT_STALE", "The original plaintext binding changed.");
     assertCapability({ schemaSha256: before.schemaSha256, saveVersion: decoded.version, container: input.container, payload: input.payload });
@@ -6306,7 +6643,7 @@ function compileSchema(schema, { limits: requestedLimits } = {}) {
     compiled.set(node, result);
     return result;
   }
-  const check = compile(root), schemaDigest = sha2563(text);
+  const check = compile(root), schemaDigest = sha2562(text);
   function validate2(value2) {
     const { copy: copy2 } = boundedJson(value2, { bytes: limits.inputBytes, nodes: limits.inputNodes, depth: limits.inputDepth, strings: limits.stringChars }, "SCHEMA_INPUT");
     let steps = 0;
@@ -6752,6 +7089,7 @@ var fail17 = (code, message = code) => {
 var states = /* @__PURE__ */ new Map();
 var initialized = false;
 var runtime;
+var cachedOpen;
 var operationValidators = /* @__PURE__ */ new Map();
 var operationNames = ["inventory.setQuantity", "inventory.setCopper", "inventory.setExpansionValue", "inventory.addItem", "companions.add", "cartography.reveal-map", "cartography.unlock-nexus", "preset.replaceAdventure", "document.patchFixedWidth"];
 async function load(bundle, ctx) {
@@ -6767,13 +7105,13 @@ async function load(bundle, ctx) {
     initialized = true;
   }
   if (!runtime) {
-    const [codec, document, domain] = await Promise.all([Promise.resolve().then(() => (init_crimson_codec(), crimson_codec_exports)), Promise.resolve().then(() => (init_crimson_document(), crimson_document_exports)), Promise.resolve().then(() => (init_crimson_domain(), crimson_domain_exports))]);
-    runtime = { ...codec, ...document, ...domain };
+    const [codec, document] = await Promise.all([Promise.resolve().then(() => (init_crimson_codec(), crimson_codec_exports)), Promise.resolve().then(() => (init_crimson_document(), crimson_document_exports))]);
+    runtime = { ...codec, ...document };
   }
   return runtime;
 }
 async function subsystem(name) {
-  const imports = { operations: () => Promise.resolve().then(() => (init_mixed_draft(), mixed_draft_exports)), packs: () => Promise.resolve().then(() => (init_crimson_packs2(), crimson_packs_exports2)), recipes: () => Promise.resolve().then(() => (init_crimson_packs(), crimson_packs_exports)), presets: () => Promise.resolve().then(() => (init_preset_library(), preset_library_exports)), upload: () => Promise.resolve().then(() => (init_uploaded_save(), uploaded_save_exports)), pair: () => Promise.resolve().then(() => (init_preset_pair(), preset_pair_exports)), document: () => Promise.resolve().then(() => (init_document_api(), document_api_exports)) };
+  const imports = { domain: () => Promise.resolve().then(() => (init_crimson_domain(), crimson_domain_exports)), operations: () => Promise.resolve().then(() => (init_mixed_draft(), mixed_draft_exports)), packs: () => Promise.resolve().then(() => (init_crimson_packs2(), crimson_packs_exports2)), recipes: () => Promise.resolve().then(() => (init_crimson_packs(), crimson_packs_exports)), presets: () => Promise.resolve().then(() => (init_preset_library(), preset_library_exports)), upload: () => Promise.resolve().then(() => (init_uploaded_save(), uploaded_save_exports)), pair: () => Promise.resolve().then(() => (init_preset_pair(), preset_pair_exports)), document: () => Promise.resolve().then(() => (init_document_api(), document_api_exports)) };
   const module = await imports[name]();
   Object.assign(runtime, module);
   return runtime;
@@ -6794,12 +7132,22 @@ async function inspectUploadedBundle(bundle, ctx) {
   return { ...report, nativeCopyDelivery: "binary_artifact" };
 }
 async function compilerFor(document, operations) {
-  const kind = operations.some((o) => o.operation.startsWith("cartography.")) ? "mixed" : operations.some((o) => ["inventory.addItem", "companions.add"].includes(o.operation)) ? "structural" : "scalar", profiles = getData("crimson-schema-profiles.json").profiles, matching = profiles?.filter((p) => p.schemaSha256 === document.schemaSha256) || [], [scalar, structure] = await Promise.all([Promise.resolve().then(() => (init_crimson_draft(), crimson_draft_exports)), Promise.resolve().then(() => (init_structural_draft(), structural_draft_exports))]);
-  const schemas = { mixed: runtime.MIXED_PLAN_SCHEMA, structural: "saveglass.structural-draft-plan.v1", scalar: "saveglass.crimson-draft-plan.v1" };
-  if (!matching.length) return { schema: schemas[kind], compile: kind === "mixed" ? runtime.createMixedWorkbenchDraft : kind === "structural" ? structure.createStructuralWorkbenchDraft : scalar.createWorkbenchDraft };
-  if (matching.length !== 1 || typeof matching[0].requiresHousing !== "boolean" || !["synthetic_conformance", "offline_reviewed"].includes(matching[0].evidence)) fail17("CRIMSON_SCHEMA_PROFILE_INVALID");
-  const pin = matching[0], schemaPins = [pin.schemaSha256], [item, companion, map, nexus2] = await Promise.all([Promise.resolve().then(() => (init_crimson_item_addition(), crimson_item_addition_exports)), Promise.resolve().then(() => (init_crimson_companion_addition(), crimson_companion_addition_exports)), Promise.resolve().then(() => (init_crimson_map_reveal(), crimson_map_reveal_exports)), Promise.resolve().then(() => (init_crimson_abyss_nexus(), crimson_abyss_nexus_exports))]), scalarBase = scalar.createCrimsonDraftCompiler({ schemaPins: [{ schemaSha256: pin.schemaSha256, requiresHousing: pin.requiresHousing }] }), scalarCompiler = (b, m, p, o) => scalarBase(b, m, p, { ...o, retainEncoded: true }), items2 = item.createCatalogItemAddition({ schemaPins }), companions2 = companion.createCompanionAdditions({ schemaPins }), structuralBase = structure.createStructuralDraftCompiler({ schemaPins, scalarCompiler, itemCompiler: items2.many, companionCompiler: companions2 }), structuralCompiler = (b, m, p, o) => structuralBase(b, m, p, { ...o, retainEncoded: true }), mixed = runtime.createMixedDraftCompiler({ schemaPins, scalarCompiler, structuralCompiler, mapCompiler: map.createMapRevealPreview({ schemaPins }), nexusCompiler: nexus2.createAbyssNexusPreview({ schemaPins }) });
-  return { schema: schemas[kind], compile: kind === "scalar" ? scalarCompiler : kind === "structural" ? structuralCompiler : (b, m, p, o) => mixed(b, m, p, { ...o, retainEncoded: true }) };
+  const kind = operations.some((o) => o.operation.startsWith("cartography.")) ? "mixed" : operations.some((o) => ["inventory.addItem", "companions.add"].includes(o.operation)) ? "structural" : "scalar", profiles = getData("crimson-schema-profiles.json").profiles, matching = profiles?.filter((p) => p.schemaSha256 === document.schemaSha256) || [], scalar = await Promise.resolve().then(() => (init_crimson_draft(), crimson_draft_exports));
+  const schemas = { mixed: "saveglass.mixed-draft-plan.v1", structural: "saveglass.structural-draft-plan.v1", scalar: "saveglass.crimson-draft-plan.v1" };
+  if (matching.length > 1 || matching.length === 1 && (typeof matching[0].requiresHousing !== "boolean" || !["synthetic_conformance", "offline_reviewed"].includes(matching[0].evidence))) fail17("CRIMSON_SCHEMA_PROFILE_INVALID");
+  const pin = matching[0], scalarBase = pin ? scalar.createCrimsonDraftCompiler({ schemaPins: [{ schemaSha256: pin.schemaSha256, requiresHousing: pin.requiresHousing }] }) : null, scalarCompiler = scalarBase ? (b, m, p, o) => scalarBase(b, m, p, { ...o, retainEncoded: true }) : scalar.createWorkbenchDraft;
+  if (kind === "scalar") return { schema: schemas.scalar, compile: scalarCompiler };
+  const structure = await Promise.resolve().then(() => (init_structural_draft(), structural_draft_exports));
+  if (!pin) {
+    if (kind === "mixed") await subsystem("operations");
+    return { schema: schemas[kind], compile: kind === "mixed" ? runtime.createMixedWorkbenchDraft : structure.createStructuralWorkbenchDraft };
+  }
+  const schemaPins = [pin.schemaSha256], [item, companion] = await Promise.all([Promise.resolve().then(() => (init_crimson_item_addition(), crimson_item_addition_exports)), Promise.resolve().then(() => (init_crimson_companion_addition(), crimson_companion_addition_exports))]), items2 = item.createCatalogItemAddition({ schemaPins }), companions2 = companion.createCompanionAdditions({ schemaPins }), structuralBase = structure.createStructuralDraftCompiler({ schemaPins, scalarCompiler, itemCompiler: items2.many, companionCompiler: companions2 }), structuralCompiler = (b, m, p, o) => structuralBase(b, m, p, { ...o, retainEncoded: true });
+  if (kind === "structural") return { schema: schemas.structural, compile: structuralCompiler };
+  const [map, nexus2] = await Promise.all([Promise.resolve().then(() => (init_crimson_map_reveal(), crimson_map_reveal_exports)), Promise.resolve().then(() => (init_crimson_abyss_nexus(), crimson_abyss_nexus_exports))]);
+  await subsystem("operations");
+  const mixed = runtime.createMixedDraftCompiler({ schemaPins, scalarCompiler, structuralCompiler, mapCompiler: map.createMapRevealPreview({ schemaPins }), nexusCompiler: nexus2.createAbyssNexusPreview({ schemaPins }) });
+  return { schema: schemas.mixed, compile: (b, m, p, o) => mixed(b, m, p, { ...o, retainEncoded: true }) };
 }
 function mainArtifact(bundle) {
   const explicit = bundle.artifacts.filter((a) => ["main", "save"].includes(a.role)), rows2 = explicit.length ? explicit : bundle.artifacts.filter((a) => !["reference-data", "preset-source"].includes(a.role) && a.logicalPath.split("/").at(-1) === "save");
@@ -6807,8 +7155,31 @@ function mainArtifact(bundle) {
   return rows2[0];
 }
 async function opened(bundle, ctx) {
-  const r = await load(bundle, ctx), mapped = sourceFromBundle(bundle, ctx), a = mainArtifact(bundle), decoded = await r.decodeSave(import_buffer.Buffer.from(ctx.readArtifact(a.id))), document = r.readDocument(decoded.plaintext, { fieldListLimits: { "InventoryElementSaveData._itemList": 1024, "MercenaryClanSaveData._mercenaryDataList": 1e3 } }), domains = r.normalizeCrimson(document, { saveVersion: decoded.version }), container = [...mapped.ids].find(([, d]) => d.id === a.id)?.[0].replace(/\/save$/, "");
-  return { bundle, ...mapped, artifact: a, container, decoded, document, domains };
+  const binding = canonicalJson(bundle);
+  if (cachedOpen?.context === ctx && cachedOpen.binding === binding) return cachedOpen.value;
+  cachedOpen = null;
+  const r = await load(bundle, ctx), mapped = sourceFromBundle(bundle, ctx, { lazy: true }), a = mainArtifact(bundle), decoded = await r.decodeSave(import_buffer.Buffer.from(ctx.readArtifact(a.id))), document = r.readDocument(decoded.plaintext, { fieldListLimits: { "InventoryElementSaveData._itemList": 1024, "MercenaryClanSaveData._mercenaryDataList": 1e3 } }), domains = (await subsystem("domain")).normalizeCrimson(document, { saveVersion: decoded.version }), container = [...mapped.ids].find(([, d]) => d.id === a.id)?.[0].replace(/\/save$/, "");
+  const value2 = { bundle, metadata: mapped.metadata, ids: mapped.ids, get source() {
+    return mapped.source;
+  }, artifact: a, container, decoded, document, domains };
+  cachedOpen = { context: ctx, binding, value: value2 };
+  return value2;
+}
+async function scalarSnapshot(bundle, ctx) {
+  const r = await load(bundle, ctx), mapped = sourceFromBundle(bundle, ctx, { lazy: true }), artifact = mainArtifact(bundle), decoded = await r.decodeSave(import_buffer.Buffer.from(ctx.readArtifact(artifact.id))), projection = { captureTypes: ["InventorySaveData"], fieldListLimits: { "InventoryElementSaveData._itemList": 1024 } }, document = r.readDocument(decoded.plaintext, projection), container = [...mapped.ids].find(([, d]) => d.id === artifact.id)?.[0].replace(/\/save$/, "");
+  await subsystem("domain");
+  return { metadata: mapped.metadata, get source() {
+    return mapped.source;
+  }, artifact, container, decoded, document, projection };
+}
+async function checkedEnvelope(bundle, ctx) {
+  sourceFromBundle(bundle, ctx, { lazy: true });
+  const r = await load(bundle, ctx), artifact = mainArtifact(bundle), bytes2 = import_buffer.Buffer.from(ctx.readArtifact(artifact.id)), decoded = await r.decodeSave(bytes2), document = r.readDocument(decoded.plaintext, { captureTypes: [], listLimit: 0, hashPlaintext: false });
+  return { artifact, bytes: bytes2, decoded, schemaSha256: document.schemaSha256 };
+}
+async function originalWitness(bundle, ctx) {
+  const source = await checkedEnvelope(bundle, ctx);
+  return { header: source.decoded.header, schemaSha256: source.schemaSha256 };
 }
 var page = (rows2, q = {}) => {
   const offset = Number.isSafeInteger(q.offset) && q.offset >= 0 ? q.offset : 0, limit2 = Number.isSafeInteger(q.limit) ? Math.max(1, Math.min(q.limit, 100)) : 35;
@@ -6907,7 +7278,7 @@ var connector_default = {
   },
   async plan(bundle, { operations, operationDigest }, ctx) {
     if (!Array.isArray(operations) || operations.length > 16 || !/^[a-f0-9]{64}$/.test(operationDigest || "")) fail17("CRIMSON_OPERATION_LOG_INVALID");
-    const s = await opened(bundle, ctx), r = runtime, ops = operations.map(plainOperation), research = ops.filter((o) => o.operation === "document.patchFixedWidth"), known = ops.filter((o) => o.operation !== "document.patchFixedWidth");
+    const ops = operations.map(plainOperation), scalarOnly = ops.length && ops.every((o) => ["inventory.setQuantity", "inventory.setCopper", "inventory.setExpansionValue"].includes(o.operation)), s = !ops.length ? await checkedEnvelope(bundle, ctx) : scalarOnly ? await scalarSnapshot(bundle, ctx) : await opened(bundle, ctx), r = runtime, research = ops.filter((o) => o.operation === "document.patchFixedWidth"), known = ops.filter((o) => o.operation !== "document.patchFixedWidth");
     if (research.reduce((n, o) => n + (o.patches?.length || 0), 0) > 16) fail17("CRIMSON_DOCUMENT_PATCH_LIMIT");
     let output = s.artifact, report = { operations: [], validation: { originalBackupUnchanged: true } }, outputs = bundle.artifacts.filter((a) => !["reference-data", "preset-source"].includes(a.role)), retained = outputs.map((a) => a.id);
     if (ops.some((o) => o.operation === "preset.replaceAdventure")) {
@@ -6925,9 +7296,10 @@ var connector_default = {
       outputs = ["save", "lobby"].map((name) => ctx.writeArtifact({ logicalPath: s.container + "/" + name, role: name === "save" ? "main" : "sidecar" }, pair[name]));
       retained = [];
     } else if (known.length) {
-      await subsystem("operations");
-      const selectedCompiler = await compilerFor(s.document, known), plan = { schema: selectedCompiler.schema, container: s.container, payload: "save", backupSha256: s.metadata.sha256, backupRevision: s.source.revision, payloadSha256: s.artifact.sha256, plaintextSha256: s.document.plaintextSha256, schemaSha256: s.document.schemaSha256, decoderRevision: r.DECODER_REVISION, catalogRevision: r.CATALOG_REVISION, operations: known };
-      const result = await selectedCompiler.compile(s.source, s.metadata, plan, { nonce: import_buffer.Buffer.from(ctx.randomBytes(16)) });
+      const selectedCompiler = await compilerFor(s.document, known), source = s.source;
+      bindPreparedSource(source, s.metadata, { context: ctx, container: s.container, payload: "save", payloadSha256: s.artifact.sha256, decoded: s.decoded, document: s.document, projection: s.projection });
+      const plan = { schema: selectedCompiler.schema, container: s.container, payload: "save", backupSha256: s.metadata.sha256, backupRevision: s.source.revision, payloadSha256: s.artifact.sha256, plaintextSha256: s.document.plaintextSha256, schemaSha256: s.document.schemaSha256, decoderRevision: r.DECODER_REVISION, catalogRevision: r.CATALOG_REVISION, operations: known };
+      const result = await selectedCompiler.compile(source, s.metadata, plan, { nonce: import_buffer.Buffer.from(ctx.randomBytes(16)) });
       report = result.report;
       output = ctx.writeArtifact({ logicalPath: s.artifact.logicalPath, role: s.artifact.role }, result.encoded);
       outputs = outputs.map((a) => a.id === s.artifact.id ? output : a);
@@ -6947,18 +7319,25 @@ var connector_default = {
     return { id: "candidate:crimson:" + hash(canonicalJson({ bundle: bundle.bundleDigest, operationDigest })).slice(0, 24), inputBundleDigest: bundle.bundleDigest, executionLockDigest: ctx.executionLock.digest, operationDigest, outputs, retainedInputArtifacts: retained, changeSummaryRef: reportArtifact.id, requirements: { changedDomains: [...new Set(ops.map((o) => o.operation.split(".")[0]))], additions: ops.filter((o) => ["inventory.addItem", "companions.add"].includes(o.operation)), runtimeRequirements: report.runtimeRequirements || [], entitlementClassification: "host_independent_review_required", ...research.length ? { experimentalFixedWidthPatch: true, entitlementEffects: "unreviewed", requiresIndependentHostInspector: true } : {}, gameAcceptance: "unverified_for_this_candidate" }, validation: { checks: inspectChecks() } };
   },
   async validate(original, candidate, ctx) {
-    const s = await opened(original, ctx);
+    const r = await load(original, ctx), artifact = mainArtifact(original);
     if (candidate.inputBundleDigest !== original.bundleDigest || candidate.executionLockDigest !== ctx.executionLock.digest) fail17("CRIMSON_CANDIDATE_BINDING_CHANGED");
     const inputs = original.artifacts.filter((a) => !["reference-data", "preset-source"].includes(a.role));
     if (candidate.outputs.length !== inputs.length || new Set(candidate.outputs.map((a) => a.logicalPath)).size !== inputs.length || candidate.outputs.some((a) => !inputs.some((i) => i.logicalPath === a.logicalPath))) fail17("CRIMSON_CANDIDATE_OUTPUT_SCOPE_CHANGED");
-    const out = candidate.outputs.filter((a) => a.role === "main" || a.role === "save" || a.logicalPath === s.artifact.logicalPath);
+    const out = candidate.outputs.filter((a) => a.role === "main" || a.role === "save" || a.logicalPath === artifact.logicalPath);
     if (out.length !== 1) fail17("CRIMSON_CANDIDATE_MAIN_AMBIGUOUS");
     const bytes2 = import_buffer.Buffer.from(ctx.readArtifact(out[0].id));
     if (hash(bytes2) !== out[0].sha256 || bytes2.length !== out[0].byteLength) fail17("CRIMSON_CANDIDATE_DIGEST_CHANGED");
-    const decoded = await runtime.decodeSave(bytes2), document = runtime.readDocument(decoded.plaintext), reencoded = await runtime.encodeSave(decoded.plaintext, decoded.header, { nonce: decoded.header.subarray(26, 42) });
+    const unchanged = out[0].sha256 === artifact.sha256 && out[0].byteLength === artifact.byteLength;
+    let originalHeader, originalSchema;
+    if (!unchanged) {
+      const witness = await originalWitness(original, ctx);
+      originalHeader = witness.header;
+      originalSchema = witness.schemaSha256;
+    }
+    const decoded = await r.decodeSave(bytes2), document = r.readDocument(decoded.plaintext, { captureTypes: [], listLimit: 0, hashPlaintext: false }), reencoded = await r.encodeSave(decoded.plaintext, decoded.header, { nonce: decoded.header.subarray(26, 42) });
     if (!reencoded.equals(bytes2)) fail17("CRIMSON_CANDIDATE_NATIVE_PARITY_FAILED");
     let replaced = false;
-    for (const a of original.artifacts.filter((a2) => !["reference-data", "preset-source"].includes(a2.role) && a2.id !== s.artifact.id)) {
+    for (const a of inputs.filter((a2) => a2.id !== artifact.id)) {
       const kept = candidate.outputs.find((x) => x.logicalPath === a.logicalPath);
       if (!kept) fail17("CRIMSON_CANDIDATE_SIDECAR_MISSING");
       if (kept.sha256 !== a.sha256) {
@@ -6966,16 +7345,17 @@ var connector_default = {
         const pins = Object.values(getData("crimson-preset-reference-pins.json")).filter((x) => x && typeof x === "object" && x.save?.sha256 === out[0].sha256 && x.lobby?.sha256 === kept.sha256);
         if (pins.length !== 1) fail17("CRIMSON_CANDIDATE_PRESET_UNVERIFIED");
         await subsystem("pair");
-        await runtime.validateReferencePair({ save: bytes2, lobby: import_buffer.Buffer.from(ctx.readArtifact(kept.id)) }, pins[0]);
+        await r.validateReferencePair({ save: bytes2, lobby: import_buffer.Buffer.from(ctx.readArtifact(kept.id)) }, pins[0]);
         replaced = true;
       }
     }
-    if (!replaced && (!decoded.header.subarray(0, 18).equals(s.decoded.header.subarray(0, 18)) || !decoded.header.subarray(74, 128).equals(s.decoded.header.subarray(74, 128)))) fail17("CRIMSON_CANDIDATE_UNKNOWN_HEADER_CHANGED");
+    if (!replaced && !unchanged && (!decoded.header.subarray(0, 18).equals(originalHeader.subarray(0, 18)) || !decoded.header.subarray(74, 128).equals(originalHeader.subarray(74, 128)) || document.schemaSha256 !== originalSchema)) fail17("CRIMSON_CANDIDATE_UNKNOWN_HEADER_CHANGED");
     return { checks: [...inspectChecks(), { checkId: replaced ? "crimson.preset-pair-validated" : "crimson.sidecars-preserved", result: "passed", required: true }], schemaSha256: document.schemaSha256, entitlements: "not_established_by_format_validation", gameAcceptance: "unverified" };
   },
   close(handle) {
     if (handle?.id) states.delete(handle.id);
     else states.clear();
+    if (!handle?.id || cachedOpen?.value.bundle.bundleDigest === handle.id) cachedOpen = null;
     return null;
   }
 };
