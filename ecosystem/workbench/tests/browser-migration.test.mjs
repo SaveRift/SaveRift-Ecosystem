@@ -227,6 +227,7 @@ test('failed replacement clears old candidate links and reopening a passed job r
   handlers.workspace_status=()=>({workspace});
   handlers.job_status=args=>args.jobId==='job_build'?{status:'passed',job:{result:{artifactId:'artifact_built',sourceRevision:1}}}:args.jobId==='job_saved'?{status:'passed',job:{id:'job_saved',type:'candidate',status:'passed',result:{candidateDownloadPath:'/api/developer/candidates/job_saved'}}}:{status:'failed',job:{id:'job_failed',type:'candidate',status:'failed',result:{code:'MEMORY_LIMIT',error:'No candidate was produced.'}}};
   handlers.candidate_prepare=()=>{throw Error('Platform deadline');};
+  handlers.plugin_build=handlers.tests_run=()=>{throw Error('Platform deadline');};
   routes['/candidates/job_saved']=()=>({artifacts:[{logicalPath:'save',downloadPath:'/api/developer/candidates/job_saved/file_one'}]});
  }});
  await b.enroll();await b.openWorkspace(workspace.id);b.nodes.get('candidate-downloads').append(new Node('a'));
@@ -234,6 +235,10 @@ test('failed replacement clears old candidate links and reopening a passed job r
  await b.change('job-history','job_saved');await b.nodes.get('open-job').click();assert.equal(b.nodes.get('candidate-downloads').children.length,1);assert.equal(b.nodes.get('candidate-downloads').firstChild.href,'/api/developer/candidates/job_saved/file_one');
  b.nodes.get('operations').value='[]';await b.nodes.get('prepare-candidate').click();assert.equal(b.nodes.get('candidate-downloads').children.length,0);assert.equal(b.nodes.get('job-results').textContent,'Starting offline validation…');assert.match(b.nodes.get('notice').textContent,/Platform deadline/);
  assert.equal(b.calls.filter(c=>c.name==='/candidates/job_saved').length,1);
+ for(const action of ['run-tests','build-plugin']){
+  b.nodes.get('candidate-downloads').append(new Node('a'));await b.nodes.get(action).click();
+  assert.equal(b.nodes.get('candidate-downloads').children.length,0);assert.match(b.nodes.get('notice').textContent,/Platform deadline/);
+ }
 });
 
 async function browser({configured = false, discoveryUnavailable = false, configure} = {}) {
