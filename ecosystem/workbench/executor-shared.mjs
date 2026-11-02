@@ -55,3 +55,18 @@ export function candidateFiles(original, candidate, output, inputBytes, pkg, man
 }
 export const requiredChecksPassed = validation => Array.isArray(validation?.checks) && validation.checks.length > 0 && validation.checks.every(check => check.required === false || check.result === 'passed');
 
+// Full query results are used during execution. Public job receipts need only
+// bounded diagnostic views; validation, intent and artifact pins stay intact.
+export function boundedJobSummary(result) {
+  if (!result?.summary || typeof result.summary !== 'object' || Array.isArray(result.summary)) return result;
+  const summary = {...result.summary};
+  for (const key of ['description', 'originalQuery', 'before', 'after']) {
+    if (!Object.hasOwn(summary, key)) continue;
+    const serialized = JSON.stringify(summary[key]);
+    if (serialized === undefined) continue;
+    const byteLength = new TextEncoder().encode(serialized).byteLength;
+    if (byteLength > 8192) summary[key] = {schema: 'saverift.job-query-receipt.v1', detail: 'omitted_from_job_report', byteLength, sha256: sha256(serialized), access: 'Use the authorized preview queries to inspect the source or candidate.'};
+  }
+  return {...result, summary};
+}
+

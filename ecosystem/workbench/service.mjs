@@ -5,7 +5,7 @@ import {sha256, fail} from './storage.mjs';
 import {TOOL_DEFINITIONS, toolDefinition} from './tool-definitions.mjs';
 import {PINNED_DOCS, TEMPLATES} from './templates.mjs';
 import {validatePackage} from '../sdk/contracts.mjs';
-import {inputs as executionInputs} from './executor-shared.mjs';
+import {inputs as executionInputs, boundedJobSummary} from './executor-shared.mjs';
 import {createCatalogSnapshot, createCrosswalk} from '../sdk/data.mjs';
 import {compileUiPackage} from '../ui/vanilla-frame.mjs';
 import {createDraft, editDraft} from '../sdk/draft.mjs';
@@ -441,6 +441,7 @@ export function createWorkspaceService({store, executeJob, templates = TEMPLATES
         await store.put(candidateKey, {workspaceId: row.value.workspaceId, evidenceEpoch: row.value.evidenceEpoch || null, evidenceBindings: row.value.evidenceBindings, gameGrants: row.value.gameGrants || [], artifacts, createdAt: now()}, {ifAbsent: true});
         const {privateArtifacts, ...publicResult} = result; result = {...publicResult, candidateDownloadPath: `/api/developer/candidates/${jobId}`};
       }
+      result = boundedJobSummary(result);
       if (encode(JSON.stringify(result)).length > LIMITS.responseBytes) fail('RUNNER_OUTPUT_LIMIT', 'The isolated runner output exceeded its report limit.');
       current = await guard();
       await store.put(jobKey, {...current.value, status: result.status, phaseState: 'complete', phaseLease: null, checkpointDigest: null, result, finishedAt: now()}, {ifMatch: current.etag});
@@ -510,6 +511,7 @@ export function createWorkspaceService({store, executeJob, templates = TEMPLATES
         const {privateArtifacts, ...publicResult} = result; result = {...publicResult, candidateDownloadPath: `/api/developer/candidates/${jobId}`};
       }
       if (!result || !['passed', 'failed', 'not_run', 'needs_review'].includes(result.status)) fail('RUNNER_RESULT_INVALID', 'The isolated runner returned an invalid job result.');
+      result = boundedJobSummary(result);
       if (encode(JSON.stringify(result)).length > LIMITS.responseBytes) fail('RUNNER_OUTPUT_LIMIT', 'The isolated runner output exceeded its report limit.');
       const current = await readRequired(principal, 'jobs', jobId);
       if (current.value.status === 'cancelled') {
