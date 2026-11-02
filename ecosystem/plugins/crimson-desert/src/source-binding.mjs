@@ -44,7 +44,8 @@ export function sourceFromBundle(bundle,ctx,{lazy=false}={}){
    const bytes=Buffer.from(ctx.readArtifact(artifact.id));if(bytes.length!==artifact.byteLength||hash(bytes)!==artifact.sha256)throw new ProbeError('Selected artifact bytes changed.',409,'CRIMSON_ARTIFACT_SOURCE_CHANGED');
    encoded.set(container+'/'+name,bytes);
    totalBytes+=bytes.length;blobCount++;if(totalBytes>8*1024*1024)throw new ProbeError('Selected artifact bytes exceed the format-source limit.',409,'CRIMSON_ARTIFACT_SOURCE_INVALID');
-   const row=Object.freeze({name,size:bytes.length,data:bytes.toString('base64'),sha256:artifact.sha256,artifactId:artifact.id}),c=grouped.get(container)||{index:Object.freeze({fileName:container}),blobs:[]};c.blobs.push(row);grouped.set(container,c);
+   let encodedText;
+   const row=Object.freeze({name,size:bytes.length,get data(){return encodedText??=bytes.toString('base64');},sha256:artifact.sha256,artifactId:artifact.id}),c=grouped.get(container)||{index:Object.freeze({fileName:container}),blobs:[]};c.blobs.push(row);grouped.set(container,c);
   }
   if(grouped.size>128)throw new ProbeError('Selected artifact containers exceed the format-source limit.',409,'CRIMSON_ARTIFACT_SOURCE_INVALID');
   const containers=Object.freeze([...grouped.values()].map(c=>Object.freeze({...c,blobs:Object.freeze(c.blobs)})));

@@ -43,7 +43,7 @@ export async function createPluginSession(options,host={}){
   const bundle=jsonCopy(options.bundle||createSaveBundle([])),normalized=createSaveBundle(bundle.artifacts,{id:bundle.id,hints:bundle.hints});if(canonicalJson(bundle)!==canonicalJson(normalized))fail('BUNDLE_DIGEST_MISMATCH','Input bundle has changed or contains nonpublic fields.');
   const inputs=new Map(),outputs=new Map();let inputBytes=0;
   for(const artifact of bundle.artifacts){const data=source.get(artifact.id);if(!(data instanceof Uint8Array)||data.length!==artifact.byteLength||data.length>limits.artifactBytes||hash(data)!==artifact.sha256||inputs.has(artifact.id))fail('ARTIFACT_MISMATCH','A selected artifact is missing, oversized, duplicate or changed.');inputBytes+=data.length;if(inputBytes>limits.totalArtifactBytes)fail('ARTIFACT_LIMIT','Selected input bytes exceed the limit.');inputs.set(artifact.id,new Uint8Array(data));}
-  let closed=false,active=false,interrupts=0,hostCalls=0,outputBytes=0,compressionBytes=0,binaryBytes=0,started=Date.now(),deadline=started+limits.timeoutMs,lastFailure=null;
+  let closed=false,active=false,interrupts=0,hostCalls=0,outputBytes=0,compressionBytes=0,binaryBytes=0,textBytes=0,started=Date.now(),deadline=started+limits.timeoutMs,lastFailure=null;
   const metrics={runner:RUNTIME_PROFILE,engine:'quickjs-2025-09-13+f1139494/wasm-0.32.0',packageDigest:pkg.packageDigest,executionLockDigest:lock.digest,inputBytes,outputBytes:0,interrupts:0,hostCalls:0,elapsedMs:0,memoryBytes:0};
   function check(){if(closed)fail('SESSION_CLOSED','The isolated session has closed.');if(signal?.aborted)fail('JOB_ABORTED','The plugin job was cancelled.');if(Date.now()>deadline)fail('CPU_LIMIT','The plugin execution deadline was exceeded.');}
   check();
@@ -111,6 +111,24 @@ export async function createPluginSession(options,host={}){
     hostCalls+=Math.ceil(size/65536)-1;if(hostCalls>limits.hostCalls)fail('HOST_CALL_LIMIT','The plugin exceeded its shared host-call budget.');
     binaryBytes+=size;check();
   }
+  addFunction('__saveriftUtf8Decode',(dataArg,fatalArg,bomArg)=>{
+    if(context.typeof(fatalArg)!=='number'||context.typeof(bomArg)!=='number')fail('FORMAT_TEXT_OPTIONS_INVALID','UTF-8 options must be fixed booleans.');
+    const size=binaryLength(dataArg,0,8*1024*1024),fatal=context.getNumber(fatalArg),ignoreBOM=context.getNumber(bomArg);
+    if(![0,1].includes(fatal)||![0,1].includes(ignoreBOM))fail('FORMAT_TEXT_OPTIONS_INVALID','UTF-8 options must be fixed booleans.');
+    if(textBytes+size>128*1024*1024)fail('FORMAT_TEXT_BYTE_LIMIT','The UTF-8 byte budget is exhausted.');
+    const inputUnits=Math.ceil(size/65536);hostCalls+=Math.max(0,inputUnits-1);if(hostCalls>limits.hostCalls)fail('HOST_CALL_LIMIT','The plugin exceeded its shared host-call budget.');textBytes+=size;check();
+    const view=context.getArrayBuffer(dataArg);let literal;
+    try{
+      let decoded;try{decoded=new TextDecoder('utf-8',{fatal:Boolean(fatal),ignoreBOM:Boolean(ignoreBOM)}).decode(view.value);}catch{check();return context.null;}
+      // ASCII JSON avoids all FFI NUL/BOM/surrogate string-loss boundaries.
+      let literalLength=2;for(let i=0;i<decoded.length;i++){const c=decoded.charCodeAt(i);literalLength+=c<32||c>126?6:c===34||c===92?2:1;if(literalLength>16*1024*1024)fail('FORMAT_TEXT_OUTPUT_LIMIT','The decoded UTF-8 result exceeds its fixed bound.');}
+      literal=JSON.stringify(decoded).replace(/[^\x20-\x7e]/g,c=>'\\u'+c.charCodeAt(0).toString(16).padStart(4,'0'));
+      if(literal.length>16*1024*1024)fail('FORMAT_TEXT_OUTPUT_LIMIT','The decoded UTF-8 result exceeds its fixed bound.');
+      if(textBytes+literal.length>128*1024*1024)fail('FORMAT_TEXT_BYTE_LIMIT','The UTF-8 byte budget is exhausted.');
+      hostCalls+=Math.max(0,Math.ceil((size+literal.length)/65536)-inputUnits);if(hostCalls>limits.hostCalls)fail('HOST_CALL_LIMIT','The plugin exceeded its shared host-call budget.');textBytes+=literal.length;check();
+      return context.newString(literal);
+    }finally{view.dispose();}
+  });
   addFunction('__saveriftChaCha20',(dataArg,keyArg,nonceArg)=>{
     const size=binaryLength(dataArg,1,8*1024*1024);binaryLength(keyArg,32,32);binaryLength(nonceArg,16,16);chargeBinary(size);
     const views=[];try{
@@ -204,7 +222,7 @@ export async function createPluginSession(options,host={}){
       if(!runtime.hasPendingJob())fail('ASYNC_UNSUPPORTED','The plugin promise waits on unavailable ambient I/O.');if(++count>limits.pendingJobs)fail('PENDING_JOB_LIMIT','The plugin exceeded its pending-job budget.');const jobs=runtime.executePendingJobs(1);if(jobs.error){const error=guestError(jobs.error);jobs.error.dispose();throw error;}
     }
   }
-  function updateMetrics(){metrics.outputBytes=outputBytes;metrics.interrupts=interrupts;metrics.hostCalls=hostCalls;metrics.compressionBytes=compressionBytes;metrics.binaryBytes=binaryBytes;metrics.elapsedMs=Date.now()-started;Object.assign(metrics,formatSha256.metrics());if(memory)metrics.memoryBytes=memory.buffer.byteLength;if(runtime)metrics.contextsCreated=contexts.size;return {...metrics};}
+  function updateMetrics(){metrics.outputBytes=outputBytes;metrics.interrupts=interrupts;metrics.hostCalls=hostCalls;metrics.compressionBytes=compressionBytes;metrics.binaryBytes=binaryBytes;metrics.textBytes=textBytes;metrics.elapsedMs=Date.now()-started;Object.assign(metrics,formatSha256.metrics());if(memory)metrics.memoryBytes=memory.buffer.byteLength;if(runtime)metrics.contextsCreated=contexts.size;return {...metrics};}
   const allowed=new Set([...LIFECYCLE,...(pkg.manifest.methods||[])]);
   return {
     packageDigest:pkg.packageDigest,executionLock:lock,bundle,

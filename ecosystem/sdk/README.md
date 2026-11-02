@@ -135,6 +135,15 @@ limited to 30 seconds / 90 seconds and requires a trusted exact-digest pin.
 parser. Bundle these helpers and all executable dependencies into a release,
 not remote runtime imports.
 
+For 4 KiB–8 MiB non-streaming inputs the decoder may use fixed native UTF-8
+conversion. Branded sizes and remaining input quota are checked before the
+host copies bytes. BOM/fatal behavior is preserved; ASCII JSON string literals
+avoid FFI NUL and surrogate loss. The escaped output is capped at 16 MiB;
+input plus output text work is capped at 128 MiB per engine and charges the
+same shared callback quota in 64 KiB units, including rejected invalid UTF-8.
+Small inputs and environments without the helper retain the portable path.
+This helper only converts bytes to text; JSON/format parsing stays isolated.
+
 `lz4-block.mjs` retains the attributed standard no-dictionary, acceleration-one
 kernel and its BSD notice. A fixed pure host helper can perform this bounded
 computation without moving parsing, intent, validation or account operations

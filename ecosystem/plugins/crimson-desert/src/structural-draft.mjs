@@ -5,10 +5,10 @@ import {createScalarDigest} from './scalar-digest.mjs';
 import {ProbeError,hash,verifyBackup,assertSourceBinding,preparedSource,preparedSourceNativeParity} from './source-binding.mjs';
 import {decodeSave,encodeSave,CodecError} from './crimson-codec.mjs';
 import {readDocument,field,value,elements,DECODER_REVISION} from './crimson-document.mjs';
-import {CRIMSON_CURRENT_SCHEMA,createWorkbenchDraft} from './crimson-draft.mjs';
+import {CRIMSON_CURRENT_SCHEMA,createWorkbenchDraft,scalarScopeWitness} from './crimson-draft.mjs';
 import {CATALOG_REVISION} from './crimson-domain.mjs';
 import {planInventoryCapacity} from './inventory-capacity.mjs';
-import {buildCatalogItemAdditions} from './crimson-item-addition.mjs';
+import {buildCatalogItemAdditions,itemScopeWitness} from './crimson-item-addition.mjs';
 import {catalogItemAdditionDefinition} from './catalog-item-profile.mjs';
 import {STRUCTURAL_PLAN_SCHEMA,MAX_STRUCTURAL_OPERATIONS,MAX_STRUCTURAL_ITEM_INTENTS,MAX_STRUCTURAL_SCALAR_OPERATIONS,MAX_COMPANION_ADDITIONS,MAX_STRUCTURAL_NEW_ITEM_STACKS,structuralItemFamily,structuralCompanionFamily} from './structural-publication-profile.mjs';
 
@@ -52,20 +52,21 @@ export function structuralSourcePayload(backup,metadata,input){
 }
 // Full scalar events are retained only as bounded identity/knowledge metadata;
 // large knowledge lists are not expanded into UI-style object projections.
-function semanticIndex(raw,{hashPlaintext=true,scalarLocators=false}={}){
- const knowledge=new Map(),knowledgePaths=new Map(),identities=new Map(),scalarPaths=new Map();let itemCount=0,petCount=0;
+function semanticIndex(raw,{hashPlaintext=true,scalarLocators=false,knowledgeDetails=true,companionDetails=true}={}){
+ const knowledge=new Map(),knowledgePaths=new Map(),identities=new Map(),scalarPaths=new Map();let itemCount=0,petCount=0,knowledgeCount=0;
  // Identity names intentionally match every type, including opaque references.
- const document=readDocument(raw,{captureTypes:['InventorySaveData','MercenaryClanSaveData'],listLimit:1024,hashPlaintext,scalarFields:['_itemNo','_mercenaryNo','_key','_level','_learnedFieldTime','_isNewMark',...(scalarLocators?['_stackCount','_varyExpandSlotCount']:[])],onScalar:e=>{
+ const document=readDocument(raw,{captureTypes:['InventorySaveData',...(companionDetails?['MercenaryClanSaveData']:[])],listLimit:1024,hashPlaintext,scalarFields:['_itemNo','_mercenaryNo','_key',...(knowledgeDetails?['_level','_learnedFieldTime','_isNewMark']:[]),...(scalarLocators?['_stackCount','_varyExpandSlotCount']:[])],onScalar:e=>{
   if(scalarLocators&&/\.(?:_stackCount|_varyExpandSlotCount)$/.test(e.path)){if(scalarPaths.has(e.offset))fail('STRUCTURAL_SCALAR_BINDING_FAILED');scalarPaths.set(e.offset,e);}
   if(/\.(_itemNo|_mercenaryNo)$/.test(e.path)){const id=String(e.value);identities.set(id,(identities.get(id)||0)+1);}
   const m=/^(.*\.KnowledgeSaveData\._list\[(\d+)\])\.(_key|_level|_learnedFieldTime|_isNewMark)$/.exec(e.path);
-  if(m){const row=knowledgePaths.get(m[1])||{path:m[1],index:Number(m[2]),fields:{}};row.fields[m[3]]=e;knowledgePaths.set(m[1],row);}
+  if(m){if(knowledgeDetails){const row=knowledgePaths.get(m[1])||{path:m[1],index:Number(m[2]),fields:{}};row.fields[m[3]]=e;knowledgePaths.set(m[1],row);}else if(m[3]==='_key'){if(!Number.isSafeInteger(e.value)||knowledge.has(e.value))fail('STRUCTURAL_KNOWLEDGE_AMBIGUOUS');knowledge.set(e.value,{key:e.value});}}
  },onObject:e=>{
   if(e.type==='ItemSaveData')itemCount++;
   if(e.type==='MercenarySaveData')petCount++;
-  if(e.type==='KnowledgeElementSaveData'){const row=knowledgePaths.get(e.path);if(row)row.range={wrapperStart:e.start,end:e.end};}
+  if(e.type==='KnowledgeElementSaveData'){knowledgeCount++;if(knowledgeDetails){const row=knowledgePaths.get(e.path);if(row)row.range={wrapperStart:e.start,end:e.end};}}
  }});
  for(const row of knowledgePaths.values()){const key=row.fields._key?.value;if(!Number.isSafeInteger(key)||knowledge.has(key))fail('STRUCTURAL_KNOWLEDGE_AMBIGUOUS');row.key=key;knowledge.set(key,row);}
+ if(!knowledgeDetails&&knowledge.size!==knowledgeCount)fail('STRUCTURAL_KNOWLEDGE_AMBIGUOUS');
  return {document,knowledge,identities,itemCount,petCount,scalarPaths};
 }
 function permittedKnowledgeChanges(sourceIndex,addItems){
@@ -77,10 +78,10 @@ export function createStructuralDraftCompiler({schemaPins=[CRIMSON_CURRENT_SCHEM
  if(!Array.isArray(schemaPins)||!schemaPins.length||schemaPins.length>3||schemaPins.some(s=>!/^[a-f0-9]{64}$/.test(s))||[itemCompiler,companionCompiler,scalarCompiler].some(fn=>typeof fn!=='function'))throw Error('Invalid internal structural compiler configuration.');
  return async function compileStructuralDraft(backup,metadata,input,{nonce,retainEncoded=false}={}){
  assertStructuralPlan(input,{schemaPins});if(nonce!==undefined&&(!Buffer.isBuffer(nonce)||nonce.length!==16))fail('STRUCTURAL_NONCE_INVALID');
- const {bytes:source,blob,prepared}=structuralSourcePayload(backup,metadata,input),decoded=prepared?.decoded||await decodeSave(source),sourceIndex=semanticIndex(decoded.plaintext,{scalarLocators:true});let before=sourceIndex.document;
+ const addItems=input.operations.filter(o=>o.operation==='inventory.addItem'),addPets=input.operations.filter(o=>o.operation==='companions.add'),scalarOps=input.operations.filter(o=>scalarNames.includes(o.operation)).map(o=>({...o})),knowledgeDetails=addItems.some(op=>catalogItemAdditionDefinition(op.definitionKey).knowledgeKeys.length>0);
+ const {bytes:source,blob,prepared}=structuralSourcePayload(backup,metadata,input),decoded=prepared?.decoded||await decodeSave(source),sourceIndex=semanticIndex(decoded.plaintext,{scalarLocators:true,knowledgeDetails,companionDetails:addPets.length>0});let before=sourceIndex.document;
  if(decoded.version!==2||!schemaPins.includes(before.schemaSha256)||before.schemaSha256!==input.schemaSha256||before.plaintextSha256!==input.plaintextSha256||before.audit.advisoryLocators||before.audit.unconsumedBytes)fail('STRUCTURAL_SOURCE_CHANGED');
  if(!await preparedSourceNativeParity(backup,metadata,input,decoded,source,encodeSave))fail('STRUCTURAL_NATIVE_PARITY_FAILED');
- const addItems=input.operations.filter(o=>o.operation==='inventory.addItem'),addPets=input.operations.filter(o=>o.operation==='companions.add'),scalarOps=input.operations.filter(o=>scalarNames.includes(o.operation)).map(o=>({...o}));
  const stackCount=op=>{const max=BigInt(catalogItemAdditionDefinition(op.definitionKey).maxStack);return Number((BigInt(op.quantity)+max-1n)/max);},totalStacks=addItems.reduce((n,op)=>n+stackCount(op),0),slotsNeeded=addItems.filter(op=>catalogItemAdditionDefinition(op.definitionKey).defaultInventory===2).reduce((n,op)=>n+stackCount(op),0);
  if(totalStacks>MAX_STRUCTURAL_NEW_ITEM_STACKS)fail('STRUCTURAL_OPERATION_LIMIT','Send fewer item stacks together.');
  let capacity=null;
@@ -94,24 +95,27 @@ export function createStructuralDraftCompiler({schemaPins=[CRIMSON_CURRENT_SCHEM
  }
  if(scalarOps.length>MAX_STRUCTURAL_SCALAR_OPERATIONS)fail('STRUCTURAL_OPERATION_LIMIT','Send fewer changes together so inventory space can be checked.');
  const nonzero=before.audit.nonzeroListMetadata,originalSchema=before.schemaSha256,knowledgeChanges=permittedKnowledgeChanges(sourceIndex,addItems);
- let working=source,scalarReport=null;const stages=[],paths=new Set([...knowledgeChanges.values()].filter(d=>d.path).map(d=>d.path));
+ let working=source,scalarReport=null,nativeScope=true;const scopeProofs=[],scopeChecks=[],stages=[],paths=new Set([...knowledgeChanges.values()].filter(d=>d.path).map(d=>d.path));
  if(scalarOps.length){
   const scalarPlan={...input,schema:'saveglass.crimson-draft-plan.v1',operations:scalarOps},r=await scalarCompiler(backup,metadata,scalarPlan,{nonce});working=r.encoded;scalarReport=r.report;
+  const proof=scalarScopeWitness(r,source,scalarPlan);nativeScope=Boolean(proof);if(proof){scopeProofs.push(proof);scopeChecks.push(()=>Boolean(scalarScopeWitness(r,source,scalarPlan)));}
   if(scalarReport.operations.length!==scalarOps.length)fail('STRUCTURAL_SCALAR_BINDING_FAILED');
   for(const op of scalarReport.operations){const e=sourceIndex.scalarPaths.get(op.offset);if(!e||e.bytes!==op.fieldBytes||String(e.value)!==op.before||!e.path.endsWith('.'+op.field)||paths.has(e.path))fail('STRUCTURAL_SCALAR_BINDING_FAILED');paths.add(e.path);}
  }
- const original=scalarDigest(decoded.plaintext,{paths});before=null;sourceIndex.document=null;
+ before=null;sourceIndex.document=null;
  try{
   const requests=[...(addItems.length?[{operation:'inventory.addItem',family:'catalog_item',items:addItems}]:[]),...(addPets.length?[{operation:'companions.add',family:'catalog_companion',companions:addPets}]:[])];
   for(const op of requests){
-   const item=op.operation==='inventory.addItem';
+   const item=op.operation==='inventory.addItem',stageSource=working;
    const r=item?await itemCompiler(working,op.items.map(o=>({definitionKey:o.definitionKey,quantity:o.quantity})),{nonce}):await companionCompiler(working,op.companions.map(o=>({characterKey:o.characterKey})),{nonce});
+   const proof=item?itemScopeWitness(r,stageSource,op.items.map(o=>({definitionKey:o.definitionKey,quantity:o.quantity}))):null;
+   nativeScope=nativeScope&&Boolean(proof);if(proof){scopeProofs.push(proof);scopeChecks.push(()=>Boolean(itemScopeWitness(r,stageSource,op.items.map(o=>({definitionKey:o.definitionKey,quantity:o.quantity})))));}
    const flags=['fullTypedReparse','reverseStructuralByteParity','hmacReverified','encodedOutputReopened','unknownHeaderBytesPreserved','allOtherOriginalScalarValuesUnchanged'];
    if(r.report.sourceSha256!==hash(working)||r.report.cloudRequests!==0||!flags.every(k=>r.report.validation[k]===true))fail('STRUCTURAL_STAGE_VALIDATION_FAILED');
    stages.push({operation:op.operation,family:op.family,revision:r.report.revision,sourceSha256:r.report.sourceSha256,outputSha256:r.report.outputSha256,inserted:Array.isArray(r.report.inserted)?r.report.inserted:[r.report.inserted],decodedDiff:r.report.decodedDiff||[],perInventory:r.report.perInventory||[],runtimeRequirements:r.report.runtimeRequirements||r.report.inserted.filter(r=>r.runtimeRequirement).map(r=>({characterKey:r.characterKey,message:r.runtimeRequirement})),validation:r.report.validation});working=r.encoded;
   }
  }catch(error){if(error instanceof CodecError){const messages={CRIMSON_COMPANION_ALREADY_OWNED:'This save already has this companion.',CRIMSON_ITEM_ALREADY_OWNED:'This item is already in your bag. Change its existing stack instead.',CRIMSON_GEAR_ALREADY_OWNED:'This gear is already owned in this save.'};throw new ProbeError(messages[error.code]||error.message,409,error.code);}throw error;}
- const reopened=await decodeSave(working),finalIndex=semanticIndex(reopened.plaintext,{hashPlaintext:false}),after=finalIndex.document,afterItems=records(after,'ItemSaveData'),afterPets=records(after,'MercenarySaveData'),inserted=[],newIds=[];
+ const reopened=await decodeSave(working),finalIndex=semanticIndex(reopened.plaintext,{hashPlaintext:false,knowledgeDetails,companionDetails:addPets.length>0}),after=finalIndex.document,afterItems=records(after,'ItemSaveData'),afterPets=records(after,'MercenarySaveData'),inserted=[],newIds=[];
  const requestedItems=new Map(addItems.map(op=>[op.definitionKey,op])),requestedPets=new Set(addPets.map(op=>op.characterKey)),itemTotals=new Map(),itemBags=new Map();
  for(const bag of elements(after.blocks.find(b=>b.type==='InventorySaveData'),'_inventorylist'))for(const r of elements(bag,'_itemList'))itemBags.set(value(r,'_itemNo'),value(bag,'_inventoryKey'));
  let insertedItems=0,insertedPets=0,embeddedItems=0;
@@ -139,11 +143,18 @@ export function createStructuralDraftCompiler({schemaPins=[CRIMSON_CURRENT_SCHEM
   }else if(change.beforeLevel!==old.fields._level.value||change.afterLevel!==1||row.fields._level.path!==allowed.path)fail('STRUCTURAL_DISCOVERY_DIFF');
  }
  if(addItems.some(op=>itemTotals.get(op.definitionKey)!==BigInt(op.quantity)))fail('STRUCTURAL_FINAL_QUANTITY_CHANGED');
- if(finalIndex.knowledge.size!==sourceIndex.knowledge.size+addedKnowledge||newIds.some(id=>sourceIndex.identities.has(id)||finalIndex.identities.get(id)!==1)||new Set(newIds).size!==newIds.length||insertedItems!==totalStacks||insertedPets!==addPets.length||finalIndex.itemCount!==sourceIndex.itemCount+insertedItems+embeddedItems||finalIndex.petCount!==sourceIndex.petCount+insertedPets||after.schemaSha256!==originalSchema||after.audit.nonzeroListMetadata!==nonzero||after.audit.advisoryLocators||after.audit.unconsumedBytes||JSON.stringify(scalarDigest(reopened.plaintext,{paths,ranges:inserted}))!==JSON.stringify(original))fail('STRUCTURAL_UNINTENDED_CHANGE');
+ // Fixed native stages already proved their exact scalar byte ranges and
+ // reverse structural relocation. Only opaque, byte/intent/report-bound
+ // results from this engine may compose those proofs. Custom/cloned results
+ // retain the independent full scalar-stream comparison.
+ if(hash(decoded.plaintext)!==input.plaintextSha256)fail('STRUCTURAL_SOURCE_CHANGED');
+ nativeScope=nativeScope&&scopeChecks.every(check=>check());
+ const original=nativeScope?null:scalarDigest(decoded.plaintext,{paths});
+ if(finalIndex.knowledge.size!==sourceIndex.knowledge.size+addedKnowledge||newIds.some(id=>sourceIndex.identities.has(id)||finalIndex.identities.get(id)!==1)||new Set(newIds).size!==newIds.length||insertedItems!==totalStacks||insertedPets!==addPets.length||finalIndex.itemCount!==sourceIndex.itemCount+insertedItems+embeddedItems||finalIndex.petCount!==sourceIndex.petCount+insertedPets||after.schemaSha256!==originalSchema||after.audit.nonzeroListMetadata!==nonzero||after.audit.advisoryLocators||after.audit.unconsumedBytes||!nativeScope&&JSON.stringify(scalarDigest(reopened.plaintext,{paths,ranges:inserted}))!==JSON.stringify(original))fail('STRUCTURAL_UNINTENDED_CHANGE');
  if(scalarReport){for(const op of scalarReport.operations){const target=op.operation==='inventory.setExpansionValue'?one(elements(one(after.blocks,b=>b.type==='InventorySaveData'),'_inventorylist'),b=>value(b,'_inventoryKey')===2):one(afterItems,o=>String(value(o,'_itemNo'))===op.instanceId);if(String(value(target,op.field))!==op.after||op.operation!=='inventory.setExpansionValue'&&itemBags.get(op.instanceId)!==op.inventoryKey)fail('STRUCTURAL_SCALAR_CHANGED');}}
  if(!working.subarray(0,0x12).equals(source.subarray(0,0x12))||!working.subarray(0x4a,128).equals(source.subarray(0x4a,128))||!(await encodeSave(reopened.plaintext,reopened.header,{nonce:reopened.header.subarray(0x1a,0x2a)})).equals(working)||hash(source)!==blob.sha256)fail('STRUCTURAL_REOPEN_FAILED');
  const operations=[...(scalarReport?.operations||[]),...stages.flatMap(s=>s.inserted.map(entry=>({operation:s.operation,...entry}))),...actualKnowledge];
- const report={schema:'saveglass.structural-draft-preview.v1',revision:'saverift.source-backed-construction.2026-11-01.v2',decoderRevision:DECODER_REVISION,catalogRevision:CATALOG_REVISION,source:'plugin_bundle',backupId:metadata.id,backupSha256:metadata.sha256,backupRevision:backup.revision,container:input.container,payload:'save',payloadSha256:blob.sha256,schemaSha256:originalSchema,beforePlaintextSha256:hash(decoded.plaintext),afterPlaintextSha256:hash(reopened.plaintext),planSha256:structuralDraftDigest(input),encodedSha256:hash(working),encodedBytes:working.length,operations,decodedDiff:operations,capacity,stages,runtimeRequirements:stages.flatMap(s=>s.runtimeRequirements),validation:{nativeNoOpByteParity:true,nativeLz4NoOpByteParity:true,originalNoOpByteParity:true,fullDocumentReparsed:true,fullTypedReparse:true,allOtherDecodedValuesUnchanged:true,originalScalarValuesUnchanged:true,originalScalarDigest:original.sha256,originalScalarCount:original.count,stagewiseReverseStructuralByteParity:true,distinctGlobalNewIdentities:true,discoveryIntendedOnly:true,hmacReverified:true,encodedOutputReopened:true,unknownHeaderBytesPreserved:true,nonzeroListMetadataPreserved:after.audit.nonzeroListMetadata===nonzero,nonzeroListMetadataBefore:nonzero,nonzeroListMetadataAfter:after.audit.nonzeroListMetadata},gameAcceptance:'known_record_structure_no_per_definition_console_gate',draftOnly:true,originalBackupUnchanged:true,modifiedSaveStored:false,writesEnabled:false,publishEligible:false};
+ const report={schema:'saveglass.structural-draft-preview.v1',revision:'saverift.source-backed-construction.2026-11-01.v2',decoderRevision:DECODER_REVISION,catalogRevision:CATALOG_REVISION,source:'plugin_bundle',backupId:metadata.id,backupSha256:metadata.sha256,backupRevision:backup.revision,container:input.container,payload:'save',payloadSha256:blob.sha256,schemaSha256:originalSchema,beforePlaintextSha256:hash(decoded.plaintext),afterPlaintextSha256:hash(reopened.plaintext),planSha256:structuralDraftDigest(input),encodedSha256:hash(working),encodedBytes:working.length,operations,decodedDiff:operations,capacity,stages,runtimeRequirements:stages.flatMap(s=>s.runtimeRequirements),validation:{nativeNoOpByteParity:true,nativeLz4NoOpByteParity:true,originalNoOpByteParity:true,fullDocumentReparsed:true,fullTypedReparse:true,allOtherDecodedValuesUnchanged:true,originalScalarValuesUnchanged:true,...(original?{originalScalarDigest:original.sha256,originalScalarCount:original.count}:{conservationProof:{format:'native-stage-witnesses.v1',stages:scopeProofs}}),stagewiseReverseStructuralByteParity:true,distinctGlobalNewIdentities:true,discoveryIntendedOnly:true,hmacReverified:true,encodedOutputReopened:true,unknownHeaderBytesPreserved:true,nonzeroListMetadataPreserved:after.audit.nonzeroListMetadata===nonzero,nonzeroListMetadataBefore:nonzero,nonzeroListMetadataAfter:after.audit.nonzeroListMetadata},gameAcceptance:'known_record_structure_no_per_definition_console_gate',draftOnly:true,originalBackupUnchanged:true,modifiedSaveStored:false,writesEnabled:false,publishEligible:false};
  return retainEncoded?{report,encoded:working}:report;
  };
 }

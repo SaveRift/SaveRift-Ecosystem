@@ -441,7 +441,7 @@ var require_buffer = __commonJS({
     Buffer3.isBuffer = function isBuffer(b) {
       return b != null && b._isBuffer === true && b !== Buffer3.prototype;
     };
-    Buffer3.compare = function compare(a, b) {
+    Buffer3.compare = function compare2(a, b) {
       if (isInstance(a, Uint8Array)) a = Buffer3.from(a, a.offset, a.byteLength);
       if (isInstance(b, Uint8Array)) b = Buffer3.from(b, b.offset, b.byteLength);
       if (!Buffer3.isBuffer(a) || !Buffer3.isBuffer(b)) {
@@ -671,7 +671,7 @@ var require_buffer = __commonJS({
     if (customInspectSymbol) {
       Buffer3.prototype[customInspectSymbol] = Buffer3.prototype.inspect;
     }
-    Buffer3.prototype.compare = function compare(target, start, end, thisStart, thisEnd) {
+    Buffer3.prototype.compare = function compare2(target, start, end, thisStart, thisEnd) {
       if (isInstance(target, Uint8Array)) {
         target = Buffer3.from(target, target.offset, target.byteLength);
       }
@@ -1815,10 +1815,23 @@ var require_buffer = __commonJS({
 });
 
 // ../../sdk/buffer.mjs
-var import_buffer;
+var import_buffer, portableCompare;
 var init_buffer = __esm({
   "../../sdk/buffer.mjs"() {
     import_buffer = __toESM(require_buffer(), 1);
+    portableCompare = import_buffer.Buffer.compare;
+    import_buffer.Buffer.compare = function compare(a, b) {
+      if (!(a instanceof Uint8Array) || !(b instanceof Uint8Array)) return portableCompare(a, b);
+      if (a === b) return 0;
+      const length = Math.min(a.byteLength, b.byteLength);
+      let at = 0;
+      if (length >= 64) {
+        const left = new DataView(a.buffer, a.byteOffset, a.byteLength), right = new DataView(b.buffer, b.byteOffset, b.byteLength);
+        for (; at + 4 <= length; at += 4) if (left.getUint32(at) !== right.getUint32(at)) break;
+      }
+      for (; at < length; at++) if (a[at] !== b[at]) return a[at] < b[at] ? -1 : 1;
+      return a.byteLength === b.byteLength ? 0 : a.byteLength < b.byteLength ? -1 : 1;
+    };
   }
 });
 
@@ -2658,7 +2671,10 @@ function sourceFromBundle(bundle, ctx, { lazy = false } = {}) {
       totalBytes += bytes2.length;
       blobCount++;
       if (totalBytes > 8 * 1024 * 1024) throw new ProbeError("Selected artifact bytes exceed the format-source limit.", 409, "CRIMSON_ARTIFACT_SOURCE_INVALID");
-      const row = Object.freeze({ name, size: bytes2.length, data: bytes2.toString("base64"), sha256: artifact.sha256, artifactId: artifact.id }), c = grouped.get(container) || { index: Object.freeze({ fileName: container }), blobs: [] };
+      let encodedText;
+      const row = Object.freeze({ name, size: bytes2.length, get data() {
+        return encodedText ??= bytes2.toString("base64");
+      }, sha256: artifact.sha256, artifactId: artifact.id }), c = grouped.get(container) || { index: Object.freeze({ fileName: container }), blobs: [] };
       c.blobs.push(row);
       grouped.set(container, c);
     }
@@ -3263,7 +3279,8 @@ function readDocument(raw, { listLimit = 200, fieldListLimits = {}, captureTypes
       if (compareTo && present && [0, 1, 2, 3].includes(def.kind)) {
         comparedLeafFields++;
         let differs = false;
-        for (let at = begin; at < p && !differs; at++) differs = raw[at] !== compareTo[at];
+        if (p - begin >= 64) differs = !raw.subarray(begin, p).equals(compareTo.subarray(begin, p));
+        else for (let at = begin; at < p && !differs; at++) differs = raw[at] !== compareTo[at];
         if (differs) {
           if (decodedDiff.length >= 32) fail3("Decoded diff exceeds the narrow-edit limit.");
           const decode = (source) => [0, 2].includes(def.kind) ? scalar(begin, def, mode, source) : { bytes: p - begin, rawSha256: hash(source.subarray(begin, p)) };
@@ -3897,8 +3914,14 @@ __export(crimson_draft_exports, {
   CRIMSON_DRAFT_SCHEMAS: () => CRIMSON_DRAFT_SCHEMAS,
   compileCrimsonDraft: () => compileCrimsonDraft,
   createCrimsonDraftCompiler: () => createCrimsonDraftCompiler,
-  createWorkbenchDraft: () => createWorkbenchDraft
+  createWorkbenchDraft: () => createWorkbenchDraft,
+  scalarScopeWitness: () => scalarScopeWitness
 });
+function scalarScopeWitness(result, source, input) {
+  const proof = scalarScopeWitnesses.get(result);
+  if (!proof || !import_buffer.Buffer.isBuffer(source) || !import_buffer.Buffer.isBuffer(result?.encoded) || hash(source) !== proof.sourceSha256 || hash(result.encoded) !== proof.outputSha256 || hash(stableJson(input)) !== proof.intentSha256 || hash(stableJson(result.report)) !== proof.reportSha256) return null;
+  return Object.freeze({ ...proof });
+}
 function canonical(value2) {
   if (Array.isArray(value2)) return value2.map(canonical);
   if (value2 && typeof value2 === "object") return Object.fromEntries(Object.keys(value2).sort().map((k) => [k, canonical(value2[k])]));
@@ -4022,12 +4045,13 @@ function createCrimsonDraftCompiler({ schemaPins = CRIMSON_DRAFT_SCHEMAS, assert
       if (op.fieldBytes === 8) patched.writeBigUInt64LE(BigInt(op.after), op.offset);
       else patched.writeUInt16LE(Number(op.after), op.offset);
     }
-    let changedBytes = 0, range = 0;
-    for (let at = 0; at < patched.length; at++) if (patched[at] !== decoded.plaintext[at]) {
-      while (range < ordered.length && at >= ordered[range].offset + ordered[range].fieldBytes) range++;
-      if (range >= ordered.length || at < ordered[range].offset) fail5("CRIMSON_DRAFT_DIFF_FAILED");
-      changedBytes++;
+    let changedBytes = 0, rangeEnd = 0;
+    for (const op of ordered) {
+      if (!patched.subarray(rangeEnd, op.offset).equals(decoded.plaintext.subarray(rangeEnd, op.offset))) fail5("CRIMSON_DRAFT_DIFF_FAILED");
+      for (let at = op.offset; at < op.offset + op.fieldBytes; at++) if (patched[at] !== decoded.plaintext[at]) changedBytes++;
+      rangeEnd = op.offset + op.fieldBytes;
     }
+    if (!patched.subarray(rangeEnd).equals(decoded.plaintext.subarray(rangeEnd))) fail5("CRIMSON_DRAFT_DIFF_FAILED");
     const encoded = await encodeSave(patched, decoded.header, nonce === void 0 ? {} : { nonce });
     if (encoded.length > 8 * 1024 * 1024) fail5("CRIMSON_DRAFT_ENCODED_LIMIT");
     const reopened = await decodeSave(encoded);
@@ -4072,10 +4096,13 @@ function createCrimsonDraftCompiler({ schemaPins = CRIMSON_DRAFT_SCHEMAS, assert
       gates: { structuralAdditions: "disabled", cloudPublication: "disabled", restore: "disabled", gameEngineAcceptance: "unverified" },
       message: "The combined draft passed intended-only comparison and native-compatible re-open checks. Publication requires the separate account, backup, revision and confirmation gates; game acceptance of this draft remains unverified."
     };
-    return retainEncoded ? { report, encoded } : report;
+    if (!retainEncoded) return report;
+    const result = { report, encoded };
+    scalarScopeWitnesses.set(result, Object.freeze({ kind: "native-scalar-byte-proof", sourceSha256: hash(source), outputSha256: hash(encoded), intentSha256: hash(stableJson(input)), reportSha256: hash(stableJson(report)) }));
+    return result;
   };
 }
-var PREVIOUS_HOUSING_SCHEMA, CRIMSON_DRAFT_REVISION, CRIMSON_CURRENT_SCHEMA, CRIMSON_BAG_CAPACITY, CRIMSON_DRAFT_SCHEMAS, PLAN_KEYS, ITEM_KEYS, EXPANSION_KEYS, HASH, exact, equal2, fail5, decimal2, stableJson, compileCrimsonDraft, createWorkbenchDraft;
+var PREVIOUS_HOUSING_SCHEMA, CRIMSON_DRAFT_REVISION, CRIMSON_CURRENT_SCHEMA, CRIMSON_BAG_CAPACITY, CRIMSON_DRAFT_SCHEMAS, PLAN_KEYS, ITEM_KEYS, EXPANSION_KEYS, HASH, exact, equal2, fail5, decimal2, stableJson, scalarScopeWitnesses, compileCrimsonDraft, createWorkbenchDraft;
 var init_crimson_draft = __esm({
   "src/crimson-draft.mjs"() {
     init_buffer();
@@ -4107,6 +4134,7 @@ var init_crimson_draft = __esm({
     };
     decimal2 = (v, max) => typeof v === "string" && /^(0|[1-9]\d{0,19})$/.test(v) && BigInt(v) <= max;
     stableJson = (value2) => JSON.stringify(canonical(value2));
+    scalarScopeWitnesses = /* @__PURE__ */ new WeakMap();
     compileCrimsonDraft = createCrimsonDraftCompiler();
     createWorkbenchDraft = (backup, metadata3, input, { nonce } = {}) => compileCrimsonDraft(backup, metadata3, input, { nonce, retainEncoded: true });
   }
@@ -4360,10 +4388,16 @@ __export(crimson_item_addition_exports, {
   buildNormalItemAdditions: () => buildNormalItemAdditions,
   createCatalogItemAddition: () => createCatalogItemAddition,
   createNormalItemAddition: () => createNormalItemAddition,
+  itemScopeWitness: () => itemScopeWitness,
   normalItemAdditionDefinition: () => normalItemAdditionDefinition,
   normalItemAdditionProfile: () => normalItemAdditionProfile,
   normalItemAdditionSupported: () => normalItemAdditionSupported
 });
+function itemScopeWitness(result, source, inputs) {
+  const proof = itemScopeWitnesses.get(result);
+  if (!proof || !import_buffer.Buffer.isBuffer(source) || !import_buffer.Buffer.isBuffer(result?.encoded) || hash(source) !== proof.sourceSha256 || hash(result.encoded) !== proof.outputSha256 || hash(scopeJson(inputs)) !== proof.intentSha256 || hash(scopeJson(result.report)) !== proof.reportSha256) return null;
+  return Object.freeze({ ...proof });
+}
 function prune(document) {
   for (const root of document.blocks) if (!["InventorySaveData", "KnowledgeSaveData"].includes(root.type)) root.fields = null;
   return document;
@@ -4623,7 +4657,9 @@ function createItemAddition({ schemaPins, definitionFor, profile: profile3, inve
     if (!(await encodeSave(reopened.plaintext, reopened.header, { nonce: reopened.header.subarray(26, 42) })).equals(encoded)) fail7("CRIMSON_ITEM_NATIVE_PARITY_FAILED");
     if (!reopened.plaintext.equals(discovery.raw) || !encoded.subarray(0, 18).equals(source.subarray(0, 18)) || !encoded.subarray(74, 128).equals(source.subarray(74, 128)) || hash(source) !== sourceHash) fail7("CRIMSON_ITEM_REOPEN_FAILED");
     const perInventory = plans.map(({ inventoryKey, before: before2, after, additionalSlots, automaticExpansion, ceiling, slotIndexCeiling }) => ({ inventoryKey, before: before2, after, additionalSlots, automaticExpansion, ceiling, slotIndexCeiling })), bag2 = perInventory.find((p) => p.inventoryKey === 2), capacity = bag2 ? { before: bag2.before, after: bag2.after, additionalSlots: bag2.additionalSlots, automaticExpansion: bag2.automaticExpansion, ceiling: 250 } : { before: null, after: null, additionalSlots: 0, automaticExpansion: false, ceiling: 250 };
-    return { encoded, report: { schema: reportSchema, revision: profile3.revision, sourceSha256: sourceHash, outputSha256: hash(encoded), schemaSha256: before.schemaSha256, outputEncodedBytes: encoded.length, inserted, decodedDiff, discovery: { status: definitions4.length === 1 ? definitions4[0].definition.discovery : "explicit_combined_pickup_mapping", knowledgeKeys: discoveryDefinition.knowledgeKeys, changes: discovery.decodedDiff }, capacity, perInventory, runtimeRequirements: definitions4.filter((d) => d.definition.runtimeRequirement).map((d) => ({ definitionKey: d.input.definitionKey, message: d.definition.runtimeRequirement })), validation: { nativeNoOpByteParity: true, nativeOutputNoOpByteParity: true, fullTypedReparse: true, intendedOnly: true, allOtherOriginalScalarValuesUnchanged: true, originalOpaqueBytesPreserved: true, existingInventoryRecordsUnchanged: true, existingInventoryAndActiveEquipmentUnchanged: true, reverseStructuralByteParity: preservationProof, noInheritedDonorState: true, knownDescriptorFingerprintMatched: true, discoveryMappingExplicit: true, hmacReverified: true, encodedOutputReopened: true, unknownHeaderBytesPreserved: true, nonzeroListMetadataBefore: before.audit.nonzeroListMetadata, nonzeroListMetadataAfter: finalAudit.nonzeroListMetadata }, cloudRequests: 0, structuralPublicationEnabled: false, gameAcceptance: "source_backed_catalog_constructor_per_item_game_behavior_not_guaranteed", catalogWideSupport: profile3 === catalogItemAdditionProfile } };
+    const result = { encoded, report: { schema: reportSchema, revision: profile3.revision, sourceSha256: sourceHash, outputSha256: hash(encoded), schemaSha256: before.schemaSha256, outputEncodedBytes: encoded.length, inserted, decodedDiff, discovery: { status: definitions4.length === 1 ? definitions4[0].definition.discovery : "explicit_combined_pickup_mapping", knowledgeKeys: discoveryDefinition.knowledgeKeys, changes: discovery.decodedDiff }, capacity, perInventory, runtimeRequirements: definitions4.filter((d) => d.definition.runtimeRequirement).map((d) => ({ definitionKey: d.input.definitionKey, message: d.definition.runtimeRequirement })), validation: { nativeNoOpByteParity: true, nativeOutputNoOpByteParity: true, fullTypedReparse: true, intendedOnly: true, allOtherOriginalScalarValuesUnchanged: true, originalOpaqueBytesPreserved: true, existingInventoryRecordsUnchanged: true, existingInventoryAndActiveEquipmentUnchanged: true, reverseStructuralByteParity: preservationProof, noInheritedDonorState: true, knownDescriptorFingerprintMatched: true, discoveryMappingExplicit: true, hmacReverified: true, encodedOutputReopened: true, unknownHeaderBytesPreserved: true, nonzeroListMetadataBefore: before.audit.nonzeroListMetadata, nonzeroListMetadataAfter: finalAudit.nonzeroListMetadata }, cloudRequests: 0, structuralPublicationEnabled: false, gameAcceptance: "source_backed_catalog_constructor_per_item_game_behavior_not_guaranteed", catalogWideSupport: profile3 === catalogItemAdditionProfile } };
+    itemScopeWitnesses.set(result, Object.freeze({ kind: "native-item-structural-byte-proof", sourceSha256: sourceHash, outputSha256: hash(encoded), intentSha256: hash(scopeJson(inputs)), reportSha256: hash(scopeJson(result.report)) }));
+    return result;
   };
   const build = (source, input, options) => buildMany(source, [input], options);
   Object.defineProperty(build, "many", { value: buildMany });
@@ -4635,7 +4671,7 @@ function createNormalItemAddition({ schemaPins = [NORMAL_ITEM_SCHEMA] } = {}) {
 function createCatalogItemAddition({ schemaPins = [CATALOG_ITEM_SCHEMA] } = {}) {
   return createItemAddition({ schemaPins, definitionFor: catalogItemAdditionDefinition, profile: catalogItemAdditionProfile, inventoryProjection: { captureTypes: ["InventorySaveData"], listLimit: 1024, hashPlaintext: false }, reportSchema: "saveglass.catalog-item-addition.v1", allowOwned: true });
 }
-var gear, nexus, MAX, MAX_ID2, INVENTORY_PROJECTION, KNOWLEDGE_PROJECTION, fail7, u16, u32, buildNormalItemAddition, buildNormalItemAdditions, buildCatalogItemAddition, buildCatalogItemAdditions;
+var gear, nexus, itemScopeWitnesses, scopeJson, MAX, MAX_ID2, INVENTORY_PROJECTION, KNOWLEDGE_PROJECTION, fail7, u16, u32, buildNormalItemAddition, buildNormalItemAdditions, buildCatalogItemAddition, buildCatalogItemAdditions;
 var init_crimson_item_addition = __esm({
   "src/crimson-item-addition.mjs"() {
     init_buffer();
@@ -4645,10 +4681,13 @@ var init_crimson_item_addition = __esm({
     init_data_provider();
     init_normal_item_profile();
     init_source_binding();
+    init_crypto();
     init_catalog_item_profile();
     init_normal_item_profile();
     gear = getData("crimson-gear-control.json");
     nexus = getData("crimson-abyss-nexus.json");
+    itemScopeWitnesses = /* @__PURE__ */ new WeakMap();
+    scopeJson = (value2) => canonicalJson(JSON.parse(JSON.stringify(value2)));
     MAX = 8 * 1024 * 1024;
     MAX_ID2 = 0xffffffffffffffffn;
     INVENTORY_PROJECTION = { captureTypes: ["InventorySaveData"], listLimit: 250, hashPlaintext: false };
@@ -5008,10 +5047,10 @@ function structuralSourcePayload(backup, metadata3, input) {
   if (bytes2.length < 128 || bytes2.length > 8 * 1024 * 1024 || bytes2.length !== blob.size || !prepared && (bytes2.toString("base64") !== blob.data || hash(bytes2) !== blob.sha256)) fail9("STRUCTURAL_SOURCE_CHANGED");
   return { bytes: bytes2, blob, prepared };
 }
-function semanticIndex(raw, { hashPlaintext = true, scalarLocators = false } = {}) {
+function semanticIndex(raw, { hashPlaintext = true, scalarLocators = false, knowledgeDetails = true, companionDetails = true } = {}) {
   const knowledge2 = /* @__PURE__ */ new Map(), knowledgePaths = /* @__PURE__ */ new Map(), identities = /* @__PURE__ */ new Map(), scalarPaths = /* @__PURE__ */ new Map();
-  let itemCount = 0, petCount = 0;
-  const document = readDocument(raw, { captureTypes: ["InventorySaveData", "MercenaryClanSaveData"], listLimit: 1024, hashPlaintext, scalarFields: ["_itemNo", "_mercenaryNo", "_key", "_level", "_learnedFieldTime", "_isNewMark", ...scalarLocators ? ["_stackCount", "_varyExpandSlotCount"] : []], onScalar: (e) => {
+  let itemCount = 0, petCount = 0, knowledgeCount = 0;
+  const document = readDocument(raw, { captureTypes: ["InventorySaveData", ...companionDetails ? ["MercenaryClanSaveData"] : []], listLimit: 1024, hashPlaintext, scalarFields: ["_itemNo", "_mercenaryNo", "_key", ...knowledgeDetails ? ["_level", "_learnedFieldTime", "_isNewMark"] : [], ...scalarLocators ? ["_stackCount", "_varyExpandSlotCount"] : []], onScalar: (e) => {
     if (scalarLocators && /\.(?:_stackCount|_varyExpandSlotCount)$/.test(e.path)) {
       if (scalarPaths.has(e.offset)) fail9("STRUCTURAL_SCALAR_BINDING_FAILED");
       scalarPaths.set(e.offset, e);
@@ -5022,16 +5061,24 @@ function semanticIndex(raw, { hashPlaintext = true, scalarLocators = false } = {
     }
     const m = /^(.*\.KnowledgeSaveData\._list\[(\d+)\])\.(_key|_level|_learnedFieldTime|_isNewMark)$/.exec(e.path);
     if (m) {
-      const row = knowledgePaths.get(m[1]) || { path: m[1], index: Number(m[2]), fields: {} };
-      row.fields[m[3]] = e;
-      knowledgePaths.set(m[1], row);
+      if (knowledgeDetails) {
+        const row = knowledgePaths.get(m[1]) || { path: m[1], index: Number(m[2]), fields: {} };
+        row.fields[m[3]] = e;
+        knowledgePaths.set(m[1], row);
+      } else if (m[3] === "_key") {
+        if (!Number.isSafeInteger(e.value) || knowledge2.has(e.value)) fail9("STRUCTURAL_KNOWLEDGE_AMBIGUOUS");
+        knowledge2.set(e.value, { key: e.value });
+      }
     }
   }, onObject: (e) => {
     if (e.type === "ItemSaveData") itemCount++;
     if (e.type === "MercenarySaveData") petCount++;
     if (e.type === "KnowledgeElementSaveData") {
-      const row = knowledgePaths.get(e.path);
-      if (row) row.range = { wrapperStart: e.start, end: e.end };
+      knowledgeCount++;
+      if (knowledgeDetails) {
+        const row = knowledgePaths.get(e.path);
+        if (row) row.range = { wrapperStart: e.start, end: e.end };
+      }
     }
   } });
   for (const row of knowledgePaths.values()) {
@@ -5040,6 +5087,7 @@ function semanticIndex(raw, { hashPlaintext = true, scalarLocators = false } = {
     row.key = key;
     knowledge2.set(key, row);
   }
+  if (!knowledgeDetails && knowledge2.size !== knowledgeCount) fail9("STRUCTURAL_KNOWLEDGE_AMBIGUOUS");
   return { document, knowledge: knowledge2, identities, itemCount, petCount, scalarPaths };
 }
 function permittedKnowledgeChanges(sourceIndex, addItems) {
@@ -5058,11 +5106,11 @@ function createStructuralDraftCompiler({ schemaPins = [CRIMSON_CURRENT_SCHEMA], 
   return async function compileStructuralDraft2(backup, metadata3, input, { nonce, retainEncoded = false } = {}) {
     assertStructuralPlan(input, { schemaPins });
     if (nonce !== void 0 && (!import_buffer.Buffer.isBuffer(nonce) || nonce.length !== 16)) fail9("STRUCTURAL_NONCE_INVALID");
-    const { bytes: source, blob, prepared } = structuralSourcePayload(backup, metadata3, input), decoded = prepared?.decoded || await decodeSave(source), sourceIndex = semanticIndex(decoded.plaintext, { scalarLocators: true });
+    const addItems = input.operations.filter((o) => o.operation === "inventory.addItem"), addPets = input.operations.filter((o) => o.operation === "companions.add"), scalarOps = input.operations.filter((o) => scalarNames.includes(o.operation)).map((o) => ({ ...o })), knowledgeDetails = addItems.some((op) => catalogItemAdditionDefinition(op.definitionKey).knowledgeKeys.length > 0);
+    const { bytes: source, blob, prepared } = structuralSourcePayload(backup, metadata3, input), decoded = prepared?.decoded || await decodeSave(source), sourceIndex = semanticIndex(decoded.plaintext, { scalarLocators: true, knowledgeDetails, companionDetails: addPets.length > 0 });
     let before = sourceIndex.document;
     if (decoded.version !== 2 || !schemaPins.includes(before.schemaSha256) || before.schemaSha256 !== input.schemaSha256 || before.plaintextSha256 !== input.plaintextSha256 || before.audit.advisoryLocators || before.audit.unconsumedBytes) fail9("STRUCTURAL_SOURCE_CHANGED");
     if (!await preparedSourceNativeParity(backup, metadata3, input, decoded, source, encodeSave)) fail9("STRUCTURAL_NATIVE_PARITY_FAILED");
-    const addItems = input.operations.filter((o) => o.operation === "inventory.addItem"), addPets = input.operations.filter((o) => o.operation === "companions.add"), scalarOps = input.operations.filter((o) => scalarNames.includes(o.operation)).map((o) => ({ ...o }));
     const stackCount = (op) => {
       const max = BigInt(catalogItemAdditionDefinition(op.definitionKey).maxStack);
       return Number((BigInt(op.quantity) + max - 1n) / max);
@@ -5082,12 +5130,18 @@ function createStructuralDraftCompiler({ schemaPins = [CRIMSON_CURRENT_SCHEMA], 
     }
     if (scalarOps.length > MAX_STRUCTURAL_SCALAR_OPERATIONS) fail9("STRUCTURAL_OPERATION_LIMIT", "Send fewer changes together so inventory space can be checked.");
     const nonzero = before.audit.nonzeroListMetadata, originalSchema = before.schemaSha256, knowledgeChanges = permittedKnowledgeChanges(sourceIndex, addItems);
-    let working = source, scalarReport = null;
-    const stages = [], paths = new Set([...knowledgeChanges.values()].filter((d) => d.path).map((d) => d.path));
+    let working = source, scalarReport = null, nativeScope = true;
+    const scopeProofs = [], scopeChecks = [], stages = [], paths = new Set([...knowledgeChanges.values()].filter((d) => d.path).map((d) => d.path));
     if (scalarOps.length) {
       const scalarPlan = { ...input, schema: "saveglass.crimson-draft-plan.v1", operations: scalarOps }, r = await scalarCompiler(backup, metadata3, scalarPlan, { nonce });
       working = r.encoded;
       scalarReport = r.report;
+      const proof = scalarScopeWitness(r, source, scalarPlan);
+      nativeScope = Boolean(proof);
+      if (proof) {
+        scopeProofs.push(proof);
+        scopeChecks.push(() => Boolean(scalarScopeWitness(r, source, scalarPlan)));
+      }
       if (scalarReport.operations.length !== scalarOps.length) fail9("STRUCTURAL_SCALAR_BINDING_FAILED");
       for (const op of scalarReport.operations) {
         const e = sourceIndex.scalarPaths.get(op.offset);
@@ -5095,14 +5149,19 @@ function createStructuralDraftCompiler({ schemaPins = [CRIMSON_CURRENT_SCHEMA], 
         paths.add(e.path);
       }
     }
-    const original = scalarDigest(decoded.plaintext, { paths });
     before = null;
     sourceIndex.document = null;
     try {
       const requests = [...addItems.length ? [{ operation: "inventory.addItem", family: "catalog_item", items: addItems }] : [], ...addPets.length ? [{ operation: "companions.add", family: "catalog_companion", companions: addPets }] : []];
       for (const op of requests) {
-        const item = op.operation === "inventory.addItem";
+        const item = op.operation === "inventory.addItem", stageSource = working;
         const r = item ? await itemCompiler(working, op.items.map((o) => ({ definitionKey: o.definitionKey, quantity: o.quantity })), { nonce }) : await companionCompiler(working, op.companions.map((o) => ({ characterKey: o.characterKey })), { nonce });
+        const proof = item ? itemScopeWitness(r, stageSource, op.items.map((o) => ({ definitionKey: o.definitionKey, quantity: o.quantity }))) : null;
+        nativeScope = nativeScope && Boolean(proof);
+        if (proof) {
+          scopeProofs.push(proof);
+          scopeChecks.push(() => Boolean(itemScopeWitness(r, stageSource, op.items.map((o) => ({ definitionKey: o.definitionKey, quantity: o.quantity })))));
+        }
         const flags = ["fullTypedReparse", "reverseStructuralByteParity", "hmacReverified", "encodedOutputReopened", "unknownHeaderBytesPreserved", "allOtherOriginalScalarValuesUnchanged"];
         if (r.report.sourceSha256 !== hash(working) || r.report.cloudRequests !== 0 || !flags.every((k) => r.report.validation[k] === true)) fail9("STRUCTURAL_STAGE_VALIDATION_FAILED");
         stages.push({ operation: op.operation, family: op.family, revision: r.report.revision, sourceSha256: r.report.sourceSha256, outputSha256: r.report.outputSha256, inserted: Array.isArray(r.report.inserted) ? r.report.inserted : [r.report.inserted], decodedDiff: r.report.decodedDiff || [], perInventory: r.report.perInventory || [], runtimeRequirements: r.report.runtimeRequirements || r.report.inserted.filter((r2) => r2.runtimeRequirement).map((r2) => ({ characterKey: r2.characterKey, message: r2.runtimeRequirement })), validation: r.report.validation });
@@ -5115,7 +5174,7 @@ function createStructuralDraftCompiler({ schemaPins = [CRIMSON_CURRENT_SCHEMA], 
       }
       throw error;
     }
-    const reopened = await decodeSave(working), finalIndex = semanticIndex(reopened.plaintext, { hashPlaintext: false }), after = finalIndex.document, afterItems = records(after, "ItemSaveData"), afterPets = records(after, "MercenarySaveData"), inserted = [], newIds = [];
+    const reopened = await decodeSave(working), finalIndex = semanticIndex(reopened.plaintext, { hashPlaintext: false, knowledgeDetails, companionDetails: addPets.length > 0 }), after = finalIndex.document, afterItems = records(after, "ItemSaveData"), afterPets = records(after, "MercenarySaveData"), inserted = [], newIds = [];
     const requestedItems = new Map(addItems.map((op) => [op.definitionKey, op])), requestedPets = new Set(addPets.map((op) => op.characterKey)), itemTotals = /* @__PURE__ */ new Map(), itemBags = /* @__PURE__ */ new Map();
     for (const bag2 of elements(after.blocks.find((b) => b.type === "InventorySaveData"), "_inventorylist")) for (const r of elements(bag2, "_itemList")) itemBags.set(value(r, "_itemNo"), value(bag2, "_inventoryKey"));
     let insertedItems = 0, insertedPets = 0, embeddedItems = 0;
@@ -5154,7 +5213,10 @@ function createStructuralDraftCompiler({ schemaPins = [CRIMSON_CURRENT_SCHEMA], 
       } else if (change.beforeLevel !== old.fields._level.value || change.afterLevel !== 1 || row.fields._level.path !== allowed.path) fail9("STRUCTURAL_DISCOVERY_DIFF");
     }
     if (addItems.some((op) => itemTotals.get(op.definitionKey) !== BigInt(op.quantity))) fail9("STRUCTURAL_FINAL_QUANTITY_CHANGED");
-    if (finalIndex.knowledge.size !== sourceIndex.knowledge.size + addedKnowledge || newIds.some((id2) => sourceIndex.identities.has(id2) || finalIndex.identities.get(id2) !== 1) || new Set(newIds).size !== newIds.length || insertedItems !== totalStacks || insertedPets !== addPets.length || finalIndex.itemCount !== sourceIndex.itemCount + insertedItems + embeddedItems || finalIndex.petCount !== sourceIndex.petCount + insertedPets || after.schemaSha256 !== originalSchema || after.audit.nonzeroListMetadata !== nonzero || after.audit.advisoryLocators || after.audit.unconsumedBytes || JSON.stringify(scalarDigest(reopened.plaintext, { paths, ranges: inserted })) !== JSON.stringify(original)) fail9("STRUCTURAL_UNINTENDED_CHANGE");
+    if (hash(decoded.plaintext) !== input.plaintextSha256) fail9("STRUCTURAL_SOURCE_CHANGED");
+    nativeScope = nativeScope && scopeChecks.every((check) => check());
+    const original = nativeScope ? null : scalarDigest(decoded.plaintext, { paths });
+    if (finalIndex.knowledge.size !== sourceIndex.knowledge.size + addedKnowledge || newIds.some((id2) => sourceIndex.identities.has(id2) || finalIndex.identities.get(id2) !== 1) || new Set(newIds).size !== newIds.length || insertedItems !== totalStacks || insertedPets !== addPets.length || finalIndex.itemCount !== sourceIndex.itemCount + insertedItems + embeddedItems || finalIndex.petCount !== sourceIndex.petCount + insertedPets || after.schemaSha256 !== originalSchema || after.audit.nonzeroListMetadata !== nonzero || after.audit.advisoryLocators || after.audit.unconsumedBytes || !nativeScope && JSON.stringify(scalarDigest(reopened.plaintext, { paths, ranges: inserted })) !== JSON.stringify(original)) fail9("STRUCTURAL_UNINTENDED_CHANGE");
     if (scalarReport) {
       for (const op of scalarReport.operations) {
         const target = op.operation === "inventory.setExpansionValue" ? one(elements(one(after.blocks, (b) => b.type === "InventorySaveData"), "_inventorylist"), (b) => value(b, "_inventoryKey") === 2) : one(afterItems, (o) => String(value(o, "_itemNo")) === op.instanceId);
@@ -5163,7 +5225,7 @@ function createStructuralDraftCompiler({ schemaPins = [CRIMSON_CURRENT_SCHEMA], 
     }
     if (!working.subarray(0, 18).equals(source.subarray(0, 18)) || !working.subarray(74, 128).equals(source.subarray(74, 128)) || !(await encodeSave(reopened.plaintext, reopened.header, { nonce: reopened.header.subarray(26, 42) })).equals(working) || hash(source) !== blob.sha256) fail9("STRUCTURAL_REOPEN_FAILED");
     const operations = [...scalarReport?.operations || [], ...stages.flatMap((s) => s.inserted.map((entry) => ({ operation: s.operation, ...entry }))), ...actualKnowledge];
-    const report = { schema: "saveglass.structural-draft-preview.v1", revision: "saverift.source-backed-construction.2026-11-01.v2", decoderRevision: DECODER_REVISION, catalogRevision: CATALOG_REVISION, source: "plugin_bundle", backupId: metadata3.id, backupSha256: metadata3.sha256, backupRevision: backup.revision, container: input.container, payload: "save", payloadSha256: blob.sha256, schemaSha256: originalSchema, beforePlaintextSha256: hash(decoded.plaintext), afterPlaintextSha256: hash(reopened.plaintext), planSha256: structuralDraftDigest(input), encodedSha256: hash(working), encodedBytes: working.length, operations, decodedDiff: operations, capacity, stages, runtimeRequirements: stages.flatMap((s) => s.runtimeRequirements), validation: { nativeNoOpByteParity: true, nativeLz4NoOpByteParity: true, originalNoOpByteParity: true, fullDocumentReparsed: true, fullTypedReparse: true, allOtherDecodedValuesUnchanged: true, originalScalarValuesUnchanged: true, originalScalarDigest: original.sha256, originalScalarCount: original.count, stagewiseReverseStructuralByteParity: true, distinctGlobalNewIdentities: true, discoveryIntendedOnly: true, hmacReverified: true, encodedOutputReopened: true, unknownHeaderBytesPreserved: true, nonzeroListMetadataPreserved: after.audit.nonzeroListMetadata === nonzero, nonzeroListMetadataBefore: nonzero, nonzeroListMetadataAfter: after.audit.nonzeroListMetadata }, gameAcceptance: "known_record_structure_no_per_definition_console_gate", draftOnly: true, originalBackupUnchanged: true, modifiedSaveStored: false, writesEnabled: false, publishEligible: false };
+    const report = { schema: "saveglass.structural-draft-preview.v1", revision: "saverift.source-backed-construction.2026-11-01.v2", decoderRevision: DECODER_REVISION, catalogRevision: CATALOG_REVISION, source: "plugin_bundle", backupId: metadata3.id, backupSha256: metadata3.sha256, backupRevision: backup.revision, container: input.container, payload: "save", payloadSha256: blob.sha256, schemaSha256: originalSchema, beforePlaintextSha256: hash(decoded.plaintext), afterPlaintextSha256: hash(reopened.plaintext), planSha256: structuralDraftDigest(input), encodedSha256: hash(working), encodedBytes: working.length, operations, decodedDiff: operations, capacity, stages, runtimeRequirements: stages.flatMap((s) => s.runtimeRequirements), validation: { nativeNoOpByteParity: true, nativeLz4NoOpByteParity: true, originalNoOpByteParity: true, fullDocumentReparsed: true, fullTypedReparse: true, allOtherDecodedValuesUnchanged: true, originalScalarValuesUnchanged: true, ...original ? { originalScalarDigest: original.sha256, originalScalarCount: original.count } : { conservationProof: { format: "native-stage-witnesses.v1", stages: scopeProofs } }, stagewiseReverseStructuralByteParity: true, distinctGlobalNewIdentities: true, discoveryIntendedOnly: true, hmacReverified: true, encodedOutputReopened: true, unknownHeaderBytesPreserved: true, nonzeroListMetadataPreserved: after.audit.nonzeroListMetadata === nonzero, nonzeroListMetadataBefore: nonzero, nonzeroListMetadataAfter: after.audit.nonzeroListMetadata }, gameAcceptance: "known_record_structure_no_per_definition_console_gate", draftOnly: true, originalBackupUnchanged: true, modifiedSaveStored: false, writesEnabled: false, publishEligible: false };
     return retainEncoded ? { report, encoded: working } : report;
   };
 }
@@ -6528,6 +6590,11 @@ var TextDecoder2 = class {
   decode(input = new Uint8Array(), { stream = false } = {}) {
     if (stream) throw new TypeError("Streaming UTF-8 decoding is not supported.");
     const bytes2 = ArrayBuffer.isView(input) ? new Uint8Array(input.buffer, input.byteOffset, input.byteLength) : new Uint8Array(input);
+    if (bytes2.byteLength >= 4096 && bytes2.byteLength <= 8 * 1024 * 1024 && typeof globalThis.__saveriftUtf8Decode === "function") {
+      const literal = globalThis.__saveriftUtf8Decode(bytes2.slice().buffer, this.fatal ? 1 : 0, this.ignoreBOM ? 1 : 0);
+      if (literal === null) throw new TypeError("The encoded data is not valid UTF-8.");
+      return JSON.parse(literal);
+    }
     if (this.fatal && !validUtf8(bytes2)) throw new TypeError("The encoded data is not valid UTF-8.");
     let text = import_buffer.Buffer.from(bytes2).toString("utf8");
     if (!this.ignoreBOM && text.charCodeAt(0) === 65279) text = text.slice(1);

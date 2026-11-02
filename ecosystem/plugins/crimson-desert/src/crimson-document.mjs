@@ -96,7 +96,7 @@ export function readDocument(raw,{listLimit=200,fieldListLimits={},captureTypes,
         value=capture?{count,elements,truncated:count>retainedLimit,metadataOffset:metadataStart,metadataBytes:meta}:null;
       }else fail(`Unsupported field kind ${def.kind} at ${fieldPath}.`);
       if(compareTo&&present&&[0,1,2,3].includes(def.kind)){
-        comparedLeafFields++;let differs=false;for(let at=begin;at<p&&!differs;at++)differs=raw[at]!==compareTo[at];
+        comparedLeafFields++;let differs=false;if(p-begin>=64)differs=!raw.subarray(begin,p).equals(compareTo.subarray(begin,p));else for(let at=begin;at<p&&!differs;at++)differs=raw[at]!==compareTo[at];
         if(differs){
           if(decodedDiff.length>=32)fail('Decoded diff exceeds the narrow-edit limit.');
           const decode=source=>[0,2].includes(def.kind)?scalar(begin,def,mode,source):{bytes:p-begin,rawSha256:hash(source.subarray(begin,p))};

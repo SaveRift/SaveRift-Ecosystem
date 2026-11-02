@@ -10,7 +10,7 @@ import {encodeSave,decodeSave} from '../src/crimson-codec.mjs';
 import {readDocument,value,elements} from '../src/crimson-document.mjs';
 import {u16,u32,u64} from './synthetic-parc.mjs';
 
-const entries=[[4242,2,'50',0,100,5,false,[],0,0],[4243,3,'50',0,100,5,false,[],0,0],[4244,2,'50',0,100,5,false,[],0,0]],data={entries,entriesSha256:hash(JSON.stringify(entries)),unavailable:[],balanceDefinitions:[],columns:[],source:{},runtimeRequirements:{}};
+const entries=[[4242,2,'50',0,100,5,false,[],0,0],[4243,3,'50',0,100,5,false,[],0,0],[4244,2,'50',0,100,5,false,[9],1,0]],data={entries,entriesSha256:hash(JSON.stringify(entries)),unavailable:[],balanceDefinitions:[],columns:[],source:{},runtimeRequirements:{}};
 const catalog={manifest:{revision:'synthetic.v1',effectiveSha256:'0'.repeat(64)},items:[{key:4242,name:'Synthetic stack',internalName:'Synthetic_Stack',category:'Test',referenceMaxStack:'50'}]};
 configureDataProviders([['crimson-construction-items.json',data],['crimson-items.json',catalog]].map(([id,data])=>{const bytes=Buffer.from(JSON.stringify(data));return{id,bytes,sha256:hash(bytes)};}),{synthetic:true});
 const {createCatalogItemAddition}=await import('../src/crimson-item-addition.mjs');
@@ -33,8 +33,19 @@ async function add(options,inputs){
  const encoded=await encodeSave(raw,header,{nonce:Buffer.alloc(16,7)}),sourceCopy=Buffer.from(encoded),compiler=createCatalogItemAddition({schemaPins:[document.schemaSha256]}),result=await compiler.many(encoded,inputs,{nonce:Buffer.alloc(16,8)}),after=readDocument((await decodeSave(result.encoded)).plaintext),bags=elements(after.blocks.find(b=>b.type==='InventorySaveData'),'_inventorylist');
  assert.equal(encoded.equals(sourceCopy),true);assert.equal(result.report.validation.reverseStructuralByteParity,true);assert.equal(result.report.validation.allOtherOriginalScalarValuesUnchanged,true);assert.equal(result.report.validation.nonzeroListMetadataBefore,result.report.validation.nonzeroListMetadataAfter);assert.equal(result.report.validation.nativeOutputNoOpByteParity,true);
  for(const bag of bags)for(const item of elements(bag,'_itemList').filter(i=>value(i,'_itemKey')===101))assert.equal(value(item,'_stackCount'),options.quantity||'5');
- return {result,bags,after};
+ return {result,bags,after,source:sourceCopy,inputs};
 }
+
+test('structural scope witnesses reject clones and changed bytes, intent or reports',async()=>{
+ const {itemScopeWitness}=await import('../src/crimson-item-addition.mjs'),f=await add({},[{definitionKey:4242,quantity:'2'}]);
+ assert.equal(itemScopeWitness(f.result,f.source,f.inputs).kind,'native-item-structural-byte-proof');
+ assert.equal(itemScopeWitness({...f.result},f.source,f.inputs),null);
+ assert.equal(itemScopeWitness(f.result,f.source,[{definitionKey:4242,quantity:'3'}]),null);
+ const changed=Buffer.from(f.source);changed[128]^=1;assert.equal(itemScopeWitness(f.result,changed,f.inputs),null);
+ f.result.report.validation.claimedByCaller=true;assert.equal(itemScopeWitness(f.result,f.source,f.inputs),null);delete f.result.report.validation.claimedByCaller;
+ const original=f.result.encoded[128];f.result.encoded[128]^=1;assert.equal(itemScopeWitness(f.result,f.source,f.inputs),null);f.result.encoded[128]=original;
+ assert.ok(itemScopeWitness(f.result,f.source,f.inputs));
+});
 test('an explicit item with no pickup discovery preserves an empty valid knowledge list',async()=>{
  const {result,after}=await add({knowledgeCount:0},[{definitionKey:4242,quantity:'2'}]);
  const list=after.blocks.find(b=>b.type==='KnowledgeSaveData').fields._list;
@@ -61,7 +72,21 @@ test('combined scalar and item compiler binds fused scalar locators and preserve
  assert.equal(value(original,'_stackCount'),'6');assert.equal(value(added,'_stackCount'),'2');
  const offset=result.report.operations.find(o=>o.operation==='inventory.setQuantity').offset,target=[];readDocument(raw,{captureTypes:[],onScalar:e=>{if(e.offset===offset)target.push(e.path);}});assert.equal(target.length,1);
  function tupleDigest(bytes,range){const h=createHash('sha256');let count=0;readDocument(bytes,{captureTypes:[],onScalar:e=>{if(e.path===target[0]||range&&e.offset>=range.wrapperStart&&e.offset<range.end)return;h.update(JSON.stringify([e.path,e.type,e.bytes,e.value])+'\n','utf8');count++;}});return{sha256:h.digest('hex'),count};}
- const beforeDigest=tupleDigest(raw),afterDigest=tupleDigest(after.plaintext,added);assert.deepEqual(afterDigest,beforeDigest);assert.equal(result.report.validation.originalScalarDigest,beforeDigest.sha256);assert.equal(result.report.validation.originalScalarCount,beforeDigest.count);
+ const beforeDigest=tupleDigest(raw),afterDigest=tupleDigest(after.plaintext,added);assert.deepEqual(afterDigest,beforeDigest);
+ const proof=result.report.validation.conservationProof;assert.equal(proof.format,'native-stage-witnesses.v1');assert.equal(proof.stages.length,2);assert.equal(proof.stages[0].sourceSha256,hash(encoded));assert.equal(proof.stages[0].outputSha256,proof.stages[1].sourceSha256);assert.equal(proof.stages[1].outputSha256,hash(result.encoded));
+ const lightPlan={...plan,operations:[plan.operations[0],{operation:'inventory.addItem',definitionKey:4242,quantity:'2'}]},light=await compile(bound.source,bound.metadata,lightPlan,{nonce:Buffer.alloc(16,8),retainEncoded:true}),lightDocument=readDocument((await decodeSave(light.encoded)).plaintext);
+ assert.equal(light.report.validation.conservationProof.stages.length,2);assert.equal(value(elements(lightDocument.blocks.find(b=>b.type==='KnowledgeSaveData'),'_list')[0],'_level'),1);
+ // Cloning a real native result or copying its serialized proof cannot claim
+ // the opaque fast path. The independent legacy digest remains available.
+ const fallback=createStructuralDraftCompiler({...options,scalarCompiler:async(...args)=>({...await scalarCompiler(...args)}),itemCompiler:async(...args)=>({...await options.itemCompiler(...args)})});
+ const cloned=await fallback(bound.source,bound.metadata,plan,{nonce:Buffer.alloc(16,8),retainEncoded:true});
+ assert.equal(cloned.encoded.equals(result.encoded),true);assert.equal(cloned.report.validation.originalScalarDigest,beforeDigest.sha256);assert.equal(cloned.report.validation.originalScalarCount,beforeDigest.count);assert.equal(cloned.report.validation.conservationProof,undefined);
+ const hostile=createStructuralDraftCompiler({...options,itemCompiler:async(...args)=>{
+  const native=await options.itemCompiler(...args),decoded=await decodeSave(native.encoded),doc=readDocument(decoded.plaintext),level=elements(doc.blocks.find(b=>b.type==='KnowledgeSaveData'),'_list')[0].fields._level;
+  decoded.plaintext.writeUInt32LE(2,level.offset);native.encoded=await encodeSave(decoded.plaintext,decoded.header,{nonce:decoded.header.subarray(0x1a,0x2a)});native.report.outputSha256=hash(native.encoded);native.scopeProof=proof;
+  return native;
+ }});
+ await assert.rejects(hostile(bound.source,bound.metadata,plan,{nonce:Buffer.alloc(16,8),retainEncoded:true}),{code:'STRUCTURAL_UNINTENDED_CHANGE'});
  const invalid=createStructuralDraftCompiler({...options,scalarCompiler:async(...args)=>{const r=await scalarCompiler(...args);r.report.operations[0].fieldBytes++;return r;}});
  await assert.rejects(invalid(bound.source,bound.metadata,plan,{nonce:Buffer.alloc(16,8),retainEncoded:true}),{code:'STRUCTURAL_SCALAR_BINDING_FAILED'});
 });
