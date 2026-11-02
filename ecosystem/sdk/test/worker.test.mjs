@@ -5,6 +5,7 @@ import {tmpdir} from 'node:os';
 import {createServer} from 'node:net';
 import {spawn} from 'node:child_process';
 import path from 'node:path';
+import {createCipheriv} from 'node:crypto';
 import {fileURLToPath} from 'node:url';
 import {buildWorkerRunner} from '../build-worker.mjs';
 test('actual workerd static-Wasm adapter runs offline guest and enforces CPU/memory quotas',async()=>{
@@ -18,6 +19,7 @@ test('actual workerd static-Wasm adapter runs offline guest and enforces CPU/mem
     const endpoint=`http://127.0.0.1:${port}/`;let ready;
     for(let i=0;i<100;i++){if(worker.exitCode!==null)throw new Error('workerd startup failed: '+errors);try{ready=await fetch(endpoint);break;}catch{await new Promise(resolve=>setTimeout(resolve,20));}}
     assert.ok(ready,'workerd did not become ready: '+errors);const body=await ready.json();assert.equal(ready.status,200,JSON.stringify(body)+' '+errors);assert.deepEqual(body.result,{bytes:8,crypto:'undefined',fetch:'undefined',process:'undefined',require:'undefined'});assert.ok(body.metrics.memoryBytes<=64*1024*1024);
+    const binaryResult=await (await fetch(endpoint+'?case=binary')).json();assert.deepEqual(binaryResult.result,{cipher:[...createCipheriv('chacha20',new Uint8Array(32),new Uint8Array(16)).update(new Uint8Array(64).fill(65)).subarray(0,8)],roundTrip:true,utf8:[0,65]});
     for(const [kind,code]of [['cpu','CPU_LIMIT'],['memory','MEMORY_LIMIT']]){const response=await fetch(endpoint+'?case='+kind),body=await response.json();assert.equal(response.status,422);assert.equal(body.code,code,JSON.stringify(body));}
   }finally{if(worker&&worker.exitCode===null){worker.kill('SIGTERM');await new Promise(resolve=>worker.once('exit',resolve));}await rm(dir,{recursive:true,force:true});}
 });

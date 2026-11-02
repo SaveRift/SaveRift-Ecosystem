@@ -10,7 +10,8 @@ import {CRIMSON_CURRENT_SCHEMA,createWorkbenchDraft} from './crimson-draft.mjs';
 import {assertStructuralPlan,structuralSourcePayload,createStructuralWorkbenchDraft} from './structural-draft.mjs';
 import {STRUCTURAL_PLAN_SCHEMA,MAX_STRUCTURAL_OPERATIONS} from './structural-publication-profile.mjs';
 import {previewAbyssNexus} from './crimson-abyss-nexus.mjs';
-import {previewMapReveal} from './crimson-map-reveal.mjs';
+import {previewMapReveal,mapOutputWitness} from './crimson-map-reveal.mjs';
+import {preparedSourceNativeParity} from './source-binding.mjs';
 export const MIXED_PLAN_SCHEMA='saveglass.mixed-draft-plan.v1';
 export const MIXED_PUBLICATION_PROFILE='saveglass-crimson-mixed107.v1';
 const common=['schema','container','payload','backupSha256','backupRevision','payloadSha256','plaintextSha256','schemaSha256','decoderRevision','catalogRevision','operations'];
@@ -40,17 +41,25 @@ export function createMixedDraftCompiler({schemaPins=[CRIMSON_CURRENT_SCHEMA],st
   // independent/cloned sources still decode and traverse before composition.
   const {bytes:source,prepared}=structuralSourcePayload(backup,ownedMetadata,input),decoded=prepared?.decoded||await decodeSave(source),before=prepared?.document||metadata(decoded.plaintext);
   if(decoded.version!==2||before.schemaSha256!==input.schemaSha256||before.plaintextSha256!==input.plaintextSha256||before.audit.advisoryLocators||before.audit.unconsumedBytes)fail('MIXED_SOURCE_CHANGED');
-  if(!(await encodeSave(decoded.plaintext,decoded.header,{nonce:decoded.header.subarray(0x1a,0x2a)})).equals(source))fail('MIXED_NATIVE_PARITY_FAILED');
-  let working=source,plainHash=before.plaintextSha256;const stages=[],diff=[],nonCart=input.operations.filter(op=>!cartography.includes(op.operation));
+  const nonCart=input.operations.filter(op=>!cartography.includes(op.operation)),structural=nonCart.some(op=>['inventory.addItem','companions.add'].includes(op.operation));
+  // Exact native children independently prove this same original envelope.
+  // Custom compiler seams and cartography-only plans keep the parent proof.
+  const nativeChild=nonCart.length&&(structural?structuralCompiler===createStructuralWorkbenchDraft:scalarCompiler===createWorkbenchDraft);
+  if(!nativeChild&&!await preparedSourceNativeParity(backup,ownedMetadata,input,decoded,source,encodeSave))fail('MIXED_NATIVE_PARITY_FAILED');
+  let working=source,plainHash=before.plaintextSha256,finalMap;const stages=[],diff=[];
   async function accept(domain,result,{operations=false,structural=false,expectedPlanSha256,expectedBindings}={}){
    const {encoded,report}=result||{},v=report?.validation;
-   if(!Buffer.isBuffer(encoded)||encoded.length<128||encoded.length>8*1024*1024||!report||!v||!Array.isArray(report.decodedDiff)||report.schemaSha256!==input.schemaSha256||report.beforePlaintextSha256!==plainHash||(operations?report.payloadSha256:report.sourceSha256)!==hash(working)||(report.encodedSha256||report.outputSha256)!==hash(encoded)||v.hmacReverified!==true||v.encodedOutputReopened!==true||v.unknownHeaderBytesPreserved!==true)fail('MIXED_STAGE_CHAIN_INVALID');
+   if(!Buffer.isBuffer(encoded)||encoded.length<128||encoded.length>8*1024*1024||!report||!v||!Array.isArray(report.decodedDiff))fail('MIXED_STAGE_CHAIN_INVALID');
+   // Hash once after the asynchronous decode, then use these exact checked
+   // values throughout the synchronous chain/report assembly.
+   const reopened=await decodeSave(encoded),sourceSha256=hash(working),outputSha256=hash(encoded);
+   if(report.schemaSha256!==input.schemaSha256||report.beforePlaintextSha256!==plainHash||(operations?report.payloadSha256:report.sourceSha256)!==sourceSha256||(report.encodedSha256||report.outputSha256)!==outputSha256||report.afterPlaintextSha256!==hash(reopened.plaintext)||v.hmacReverified!==true||v.encodedOutputReopened!==true||v.unknownHeaderBytesPreserved!==true)fail('MIXED_STAGE_CHAIN_INVALID');
    if(operations){if(report.planSha256!==expectedPlanSha256||Object.entries(expectedBindings).some(([key,value])=>report[key]!==value)||report.schema!==(structural?'saveglass.structural-draft-preview.v1':'saveglass.crimson-draft-preview.v1'))fail('MIXED_STAGE_INTENT_INVALID');if(report.originalBackupUnchanged!==true||v.allOtherDecodedValuesUnchanged!==true||v.originalNoOpByteParity!==true||structural&&v.stagewiseReverseStructuralByteParity!==true||!structural&&v.allOtherPlaintextBytesUnchanged!==true)fail('MIXED_STAGE_SCOPE_INVALID');}
    else if(report.sourceSaveUnchanged!==true||report.cloudRequests!==0||report.canSend!==false||v.nativeNoOpByteParity!==true||(domain==='unlock-nexus'?!checkNexus(report):!checkMap(report)))fail('MIXED_STAGE_SCOPE_INVALID');
    // Verify the reported chain with actual decrypted output; a successful
    // compiler return or a boolean alone is insufficient source correspondence.
-   const reopened=await decodeSave(encoded);if(report.afterPlaintextSha256!==hash(reopened.plaintext))fail('MIXED_STAGE_CHAIN_INVALID');
-   stages.push({domain,compilerRevision:report.revision||report.compilerRevision||report.schema,sourceSha256:hash(working),beforePlaintextSha256:plainHash,outputSha256:hash(encoded),afterPlaintextSha256:report.afterPlaintextSha256,decodedDiffRecords:report.decodedDiff.length,decodedDiffSha256:hash(JSON.stringify(canonical(report.decodedDiff))),validation:v,runtimeRequirements:report.runtimeRequirements||[]});
+   finalMap=domain==='reveal-map'?{result,source:working}:null;
+   stages.push({domain,compilerRevision:report.revision||report.compilerRevision||report.schema,sourceSha256,beforePlaintextSha256:plainHash,outputSha256,afterPlaintextSha256:report.afterPlaintextSha256,decodedDiffRecords:report.decodedDiff.length,decodedDiffSha256:hash(JSON.stringify(canonical(report.decodedDiff))),validation:v,runtimeRequirements:report.runtimeRequirements||[]});
    diff.push(...report.decodedDiff);working=encoded;plainHash=report.afterPlaintextSha256;
   }
   try{
@@ -59,10 +68,14 @@ export function createMixedDraftCompiler({schemaPins=[CRIMSON_CURRENT_SCHEMA],st
   }catch(error){if(error instanceof CodecError)throw new ProbeError(error.message,409,error.code);throw error;}
   if(mixedPlanDigest(input)!==requestedPlanSha256||mixedPlanDigest(suppliedInput)!==requestedPlanSha256)fail('MIXED_INTENT_CHANGED');
   if(!diff.length)fail('MIXED_ALREADY_SATISFIED','These changes are already present in the selected save.');
-  const reopened=await decodeSave(working),after=metadata(reopened.plaintext);
-  if(after.schemaSha256!==before.schemaSha256||after.plaintextSha256!==plainHash||after.audit.advisoryLocators||after.audit.unconsumedBytes||after.audit.nonzeroListMetadata!==before.audit.nonzeroListMetadata||!working.subarray(0,0x12).equals(source.subarray(0,0x12))||!working.subarray(0x4a,128).equals(source.subarray(0x4a,128))||hash(source)!==input.payloadSha256||!(await encodeSave(reopened.plaintext,reopened.header,{nonce:reopened.header.subarray(0x1a,0x2a)})).equals(working))fail('MIXED_REOPEN_FAILED');
+  const reopened=await decodeSave(working),proof=finalMap&&mapOutputWitness(finalMap.result,finalMap.source),encodedSha256=hash(working);
+  // The native final map stage already strictly reparsed these exact bytes and
+  // re-encoded its output. Recheck its opaque byte/report binding after decode;
+  // custom/cloned results retain the complete independent final walk/encode.
+  const after=proof?{schemaSha256:proof.schemaSha256,plaintextSha256:hash(reopened.plaintext),audit:proof.audit}:metadata(reopened.plaintext);
+  if(proof&&(after.plaintextSha256!==proof.plaintextSha256||encodedSha256!==proof.outputSha256)||after.schemaSha256!==before.schemaSha256||after.plaintextSha256!==plainHash||after.audit.advisoryLocators||after.audit.unconsumedBytes||after.audit.nonzeroListMetadata!==before.audit.nonzeroListMetadata||!working.subarray(0,0x12).equals(source.subarray(0,0x12))||!working.subarray(0x4a,128).equals(source.subarray(0x4a,128))||hash(source)!==input.payloadSha256||!proof&&!(await encodeSave(reopened.plaintext,reopened.header,{nonce:reopened.header.subarray(0x1a,0x2a)})).equals(working))fail('MIXED_REOPEN_FAILED');
   const fullDigest=hash(JSON.stringify(canonical(diff))),summary=()=>[...new Set(diff.map(d=>d.operation))].sort().map(operation=>{const rows=diff.filter(d=>d.operation===operation);return {operation,records:rows.length,recordsSha256:hash(JSON.stringify(canonical(rows)))};});
-  const report={schema:'saveglass.mixed-draft-preview.v1',revision:'saverift.mixed-stage-union.2026-11-01.v1',source:'plugin_bundle',backupId:ownedMetadata.id,backupSha256:ownedMetadata.sha256,backupRevision:backup.revision,container:input.container,payload:'save',payloadSha256:input.payloadSha256,schemaSha256:before.schemaSha256,decoderRevision:DECODER_REVISION,catalogRevision:CATALOG_REVISION,beforePlaintextSha256:before.plaintextSha256,afterPlaintextSha256:after.plaintextSha256,encodedSha256:hash(working),encodedBytes:working.length,planSha256:requestedPlanSha256,operations:input.operations,decodedDiff:retainEncoded?summary():diff,fullDecodedDiffSha256:fullDigest,fullDecodedDiffRecords:diff.length,decodedDiffDetail:retainEncoded?'digest_bound_stage_union':'full_stage_union',stages,runtimeRequirements:stages.flatMap(s=>s.runtimeRequirements),validation:{allOtherDecodedValuesUnchanged:true,stagewiseIntendedOnlyUnion:true,stageEncodedAndPlaintextChainVerified:true,originalNoOpByteParity:true,nativeLz4NoOpByteParity:true,hmacReverified:true,encodedOutputReopened:true,unknownHeaderBytesPreserved:true,nonzeroListMetadataPreserved:true,nonzeroListMetadataBefore:before.audit.nonzeroListMetadata,nonzeroListMetadataAfter:after.audit.nonzeroListMetadata,originalBackupUnchanged:true,finalTypedDocumentReparsed:true},pairedLobbyUnchanged:true,originalBackupUnchanged:true,modifiedSaveStored:false,cloudRequests:0,draftOnly:true,writesEnabled:false,publishEligible:false};
+  const report={schema:'saveglass.mixed-draft-preview.v1',revision:'saverift.mixed-stage-union.2026-11-01.v1',source:'plugin_bundle',backupId:ownedMetadata.id,backupSha256:ownedMetadata.sha256,backupRevision:backup.revision,container:input.container,payload:'save',payloadSha256:input.payloadSha256,schemaSha256:before.schemaSha256,decoderRevision:DECODER_REVISION,catalogRevision:CATALOG_REVISION,beforePlaintextSha256:before.plaintextSha256,afterPlaintextSha256:after.plaintextSha256,encodedSha256,encodedBytes:working.length,planSha256:requestedPlanSha256,operations:input.operations,decodedDiff:retainEncoded?summary():diff,fullDecodedDiffSha256:fullDigest,fullDecodedDiffRecords:diff.length,decodedDiffDetail:retainEncoded?'digest_bound_stage_union':'full_stage_union',stages,runtimeRequirements:stages.flatMap(s=>s.runtimeRequirements),validation:{allOtherDecodedValuesUnchanged:true,stagewiseIntendedOnlyUnion:true,stageEncodedAndPlaintextChainVerified:true,originalNoOpByteParity:true,nativeLz4NoOpByteParity:true,hmacReverified:true,encodedOutputReopened:true,unknownHeaderBytesPreserved:true,nonzeroListMetadataPreserved:true,nonzeroListMetadataBefore:before.audit.nonzeroListMetadata,nonzeroListMetadataAfter:after.audit.nonzeroListMetadata,originalBackupUnchanged:true,finalTypedDocumentReparsed:true,finalValidation:proof?"native-map-byte-proof":"fresh-final-document"},pairedLobbyUnchanged:true,originalBackupUnchanged:true,modifiedSaveStored:false,cloudRequests:0,draftOnly:true,writesEnabled:false,publishEligible:false};
   return retainEncoded?{report,encoded:working}:report;
  };
 }

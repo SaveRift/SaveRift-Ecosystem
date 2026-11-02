@@ -98,7 +98,7 @@ export function createCollaborationService({store, access, git = null, now = Dat
         const issues = issueList.issues.filter(issue => currentIssue(issue, project)).map(publicIssue);
         const publicContributors = await projectPublicCoordination(ctx, project, workItems, issues);
         const contributors = [...new Map([...issues.flatMap(issue => issue.assignees), ...publicContributors].map(person => [person.login.toLowerCase(), person])).values()];
-        const prs = prList.pullRequests.filter(pr => pr.draft === true && typeof pr.headRef === 'string' && pr.headRef.startsWith(project.branchPrefix)).map(publicPR);
+        const prs = prList.pullRequests.filter(pr => pr.draft === true && typeof pr.headRef === 'string' && (pr.headRef.startsWith(project.branchPrefix) || pr.headRef === sourceBaseRef(project))).map(publicPR);
         snapshot = {...base, repository: repo, contributors, issues, draftPullRequests: prs, head, checkedAt: stamp(), projectDigest: digestProject(project), state: 'current', github: {state: 'connected', canonical: true, issuesTruncated: issueList.hasMore === true, pullRequestsTruncated: prList.hasMore === true}};
         // A cache is a projection only. Webhooks never edit this from event data.
         try {await putLatest(snapshotKey(project), snapshot);} catch (error) {if (error.code !== 'COLLABORATION_REVISION_CONFLICT') throw error;} // Two live readers may race a disposable cache.

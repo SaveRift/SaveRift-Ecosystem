@@ -59,7 +59,7 @@ async function compilerFor(document,operations){
  if(kind==='scalar')return {schema:schemas.scalar,compile:scalarCompiler};
  const structure=await import('./src/structural-draft.mjs');
  if(!pin){if(kind==='mixed')await subsystem('operations');return {schema:schemas[kind],compile:kind==='mixed'?runtime.createMixedWorkbenchDraft:structure.createStructuralWorkbenchDraft};}
- const schemaPins=[pin.schemaSha256],[item,companion]=await Promise.all([import('./src/crimson-item-addition.mjs'),import('./src/crimson-companion-addition.mjs')]),items=item.createCatalogItemAddition({schemaPins}),companions=companion.createCompanionAdditions({schemaPins}),structuralBase=structure.createStructuralDraftCompiler({schemaPins,scalarCompiler,itemCompiler:items.many,companionCompiler:companions}),structuralCompiler=(b,m,p,o)=>structuralBase(b,m,p,{...o,retainEncoded:true});
+ const schemaPins=[pin.schemaSha256],item=await import('./src/crimson-item-addition.mjs'),items=item.createCatalogItemAddition({schemaPins}),companions=async(...args)=>(await import('./src/crimson-companion-addition.mjs')).createCompanionAdditions({schemaPins})(...args),structuralBase=structure.createStructuralDraftCompiler({schemaPins,scalarCompiler,itemCompiler:items.many,companionCompiler:companions}),structuralCompiler=(b,m,p,o)=>structuralBase(b,m,p,{...o,retainEncoded:true});
  if(kind==='structural')return {schema:schemas.structural,compile:structuralCompiler};
  const [map,nexus]=await Promise.all([import('./src/crimson-map-reveal.mjs'),import('./src/crimson-abyss-nexus.mjs')]);await subsystem('operations');
  const mixed=runtime.createMixedDraftCompiler({schemaPins,scalarCompiler,structuralCompiler,mapCompiler:map.createMapRevealPreview({schemaPins}),nexusCompiler:nexus.createAbyssNexusPreview({schemaPins})});
@@ -80,8 +80,11 @@ async function opened(bundle,ctx){
  const value={bundle,metadata:mapped.metadata,ids:mapped.ids,get source(){return mapped.source;},artifact:a,container,decoded,document,domains};
  cachedOpen={context:ctx,binding,value};return value;
 }
-async function scalarSnapshot(bundle,ctx){
- const r=await load(bundle,ctx),mapped=sourceFromBundle(bundle,ctx,{lazy:true}),artifact=mainArtifact(bundle),decoded=await r.decodeSave(Buffer.from(ctx.readArtifact(artifact.id))),projection={captureTypes:['InventorySaveData'],fieldListLimits:{'InventoryElementSaveData._itemList':1024}},document=r.readDocument(decoded.plaintext,projection),container=[...mapped.ids].find(([,d])=>d.id===artifact.id)?.[0].replace(/\/save$/,'');
+async function compilerSnapshot(bundle,ctx,operations){
+ // Ordinary plans need the inventory scalar projection, not a retained UI
+ // document and normalized domains. Structural compilers build their own
+ // complete semantic indexes; this reader still strictly walks every root.
+ const r=await load(bundle,ctx),mapped=sourceFromBundle(bundle,ctx,{lazy:true}),artifact=mainArtifact(bundle),decoded=await r.decodeSave(Buffer.from(ctx.readArtifact(artifact.id))),structural=operations.some(o=>['inventory.addItem','companions.add'].includes(o.operation)),projection={captureTypes:['InventorySaveData',...(operations.some(o=>o.operation==='companions.add')?['MercenaryClanSaveData']:[])],fieldListLimits:{'InventoryElementSaveData._itemList':1024}},document=structural?(await import('./src/structural-draft.mjs')).prepareStructuralDocument(decoded.plaintext,operations):r.readDocument(decoded.plaintext,projection),container=[...mapped.ids].find(([,d])=>d.id===artifact.id)?.[0].replace(/\/save$/,'');
  await subsystem('domain');
  return {metadata:mapped.metadata,get source(){return mapped.source;},artifact,container,decoded,document,projection};
 }
@@ -141,7 +144,7 @@ export default {
  },
  async plan(bundle,{operations,operationDigest},ctx){
   if(!Array.isArray(operations)||operations.length>16||!/^[a-f0-9]{64}$/.test(operationDigest||''))fail('CRIMSON_OPERATION_LOG_INVALID');
-  const ops=operations.map(plainOperation),scalarOnly=ops.length&&ops.every(o=>['inventory.setQuantity','inventory.setCopper','inventory.setExpansionValue'].includes(o.operation)),s=!ops.length?await checkedEnvelope(bundle,ctx):scalarOnly?await scalarSnapshot(bundle,ctx):await opened(bundle,ctx),r=runtime,research=ops.filter(o=>o.operation==='document.patchFixedWidth'),known=ops.filter(o=>o.operation!=='document.patchFixedWidth');if(research.reduce((n,o)=>n+(o.patches?.length||0),0)>16)fail('CRIMSON_DOCUMENT_PATCH_LIMIT');let output=s.artifact,report={operations:[],validation:{originalBackupUnchanged:true}},outputs=bundle.artifacts.filter(a=>!['reference-data','preset-source'].includes(a.role)),retained=outputs.map(a=>a.id);
+  const ops=operations.map(plainOperation),ordinary=ops.length&&ops.every(o=>o.operation!=='document.patchFixedWidth'&&o.operation!=='preset.replaceAdventure'),s=!ops.length?await checkedEnvelope(bundle,ctx):ordinary?await compilerSnapshot(bundle,ctx,ops):await opened(bundle,ctx),r=runtime,research=ops.filter(o=>o.operation==='document.patchFixedWidth'),known=ops.filter(o=>o.operation!=='document.patchFixedWidth');if(research.reduce((n,o)=>n+(o.patches?.length||0),0)>16)fail('CRIMSON_DOCUMENT_PATCH_LIMIT');let output=s.artifact,report={operations:[],validation:{originalBackupUnchanged:true}},outputs=bundle.artifacts.filter(a=>!['reference-data','preset-source'].includes(a.role)),retained=outputs.map(a=>a.id);
   if(ops.some(o=>o.operation==='preset.replaceAdventure')){
    if(ops.length!==1)fail('CRIMSON_PRESET_REPLACEMENT_EXCLUSIVE');await subsystem('pair');const op=ops[0],reference=getData('crimson-preset-reference-pins.json')[op.presetId];if(!reference)fail('PRESET_REFERENCE_PROVIDER_REQUIRED');
    const pair={};for(const name of ['save','lobby']){const a=bundle.artifacts.find(a=>a.id===op[name+'ArtifactId']);if(!a||a.role!=='preset-source')fail('PRESET_REFERENCE_ARTIFACT_REQUIRED');pair[name]=Buffer.from(ctx.readArtifact(a.id));}report=await r.validateReferencePair(pair,reference);

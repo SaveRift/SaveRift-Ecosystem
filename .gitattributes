@@ -1,0 +1,5 @@
+# Keep reviewed package text deterministic across supported Git checkouts.
+* text=auto eol=lf
+# Save fixtures and upstream notices retain their exact repository bytes.
+*.save -text
+ecosystem/plugins/crimson-desert/licenses/Workshop-UPSTREAM-CREDITS.txt -text
