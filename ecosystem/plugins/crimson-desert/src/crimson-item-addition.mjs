@@ -3,7 +3,7 @@
 import {Buffer} from '../../../sdk/buffer.mjs';
 import {decodeSave,encodeSave,CodecError} from './crimson-codec.mjs';
 import {readDocument,field,value,elements} from './crimson-document.mjs';
-import {traceStructuralDocument,allocateStructuralItemId,insertTypedRecords} from './crimson-structural-layout.mjs';
+import {traceStructuralDocument,allocateStructuralItemId,insertTypedRecords,releaseStructuralTrace} from './crimson-structural-layout.mjs';
 import {getData} from './data-provider.mjs';
 const gear=getData('crimson-gear-control.json');
 const nexus=getData('crimson-abyss-nexus.json');
@@ -63,7 +63,7 @@ function applyDiscovery(raw,definition,types){
  for(const row of before.rows){const next=after.byKey.get(row.key);if(!next)fail('CRIMSON_ITEM_KNOWLEDGE_DIFF');for(const [name,old]of Object.entries(row.fields)){const n=next.fields[name],changed=name==='_level'&&diff.some(d=>d.operation==='knowledge.setLevel'&&d.key===row.key);if(!n||n.type!==old.type||n.bytes!==old.bytes||n.value!==(changed?1:old.value))fail('CRIMSON_ITEM_KNOWLEDGE_DIFF');}}
  for(const key of definition.knowledgeKeys)if(!after.byKey.has(key)||after.byKey.get(key).fields._level?.value<1)fail('CRIMSON_ITEM_KNOWLEDGE_DIFF');
  for(const change of diff.filter(d=>d.operation==='knowledge.add')){const row=after.byKey.get(change.key);for(const [name,expected]of Object.entries(change.after))if(row?.fields[name]?.value!==expected)fail('CRIMSON_ITEM_KNOWLEDGE_DIFF');}
- return {raw:output,decodedDiff:diff,reverseStructuralByteParity:reverse};
+ return {raw:output,decodedDiff:diff,reverseStructuralByteParity:reverse,audit:after.document.audit};
 }
 function bag(document,inventoryKey=2){const roots=document.blocks.filter(b=>b.type==='InventorySaveData');if(roots.length!==1)fail('CRIMSON_ITEM_INVENTORY_AMBIGUOUS');const bags=elements(roots[0],'_inventorylist').filter(b=>value(b,'_inventoryKey')===inventoryKey);if(bags.length!==1)fail('CRIMSON_ITEM_INVENTORY_AMBIGUOUS');return bags[0];}
 function verifyItem(item,expected,definition){
@@ -89,7 +89,7 @@ function createItemAddition({schemaPins,definitionFor,profile,inventoryProjectio
   if(decoded.version!==2||!schemaPins.includes(before.schemaSha256)||before.audit.advisoryLocators||before.audit.unconsumedBytes)fail('CRIMSON_ITEM_SCHEMA_UNSUPPORTED');
   if(!(await encodeSave(decoded.plaintext,decoded.header,{nonce:decoded.header.subarray(0x1a,0x2a)})).equals(source))fail('CRIMSON_ITEM_NATIVE_PARITY_FAILED');
   const groups=new Map();for(const definition of definitions){const key=definition.definition.defaultInventory;const rows=groups.get(key)||[];rows.push(definition);groups.set(key,rows);}
-  const raw=Buffer.from(decoded.plaintext),decodedDiff=[],plans=[];
+  let raw=decoded.plaintext;const decodedDiff=[],plans=[];
   for(const [inventoryKey,rows]of groups){
    const inventory=bag(before,inventoryKey),list=field(inventory,'_itemList'),items=elements(inventory,'_itemList');
    if(!list?.present)fail('CRIMSON_ITEM_DESTINATION_LIST_MISSING');
@@ -99,34 +99,37 @@ function createItemAddition({schemaPins,definitionFor,profile,inventoryProjectio
    const count=rows.reduce((n,row)=>n+row.required,0),slots=new Set(items.map(i=>value(i,'_slotNo')));
    if(slots.size!==items.length||[...slots].some(slot=>!Number.isSafeInteger(slot)||slot<0||slot>65535))fail('CRIMSON_ITEM_CAPACITY_AMBIGUOUS');
    let oldCapacity=null,newCapacity=null;
-   if(inventoryKey===2){const expansion=field(inventory,'_varyExpandSlotCount');if(!expansion?.present||expansion.bytes!==2||!Number.isSafeInteger(expansion.value)||expansion.value<0||expansion.value>200)fail('CRIMSON_ITEM_INVENTORY_INCOMPLETE');oldCapacity=50+expansion.value;if([...slots].some(slot=>slot>=oldCapacity))fail('CRIMSON_ITEM_CAPACITY_AMBIGUOUS');newCapacity=Math.max(oldCapacity,items.length+count);if(newCapacity>250)fail('CRIMSON_ITEM_CAPACITY_LIMIT');if(newCapacity>oldCapacity){raw.writeUInt16LE(newCapacity-50,expansion.offset);decodedDiff.push({operation:'inventory.setExpansionValue',inventoryKey:2,before:expansion.value,after:newCapacity-50,beforeBagSize:oldCapacity,afterBagSize:newCapacity});}}
+   if(inventoryKey===2){const expansion=field(inventory,'_varyExpandSlotCount');if(!expansion?.present||expansion.bytes!==2||!Number.isSafeInteger(expansion.value)||expansion.value<0||expansion.value>200)fail('CRIMSON_ITEM_INVENTORY_INCOMPLETE');oldCapacity=50+expansion.value;if([...slots].some(slot=>slot>=oldCapacity))fail('CRIMSON_ITEM_CAPACITY_AMBIGUOUS');newCapacity=Math.max(oldCapacity,items.length+count);if(newCapacity>250)fail('CRIMSON_ITEM_CAPACITY_LIMIT');if(newCapacity>oldCapacity){if(raw===decoded.plaintext)raw=Buffer.from(decoded.plaintext);raw.writeUInt16LE(newCapacity-50,expansion.offset);decodedDiff.push({operation:'inventory.setExpansionValue',inventoryKey:2,before:expansion.value,after:newCapacity-50,beforeBagSize:oldCapacity,afterBagSize:newCapacity});}}
    else if(items.length+count>65536)fail('CRIMSON_ITEM_CAPACITY_LIMIT');
    plans.push({inventoryKey,rows,originalCount:items.length,slots,before:oldCapacity,after:newCapacity,additionalSlots:count,automaticExpansion:newCapacity!==oldCapacity,ceiling:inventoryKey===2?250:null,slotIndexCeiling:65535});
   }
   let next=allocateStructuralItemId(trace),workingRaw=raw,preservationProof=true;const inserted=[];
-  let firstPlan=true;
+  let firstPlan=true,strictAudit;
   for(const plan of plans){
    // A copied, byte-identical first working buffer has the same complete
    // strict trace and scalar proof. Capacity patches and later insertions
    // always receive a fresh walk before their locators can be used.
    const working=firstPlan&&workingRaw.equals(decoded.plaintext)?trace:traceStructuralDocument(workingRaw,inventoryProjection);firstPlan=false;
-   if(working!==trace){trace.locators.length=0;trace.objects.length=0;trace.identities.length=0;}
+   if(working!==trace)releaseStructuralTrace(trace);
    prune(working.document);const list=field(bag(working.document,plan.inventoryKey),'_itemList');let at=list.end,slot=0;const records=[],batch=[];
    for(const {input,definition,total,maxStack,required:countRequired}of plan.rows){let left=total;
     for(let n=0;n<countRequired;n++){while(plan.slots.has(slot))slot++;if(slot>65535||plan.inventoryKey===2&&slot>=plan.after)fail('CRIMSON_ITEM_CAPACITY_LIMIT');for(let tries=0;;tries++){if(next>MAX_ID||tries>4096)fail('CRIMSON_ITEM_ID_EXHAUSTED');const b=Buffer.alloc(8);b.writeBigUInt64LE(next);if(!workingRaw.includes(b))break;next++;}const count=left>maxStack?maxStack:left,record=freshItem(types,{start:at,itemNo:next,slot,key:input.definitionKey,quantity:count,definition}),row={definitionKey:input.definitionKey,inventoryKey:plan.inventoryKey,instanceId:String(next),slot,quantity:String(count)};records.push(record);batch.push(row);plan.slots.add(slot);next++;at+=record.length;left-=count;}
    }
-   const edit=insertTypedRecords(working,list,records);working.locators.length=0;working.objects.length=0;working.identities.length=0;prune(edit.trace.document);const afterItems=elements(bag(edit.trace.document,plan.inventoryKey),'_itemList');if(afterItems.length!==plan.originalCount+plan.additionalSlots)fail('CRIMSON_ITEM_INSERTION_COUNT');
+   const edit=insertTypedRecords(working,list,records);releaseStructuralTrace(working);prune(edit.trace.document);strictAudit=edit.trace.document.audit;const afterItems=elements(bag(edit.trace.document,plan.inventoryKey),'_itemList');if(afterItems.length!==plan.originalCount+plan.additionalSlots)fail('CRIMSON_ITEM_INSERTION_COUNT');
    for(const row of batch){const found=afterItems.filter(i=>String(value(i,'_itemNo'))===row.instanceId);if(found.length!==1)fail('CRIMSON_ITEM_INSERTION_COUNT');verifyItem(found[0],row,definitionByKey.get(row.definitionKey));decodedDiff.push({operation:'inventory.addItem',objectType:'ItemSaveData',before:null,after:row,...row});}
    preservationProof=preservationProof&&edit.reverseStructuralByteParity;inserted.push(...batch);workingRaw=edit.raw;edit.trace=null;
   }
   const discovery=applyDiscovery(workingRaw,discoveryDefinition,types);decodedDiff.push(...discovery.decodedDiff);const encoded=await encodeSave(discovery.raw,decoded.header,nonce===undefined?{}:{nonce}),reopened=await decodeSave(encoded);
   preservationProof=preservationProof&&discovery.reverseStructuralByteParity;if(!preservationProof)fail('CRIMSON_ITEM_UNRELATED_BYTES_CHANGED');
-  const finalAudit=readDocument(reopened.plaintext,{captureTypes:[],listLimit:0,hashPlaintext:false}).audit;if(finalAudit.nonzeroListMetadata!==before.audit.nonzeroListMetadata||finalAudit.advisoryLocators||finalAudit.unconsumedBytes)fail('CRIMSON_ITEM_REOPEN_FAILED');
+  // Insertion/discovery already strictly reparsed these exact bytes. Check
+  // decrypted byte equality before reusing that audit; no second full walk.
+  if(!reopened.plaintext.equals(discovery.raw))fail('CRIMSON_ITEM_REOPEN_FAILED');
+  const finalAudit=discovery.audit||strictAudit;if(!finalAudit||finalAudit.nonzeroListMetadata!==before.audit.nonzeroListMetadata||finalAudit.advisoryLocators||finalAudit.unconsumedBytes)fail('CRIMSON_ITEM_REOPEN_FAILED');
   if(!(await encodeSave(reopened.plaintext,reopened.header,{nonce:reopened.header.subarray(0x1a,0x2a)})).equals(encoded))fail('CRIMSON_ITEM_NATIVE_PARITY_FAILED');
   if(!reopened.plaintext.equals(discovery.raw)||!encoded.subarray(0,0x12).equals(source.subarray(0,0x12))||!encoded.subarray(0x4a,128).equals(source.subarray(0x4a,128))||hash(source)!==sourceHash)fail('CRIMSON_ITEM_REOPEN_FAILED');
   const perInventory=plans.map(({inventoryKey,before,after,additionalSlots,automaticExpansion,ceiling,slotIndexCeiling})=>({inventoryKey,before,after,additionalSlots,automaticExpansion,ceiling,slotIndexCeiling})),bag2=perInventory.find(p=>p.inventoryKey===2),capacity=bag2?{before:bag2.before,after:bag2.after,additionalSlots:bag2.additionalSlots,automaticExpansion:bag2.automaticExpansion,ceiling:250}:{before:null,after:null,additionalSlots:0,automaticExpansion:false,ceiling:250};
   const result={encoded,report:{schema:reportSchema,revision:profile.revision,sourceSha256:sourceHash,outputSha256:hash(encoded),schemaSha256:before.schemaSha256,outputEncodedBytes:encoded.length,inserted,decodedDiff,discovery:{status:definitions.length===1?definitions[0].definition.discovery:'explicit_combined_pickup_mapping',knowledgeKeys:discoveryDefinition.knowledgeKeys,changes:discovery.decodedDiff},capacity,perInventory,runtimeRequirements:definitions.filter(d=>d.definition.runtimeRequirement).map(d=>({definitionKey:d.input.definitionKey,message:d.definition.runtimeRequirement})),validation:{nativeNoOpByteParity:true,nativeOutputNoOpByteParity:true,fullTypedReparse:true,intendedOnly:true,allOtherOriginalScalarValuesUnchanged:true,originalOpaqueBytesPreserved:true,existingInventoryRecordsUnchanged:true,existingInventoryAndActiveEquipmentUnchanged:true,reverseStructuralByteParity:preservationProof,noInheritedDonorState:true,knownDescriptorFingerprintMatched:true,discoveryMappingExplicit:true,hmacReverified:true,encodedOutputReopened:true,unknownHeaderBytesPreserved:true,nonzeroListMetadataBefore:before.audit.nonzeroListMetadata,nonzeroListMetadataAfter:finalAudit.nonzeroListMetadata},cloudRequests:0,structuralPublicationEnabled:false,gameAcceptance:'source_backed_catalog_constructor_per_item_game_behavior_not_guaranteed',catalogWideSupport:profile===catalogItemAdditionProfile}};
-  itemScopeWitnesses.set(result,Object.freeze({kind:'native-item-structural-byte-proof',sourceSha256:sourceHash,outputSha256:hash(encoded),intentSha256:hash(scopeJson(inputs)),reportSha256:hash(scopeJson(result.report))}));
+  itemScopeWitnesses.set(result,Object.freeze({kind:'native-item-structural-byte-proof',sourceSha256:sourceHash,outputSha256:hash(encoded),plaintextSha256:hash(reopened.plaintext),schemaSha256:before.schemaSha256,nonzeroListMetadata:finalAudit.nonzeroListMetadata,intentSha256:hash(scopeJson(inputs)),reportSha256:hash(scopeJson(result.report))}));
   return result;
  };
  const build=(source,input,options)=>buildMany(source,[input],options);

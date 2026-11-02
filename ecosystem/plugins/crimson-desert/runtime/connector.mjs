@@ -821,7 +821,7 @@ var require_buffer = __commonJS({
     Buffer3.prototype.includes = function includes(val, byteOffset, encoding) {
       return this.indexOf(val, byteOffset, encoding) !== -1;
     };
-    Buffer3.prototype.indexOf = function indexOf(val, byteOffset, encoding) {
+    Buffer3.prototype.indexOf = function indexOf2(val, byteOffset, encoding) {
       return bidirectionalIndexOf(this, val, byteOffset, encoding, true);
     };
     Buffer3.prototype.lastIndexOf = function lastIndexOf(val, byteOffset, encoding) {
@@ -1815,7 +1815,7 @@ var require_buffer = __commonJS({
 });
 
 // ../../sdk/buffer.mjs
-var import_buffer, portableCompare;
+var import_buffer, portableCompare, portableIndexOf, nativeByteIndexOf;
 var init_buffer = __esm({
   "../../sdk/buffer.mjs"() {
     import_buffer = __toESM(require_buffer(), 1);
@@ -1831,6 +1831,18 @@ var init_buffer = __esm({
       }
       for (; at < length; at++) if (a[at] !== b[at]) return a[at] < b[at] ? -1 : 1;
       return a.byteLength === b.byteLength ? 0 : a.byteLength < b.byteLength ? -1 : 1;
+    };
+    portableIndexOf = import_buffer.Buffer.prototype.indexOf;
+    nativeByteIndexOf = Uint8Array.prototype.indexOf;
+    import_buffer.Buffer.prototype.indexOf = function indexOf(needle, offset, encoding) {
+      if (!import_buffer.Buffer.isBuffer(needle) || !needle.length || encoding !== void 0 || offset !== void 0 && (!Number.isInteger(offset) || offset > 2147483647 || offset < -2147483648)) return portableIndexOf.call(this, needle, offset, encoding);
+      const start = offset === void 0 ? 0 : offset < 0 ? Math.max(0, this.length + offset) : offset, last = this.length - needle.length;
+      for (let at = nativeByteIndexOf.call(this, needle[0], start); at >= 0 && at <= last; at = nativeByteIndexOf.call(this, needle[0], at + 1)) {
+        let n = 1;
+        while (n < needle.length && this[at + n] === needle[n]) n++;
+        if (n === needle.length) return at;
+      }
+      return -1;
     };
   }
 });
@@ -4058,7 +4070,7 @@ function createCrimsonDraftCompiler({ schemaPins = CRIMSON_DRAFT_SCHEMAS, assert
     if (reopened.version !== decoded.version || reopened.flags !== decoded.flags || !reopened.plaintext.equals(patched)) fail5("CRIMSON_DRAFT_REOPEN_FAILED");
     if (!encoded.subarray(0, 22).equals(source.subarray(0, 22)) || !encoded.subarray(74, 128).equals(source.subarray(74, 128))) fail5("CRIMSON_DRAFT_HEADER_CHANGED");
     const after = readDocument(reopened.plaintext, { ...projection, compareTo: decoded.plaintext }), diff = after.decodedDiff;
-    if (after.schemaSha256 !== before.schemaSha256 || !equal2(after.audit, before.audit) || diff.length !== operations.length || diff.some((d) => !operations.some((op) => op.offset === d.offset && op.fieldBytes === d.bytes && op.field === d.field && op.objectType === d.objectType && String(d.before) === op.before && String(d.after) === op.after))) fail5("CRIMSON_DRAFT_DIFF_FAILED", "The full decoded comparison contains an unintended change.");
+    if (after.schemaSha256 !== before.schemaSha256 || !equal2(auditIdentity(after.audit), auditIdentity(before.audit)) || diff.length !== operations.length || diff.some((d) => !operations.some((op) => op.offset === d.offset && op.fieldBytes === d.bytes && op.field === d.field && op.objectType === d.objectType && String(d.before) === op.before && String(d.after) === op.after))) fail5("CRIMSON_DRAFT_DIFF_FAILED", "The full decoded comparison contains an unintended change.");
     const afterContext = inventoryContext(after, pin);
     const housingUnchanged = !context.housing || context.housing.offset === afterContext.housing.offset && context.housing.end === afterContext.housing.end && hash(decoded.plaintext.subarray(context.housing.offset, context.housing.end)) === hash(reopened.plaintext.subarray(afterContext.housing.offset, afterContext.housing.end));
     if (!housingUnchanged) fail5("CRIMSON_DRAFT_HOUSING_CHANGED");
@@ -4102,7 +4114,7 @@ function createCrimsonDraftCompiler({ schemaPins = CRIMSON_DRAFT_SCHEMAS, assert
     return result;
   };
 }
-var PREVIOUS_HOUSING_SCHEMA, CRIMSON_DRAFT_REVISION, CRIMSON_CURRENT_SCHEMA, CRIMSON_BAG_CAPACITY, CRIMSON_DRAFT_SCHEMAS, PLAN_KEYS, ITEM_KEYS, EXPANSION_KEYS, HASH, exact, equal2, fail5, decimal2, stableJson, scalarScopeWitnesses, compileCrimsonDraft, createWorkbenchDraft;
+var PREVIOUS_HOUSING_SCHEMA, CRIMSON_DRAFT_REVISION, CRIMSON_CURRENT_SCHEMA, CRIMSON_BAG_CAPACITY, CRIMSON_DRAFT_SCHEMAS, PLAN_KEYS, ITEM_KEYS, EXPANSION_KEYS, HASH, exact, equal2, auditIdentity, fail5, decimal2, stableJson, scalarScopeWitnesses, compileCrimsonDraft, createWorkbenchDraft;
 var init_crimson_draft = __esm({
   "src/crimson-draft.mjs"() {
     init_buffer();
@@ -4129,6 +4141,7 @@ var init_crimson_draft = __esm({
     HASH = /^[a-f0-9]{64}$/;
     exact = (v, keys2) => v && typeof v === "object" && !Array.isArray(v) && Object.keys(v).length === keys2.length && keys2.every((k) => Object.hasOwn(v, k));
     equal2 = (a, b) => JSON.stringify(a) === JSON.stringify(b);
+    auditIdentity = (a) => ({ ...a, nonzeroListSamples: a.nonzeroListSamples.map(({ path, ...sample }) => sample) });
     fail5 = (code, message = "The offline draft stopped at its reported validation gate.", status = 409) => {
       throw new ProbeError(message, status, code);
     };
@@ -4283,16 +4296,78 @@ var init_inventory_capacity = __esm({
 
 // src/crimson-structural-layout.mjs
 function traceStructuralDocument(raw, { skipStart = -1, skipEnd = -1, captureRelocation = true, captureTypes, listLimit, hashPlaintext = true } = {}) {
-  const locators = [], objects = [], identities = [], digest4 = createScalarDigest();
-  const document = readDocument(raw, { captureTypes, listLimit, hashPlaintext, onLocator: captureRelocation ? (e) => locators.push({ pointerOffset: e.pointerOffset, advertisedPayloadOffset: e.advertisedPayloadOffset }) : void 0, onObject: captureRelocation ? (e) => {
-    if (e.inline) objects.push({ inline: true, start: e.start, trailerOffset: e.trailerOffset });
-  } : void 0, onScalar: (e) => {
+  let locatorValues = [], objectValues = [];
+  const identities = [];
+  const document = readDocument(raw, { captureTypes, listLimit, hashPlaintext, onLocator: captureRelocation ? (e) => locatorValues.push(e.pointerOffset, e.advertisedPayloadOffset) : void 0, onObject: captureRelocation ? (e) => {
+    if (e.inline) objectValues.push(e.start, e.trailerOffset);
+  } : void 0, scalarFields: ["_itemNo", "_mercenaryNo"], onScalar: captureRelocation ? (e) => {
     if (captureRelocation && /\._(?:itemNo|mercenaryNo)$/.test(e.path) && e.bytes === 8 && typeof e.value === "string" && /^[1-9]\d{0,19}$/.test(e.value) && BigInt(e.value) <= MAX_ID) identities.push({ offset: e.offset, value: e.value });
-    if (e.offset >= skipStart && e.offset < skipEnd) return;
-    digest4.update(e);
-  } });
-  const result = digest4.digest();
-  return { document, locators, objects, identities, projection: { captureTypes, listLimit, hashPlaintext }, scalarDigest: result.sha256, scalarCount: result.count };
+  } : void 0 });
+  const originalHash = document.plaintextSha256 || hash(raw);
+  let fingerprint;
+  function scalarProof() {
+    if (hash(raw) !== originalHash) fail6("CRIMSON_STRUCTURAL_SOURCE_CHANGED");
+    if (!fingerprint) {
+      const digest4 = createScalarDigest();
+      readDocument(raw, { captureTypes: [], listLimit: 0, hashPlaintext: false, onScalar: (e) => {
+        if (e.offset >= skipStart && e.offset < skipEnd) return;
+        digest4.update(e);
+      } });
+      fingerprint = digest4.digest();
+    }
+    return fingerprint;
+  }
+  const state2 = { locatorWords: new Uint32Array(locatorValues), objectWords: new Uint32Array(objectValues), locators: null, objects: null };
+  locatorValues = objectValues = null;
+  state2.locatorsGetter = () => state2.locators ??= Array.from({ length: state2.locatorWords.length / 2 }, (_, i) => ({ pointerOffset: state2.locatorWords[i * 2], advertisedPayloadOffset: state2.locatorWords[i * 2 + 1] }));
+  state2.objectsGetter = () => state2.objects ??= Array.from({ length: state2.objectWords.length / 2 }, (_, i) => ({ inline: true, start: state2.objectWords[i * 2], trailerOffset: state2.objectWords[i * 2 + 1] }));
+  const result = { document, get locators() {
+    return state2.locatorsGetter();
+  }, get objects() {
+    return state2.objectsGetter();
+  }, identities, projection: { captureTypes, listLimit, hashPlaintext }, get scalarDigest() {
+    return scalarProof().sha256;
+  }, get scalarCount() {
+    return scalarProof().count;
+  } };
+  state2.locatorsDescriptor = Object.getOwnPropertyDescriptor(result, "locators").get;
+  state2.objectsDescriptor = Object.getOwnPropertyDescriptor(result, "objects").get;
+  if (captureRelocation) {
+    let visit = function(node) {
+      if (!node?.fields) return;
+      for (const f of Object.values(node.fields)) {
+        if (f.present && [6, 7].includes(f.kind) && f.value) lists.set(f.offset, { end: f.end, count: f.count });
+        if (f.value?.elements) f.value.elements.forEach(visit);
+        else if (f.value?.fields) visit(f.value);
+      }
+    };
+    const lists = /* @__PURE__ */ new Map();
+    document.blocks.forEach(visit);
+    const before = { plaintext: raw, schemaSha256: document.schemaSha256, schema: { streamSize: document.schema.streamSize, dataStart: document.schema.dataStart, toc: document.schema.toc.map((e) => Object.freeze({ ...e })) }, audit: { advisoryLocators: document.audit.advisoryLocators, unconsumedBytes: document.audit.unconsumedBytes } };
+    Object.assign(state2, { raw, originalHash, before, lists });
+    nativeTraces.set(result, state2);
+  }
+  return result;
+}
+function nativeTrace(trace, list) {
+  const proof = nativeTraces.get(trace);
+  if (!proof || proof.consumed) return null;
+  if (trace.document.plaintext !== proof.raw || hash(proof.raw) !== proof.originalHash) fail6("CRIMSON_STRUCTURAL_SOURCE_CHANGED");
+  if (!list || ![Object.prototype, null].includes(Object.getPrototypeOf(list)) || Object.values(Object.getOwnPropertyDescriptors(list)).some((d) => d.get || d.set) || !list.value || ![Object.prototype, null].includes(Object.getPrototypeOf(list.value)) || Object.values(Object.getOwnPropertyDescriptors(list.value)).some((d) => d.get || d.set)) return null;
+  const nativeList = proof.lists.get(list.offset);
+  if (Object.getOwnPropertyDescriptor(trace, "locators")?.get !== proof.locatorsDescriptor || Object.getOwnPropertyDescriptor(trace, "objects")?.get !== proof.objectsDescriptor || !nativeList || nativeList.end !== list.end || nativeList.count !== list.value?.count || proof.locators && (proof.locators.length * 2 !== proof.locatorWords.length || !proof.locators.every((v, i) => v.pointerOffset === proof.locatorWords[i * 2] && v.advertisedPayloadOffset === proof.locatorWords[i * 2 + 1])) || proof.objects && (proof.objects.length * 2 !== proof.objectWords.length || !proof.objects.every((v, i) => v.inline === true && v.start === proof.objectWords[i * 2] && v.trailerOffset === proof.objectWords[i * 2 + 1]))) return null;
+  return { ...proof, list: { offset: list.offset, end: nativeList.end, present: list.present, value: { count: nativeList.count, truncated: list.value.truncated } } };
+}
+function releaseStructuralTrace(trace) {
+  const state2 = nativeTraces.get(trace);
+  if (!state2) return;
+  state2.locators = state2.objects = [];
+  state2.locatorWords = state2.objectWords = new Uint32Array(0);
+  state2.lists.clear();
+  state2.before = null;
+  state2.raw = null;
+  trace.identities.length = 0;
+  nativeTraces.delete(trace);
 }
 function allocateStructuralItemId(trace) {
   const raw = trace.document.plaintext;
@@ -4307,8 +4382,8 @@ function allocateStructuralItemId(trace) {
 }
 function insertTypedRecords(trace, list, records2) {
   if (!Array.isArray(records2) || records2.length < 1 || records2.length > 512 || records2.some((r) => !import_buffer.Buffer.isBuffer(r) || r.length < 24 || r.length > 16384)) fail6("CRIMSON_STRUCTURAL_LAYOUT_UNSUPPORTED");
-  const before = trace.document, raw = before.plaintext, schema = before.schema, insert = list.end, record = import_buffer.Buffer.concat(records2), delta = record.length;
-  if (delta > 32768 || raw.length + delta > 8 * 1024 * 1024 || schema.streamSize !== raw.length || before.audit.advisoryLocators !== 0 || before.audit.unconsumedBytes !== 0 || !list.present || list.value?.truncated || !Number.isSafeInteger(list.value?.count) || list.value.count + records2.length > 1e5 || raw[list.offset] !== 0 || raw.readUInt32LE(list.offset + 1) !== list.value.count) fail6("CRIMSON_STRUCTURAL_LAYOUT_UNSUPPORTED");
+  const proof = nativeTrace(trace, list), target = proof?.list || list, before = proof?.before || trace.document, raw = before.plaintext, schema = before.schema, insert = target.end, record = import_buffer.Buffer.concat(records2), delta = record.length;
+  if (delta > 32768 || raw.length + delta > 8 * 1024 * 1024 || schema.streamSize !== raw.length || before.audit.advisoryLocators !== 0 || before.audit.unconsumedBytes !== 0 || !target.present || target.value?.truncated || !Number.isSafeInteger(target.value?.count) || target.value.count + records2.length > 1e5 || raw[target.offset] !== 0 || raw.readUInt32LE(target.offset + 1) !== target.value.count) fail6("CRIMSON_STRUCTURAL_LAYOUT_UNSUPPORTED");
   const position = (at) => at >= insert ? at + delta : at, patched = import_buffer.Buffer.concat([raw.subarray(0, insert), record, raw.subarray(insert)]), patches = /* @__PURE__ */ new Map();
   function patch(offset, after2, reason) {
     if (!Number.isSafeInteger(offset) || offset < 0 || offset + 4 > raw.length || !Number.isSafeInteger(after2) || after2 < 0 || after2 > 4294967295 || offset < insert && offset + 4 > insert) fail6("CRIMSON_STRUCTURAL_PATCH_BOUNDS");
@@ -4319,37 +4394,47 @@ function insertTypedRecords(trace, list, records2) {
     patches.set(offset, { offset, before: original, after: after2, reason });
     patched.writeUInt32LE(after2, position(offset));
   }
-  patch(list.offset + 1, list.value.count + records2.length, "list_count");
+  patch(target.offset + 1, target.value.count + records2.length, "list_count");
   const tocStart = schema.dataStart - schema.toc.length * 20;
   patch(tocStart - 4, raw.length + delta, "stream_size");
   let containing = 0;
   schema.toc.forEach((entry, i) => {
-    if (entry.offset <= list.offset && list.offset < entry.offset + entry.bytes) {
+    if (entry.offset <= target.offset && target.offset < entry.offset + entry.bytes) {
       if (insert > entry.offset + entry.bytes) fail6("CRIMSON_STRUCTURAL_LAYOUT_UNSUPPORTED");
       containing++;
       patch(tocStart + i * 20 + 16, entry.bytes + delta, "containing_toc_size");
     } else if (entry.offset >= insert) patch(tocStart + i * 20 + 12, entry.offset + delta, "following_toc_offset");
   });
   if (containing !== 1) fail6("CRIMSON_STRUCTURAL_LAYOUT_UNSUPPORTED");
-  for (const l of trace.locators) if (l.advertisedPayloadOffset >= insert) patch(l.pointerOffset, l.advertisedPayloadOffset + delta, "typed_locator_relocation");
-  for (const o of trace.objects) if (o.inline && o.start < insert && insert <= o.trailerOffset) patch(o.trailerOffset, raw.readUInt32LE(o.trailerOffset) + delta, "containing_inline_size");
-  const reversed = import_buffer.Buffer.concat([patched.subarray(0, insert), patched.subarray(insert + delta)]);
-  for (const p of patches.values()) reversed.writeUInt32LE(p.before, p.offset);
-  if (!reversed.equals(raw)) fail6("CRIMSON_STRUCTURAL_UNRELATED_BYTES_CHANGED");
+  if (proof) {
+    for (let i = 0; i < proof.locatorWords.length; i += 2) if (proof.locatorWords[i + 1] >= insert) patch(proof.locatorWords[i], proof.locatorWords[i + 1] + delta, "typed_locator_relocation");
+    for (let i = 0; i < proof.objectWords.length; i += 2) if (proof.objectWords[i] < insert && insert <= proof.objectWords[i + 1]) patch(proof.objectWords[i + 1], raw.readUInt32LE(proof.objectWords[i + 1]) + delta, "containing_inline_size");
+  } else {
+    for (const l of trace.locators) if (l.advertisedPayloadOffset >= insert) patch(l.pointerOffset, l.advertisedPayloadOffset + delta, "typed_locator_relocation");
+    for (const o of trace.objects) if (o.inline && o.start < insert && insert <= o.trailerOffset) patch(o.trailerOffset, raw.readUInt32LE(o.trailerOffset) + delta, "containing_inline_size");
+  }
+  for (const p of patches.values()) patched.writeUInt32LE(p.before, position(p.offset));
+  const reverseEqual = patched.subarray(0, insert).equals(raw.subarray(0, insert)) && patched.subarray(insert + delta).equals(raw.subarray(insert));
+  for (const p of patches.values()) patched.writeUInt32LE(p.after, position(p.offset));
+  if (!reverseEqual) fail6("CRIMSON_STRUCTURAL_UNRELATED_BYTES_CHANGED");
+  if (proof && hash(raw) !== proof.originalHash) fail6("CRIMSON_STRUCTURAL_SOURCE_CHANGED");
   const after = traceStructuralDocument(patched, { ...trace.projection, skipStart: insert, skipEnd: insert + delta, captureRelocation: false });
-  if (after.document.schemaSha256 !== before.schemaSha256 || after.document.audit.advisoryLocators !== 0 || after.document.audit.unconsumedBytes !== 0 || after.scalarDigest !== trace.scalarDigest || after.scalarCount !== trace.scalarCount) fail6("CRIMSON_STRUCTURAL_SEMANTIC_DIFF");
+  if (after.document.schemaSha256 !== before.schemaSha256 || after.document.audit.advisoryLocators !== 0 || after.document.audit.unconsumedBytes !== 0 || !proof && (after.scalarDigest !== trace.scalarDigest || after.scalarCount !== trace.scalarCount)) fail6("CRIMSON_STRUCTURAL_SEMANTIC_DIFF");
+  if (proof) nativeTraces.get(trace).consumed = true;
   const patchCounts = {};
   for (const p of patches.values()) patchCounts[p.reason] = (patchCounts[p.reason] || 0) + 1;
-  return { raw: patched, trace: after, insert, delta, patchCounts, reverseStructuralByteParity: true };
+  return { raw: patched, trace: after, insert, delta, patchCounts, reverseStructuralByteParity: true, conservationProof: proof ? "native_metadata_reverse_bytes" : "full_scalar_stream" };
 }
-var MAX_ID, fail6;
+var MAX_ID, nativeTraces, fail6;
 var init_crimson_structural_layout = __esm({
   "src/crimson-structural-layout.mjs"() {
     init_buffer();
     init_scalar_digest();
     init_crimson_codec();
     init_crimson_document();
+    init_source_binding();
     MAX_ID = 0xffffffffffffffffn;
+    nativeTraces = /* @__PURE__ */ new WeakMap();
     fail6 = (code) => {
       throw new CodecError("The offline structural layout check stopped.", code);
     };
@@ -4524,7 +4609,7 @@ function applyDiscovery(raw, definition, types2) {
     const row = after.byKey.get(change.key);
     for (const [name, expected] of Object.entries(change.after)) if (row?.fields[name]?.value !== expected) fail7("CRIMSON_ITEM_KNOWLEDGE_DIFF");
   }
-  return { raw: output, decodedDiff: diff, reverseStructuralByteParity: reverse };
+  return { raw: output, decodedDiff: diff, reverseStructuralByteParity: reverse, audit: after.document.audit };
 }
 function bag(document, inventoryKey = 2) {
   const roots = document.blocks.filter((b) => b.type === "InventorySaveData");
@@ -4567,7 +4652,8 @@ function createItemAddition({ schemaPins, definitionFor, profile: profile3, inve
       rows2.push(definition);
       groups.set(key, rows2);
     }
-    const raw = import_buffer.Buffer.from(decoded.plaintext), decodedDiff = [], plans = [];
+    let raw = decoded.plaintext;
+    const decodedDiff = [], plans = [];
     for (const [inventoryKey, rows2] of groups) {
       const inventory = bag(before, inventoryKey), list = field(inventory, "_itemList"), items2 = elements(inventory, "_itemList");
       if (!list?.present) fail7("CRIMSON_ITEM_DESTINATION_LIST_MISSING");
@@ -4587,6 +4673,7 @@ function createItemAddition({ schemaPins, definitionFor, profile: profile3, inve
         newCapacity = Math.max(oldCapacity, items2.length + count2);
         if (newCapacity > 250) fail7("CRIMSON_ITEM_CAPACITY_LIMIT");
         if (newCapacity > oldCapacity) {
+          if (raw === decoded.plaintext) raw = import_buffer.Buffer.from(decoded.plaintext);
           raw.writeUInt16LE(newCapacity - 50, expansion.offset);
           decodedDiff.push({ operation: "inventory.setExpansionValue", inventoryKey: 2, before: expansion.value, after: newCapacity - 50, beforeBagSize: oldCapacity, afterBagSize: newCapacity });
         }
@@ -4595,15 +4682,11 @@ function createItemAddition({ schemaPins, definitionFor, profile: profile3, inve
     }
     let next = allocateStructuralItemId(trace), workingRaw = raw, preservationProof = true;
     const inserted = [];
-    let firstPlan = true;
+    let firstPlan = true, strictAudit;
     for (const plan of plans) {
       const working = firstPlan && workingRaw.equals(decoded.plaintext) ? trace : traceStructuralDocument(workingRaw, inventoryProjection);
       firstPlan = false;
-      if (working !== trace) {
-        trace.locators.length = 0;
-        trace.objects.length = 0;
-        trace.identities.length = 0;
-      }
+      if (working !== trace) releaseStructuralTrace(trace);
       prune(working.document);
       const list = field(bag(working.document, plan.inventoryKey), "_itemList");
       let at = list.end, slot = 0;
@@ -4630,10 +4713,9 @@ function createItemAddition({ schemaPins, definitionFor, profile: profile3, inve
         }
       }
       const edit = insertTypedRecords(working, list, records2);
-      working.locators.length = 0;
-      working.objects.length = 0;
-      working.identities.length = 0;
+      releaseStructuralTrace(working);
       prune(edit.trace.document);
+      strictAudit = edit.trace.document.audit;
       const afterItems = elements(bag(edit.trace.document, plan.inventoryKey), "_itemList");
       if (afterItems.length !== plan.originalCount + plan.additionalSlots) fail7("CRIMSON_ITEM_INSERTION_COUNT");
       for (const row of batch) {
@@ -4652,13 +4734,14 @@ function createItemAddition({ schemaPins, definitionFor, profile: profile3, inve
     const encoded = await encodeSave(discovery.raw, decoded.header, nonce === void 0 ? {} : { nonce }), reopened = await decodeSave(encoded);
     preservationProof = preservationProof && discovery.reverseStructuralByteParity;
     if (!preservationProof) fail7("CRIMSON_ITEM_UNRELATED_BYTES_CHANGED");
-    const finalAudit = readDocument(reopened.plaintext, { captureTypes: [], listLimit: 0, hashPlaintext: false }).audit;
-    if (finalAudit.nonzeroListMetadata !== before.audit.nonzeroListMetadata || finalAudit.advisoryLocators || finalAudit.unconsumedBytes) fail7("CRIMSON_ITEM_REOPEN_FAILED");
+    if (!reopened.plaintext.equals(discovery.raw)) fail7("CRIMSON_ITEM_REOPEN_FAILED");
+    const finalAudit = discovery.audit || strictAudit;
+    if (!finalAudit || finalAudit.nonzeroListMetadata !== before.audit.nonzeroListMetadata || finalAudit.advisoryLocators || finalAudit.unconsumedBytes) fail7("CRIMSON_ITEM_REOPEN_FAILED");
     if (!(await encodeSave(reopened.plaintext, reopened.header, { nonce: reopened.header.subarray(26, 42) })).equals(encoded)) fail7("CRIMSON_ITEM_NATIVE_PARITY_FAILED");
     if (!reopened.plaintext.equals(discovery.raw) || !encoded.subarray(0, 18).equals(source.subarray(0, 18)) || !encoded.subarray(74, 128).equals(source.subarray(74, 128)) || hash(source) !== sourceHash) fail7("CRIMSON_ITEM_REOPEN_FAILED");
     const perInventory = plans.map(({ inventoryKey, before: before2, after, additionalSlots, automaticExpansion, ceiling, slotIndexCeiling }) => ({ inventoryKey, before: before2, after, additionalSlots, automaticExpansion, ceiling, slotIndexCeiling })), bag2 = perInventory.find((p) => p.inventoryKey === 2), capacity = bag2 ? { before: bag2.before, after: bag2.after, additionalSlots: bag2.additionalSlots, automaticExpansion: bag2.automaticExpansion, ceiling: 250 } : { before: null, after: null, additionalSlots: 0, automaticExpansion: false, ceiling: 250 };
     const result = { encoded, report: { schema: reportSchema, revision: profile3.revision, sourceSha256: sourceHash, outputSha256: hash(encoded), schemaSha256: before.schemaSha256, outputEncodedBytes: encoded.length, inserted, decodedDiff, discovery: { status: definitions4.length === 1 ? definitions4[0].definition.discovery : "explicit_combined_pickup_mapping", knowledgeKeys: discoveryDefinition.knowledgeKeys, changes: discovery.decodedDiff }, capacity, perInventory, runtimeRequirements: definitions4.filter((d) => d.definition.runtimeRequirement).map((d) => ({ definitionKey: d.input.definitionKey, message: d.definition.runtimeRequirement })), validation: { nativeNoOpByteParity: true, nativeOutputNoOpByteParity: true, fullTypedReparse: true, intendedOnly: true, allOtherOriginalScalarValuesUnchanged: true, originalOpaqueBytesPreserved: true, existingInventoryRecordsUnchanged: true, existingInventoryAndActiveEquipmentUnchanged: true, reverseStructuralByteParity: preservationProof, noInheritedDonorState: true, knownDescriptorFingerprintMatched: true, discoveryMappingExplicit: true, hmacReverified: true, encodedOutputReopened: true, unknownHeaderBytesPreserved: true, nonzeroListMetadataBefore: before.audit.nonzeroListMetadata, nonzeroListMetadataAfter: finalAudit.nonzeroListMetadata }, cloudRequests: 0, structuralPublicationEnabled: false, gameAcceptance: "source_backed_catalog_constructor_per_item_game_behavior_not_guaranteed", catalogWideSupport: profile3 === catalogItemAdditionProfile } };
-    itemScopeWitnesses.set(result, Object.freeze({ kind: "native-item-structural-byte-proof", sourceSha256: sourceHash, outputSha256: hash(encoded), intentSha256: hash(scopeJson(inputs)), reportSha256: hash(scopeJson(result.report)) }));
+    itemScopeWitnesses.set(result, Object.freeze({ kind: "native-item-structural-byte-proof", sourceSha256: sourceHash, outputSha256: hash(encoded), plaintextSha256: hash(reopened.plaintext), schemaSha256: before.schemaSha256, nonzeroListMetadata: finalAudit.nonzeroListMetadata, intentSha256: hash(scopeJson(inputs)), reportSha256: hash(scopeJson(result.report)) }));
     return result;
   };
   const build = (source, input, options) => buildMany(source, [input], options);
@@ -4977,6 +5060,7 @@ __export(structural_draft_exports, {
   compileStructuralDraft: () => compileStructuralDraft,
   createStructuralDraftCompiler: () => createStructuralDraftCompiler,
   createStructuralWorkbenchDraft: () => createStructuralWorkbenchDraft,
+  prepareStructuralDocument: () => prepareStructuralDocument,
   structuralDraftDigest: () => structuralDraftDigest,
   structuralSourcePayload: () => structuralSourcePayload
 });
@@ -5090,6 +5174,22 @@ function semanticIndex(raw, { hashPlaintext = true, scalarLocators = false, know
   if (!knowledgeDetails && knowledge2.size !== knowledgeCount) fail9("STRUCTURAL_KNOWLEDGE_AMBIGUOUS");
   return { document, knowledge: knowledge2, identities, itemCount, petCount, scalarPaths };
 }
+function projectionDigest(document) {
+  const { plaintext, ...projection } = document;
+  return hash(JSON.stringify(projection));
+}
+function prepareStructuralDocument(raw, operations) {
+  const knowledgeDetails = operations.some((o) => o.operation === "inventory.addItem" && catalogItemAdditionDefinition(o.definitionKey)?.knowledgeKeys.length), companionDetails = operations.some((o) => o.operation === "companions.add");
+  const index = semanticIndex(raw, { scalarLocators: true, knowledgeDetails, companionDetails });
+  structuralSnapshots.set(index.document, { index, knowledgeDetails, companionDetails, digest: projectionDigest(index.document) });
+  return index.document;
+}
+function preparedStructuralIndex(prepared, { knowledgeDetails, companionDetails }) {
+  const snapshot = structuralSnapshots.get(prepared?.document);
+  if (!snapshot || snapshot.knowledgeDetails !== knowledgeDetails || snapshot.companionDetails !== companionDetails) return null;
+  if (prepared.document.plaintext !== prepared.decoded.plaintext || projectionDigest(prepared.document) !== snapshot.digest) fail9("STRUCTURAL_SOURCE_CHANGED");
+  return { ...snapshot.index };
+}
 function permittedKnowledgeChanges(sourceIndex, addItems) {
   const changes = /* @__PURE__ */ new Map();
   for (const op of addItems) {
@@ -5107,7 +5207,7 @@ function createStructuralDraftCompiler({ schemaPins = [CRIMSON_CURRENT_SCHEMA], 
     assertStructuralPlan(input, { schemaPins });
     if (nonce !== void 0 && (!import_buffer.Buffer.isBuffer(nonce) || nonce.length !== 16)) fail9("STRUCTURAL_NONCE_INVALID");
     const addItems = input.operations.filter((o) => o.operation === "inventory.addItem"), addPets = input.operations.filter((o) => o.operation === "companions.add"), scalarOps = input.operations.filter((o) => scalarNames.includes(o.operation)).map((o) => ({ ...o })), knowledgeDetails = addItems.some((op) => catalogItemAdditionDefinition(op.definitionKey).knowledgeKeys.length > 0);
-    const { bytes: source, blob, prepared } = structuralSourcePayload(backup, metadata3, input), decoded = prepared?.decoded || await decodeSave(source), sourceIndex = semanticIndex(decoded.plaintext, { scalarLocators: true, knowledgeDetails, companionDetails: addPets.length > 0 });
+    const { bytes: source, blob, prepared } = structuralSourcePayload(backup, metadata3, input), decoded = prepared?.decoded || await decodeSave(source), sourceIndex = preparedStructuralIndex(prepared, { knowledgeDetails, companionDetails: addPets.length > 0 }) || semanticIndex(decoded.plaintext, { scalarLocators: true, knowledgeDetails, companionDetails: addPets.length > 0 });
     let before = sourceIndex.document;
     if (decoded.version !== 2 || !schemaPins.includes(before.schemaSha256) || before.schemaSha256 !== input.schemaSha256 || before.plaintextSha256 !== input.plaintextSha256 || before.audit.advisoryLocators || before.audit.unconsumedBytes) fail9("STRUCTURAL_SOURCE_CHANGED");
     if (!await preparedSourceNativeParity(backup, metadata3, input, decoded, source, encodeSave)) fail9("STRUCTURAL_NATIVE_PARITY_FAILED");
@@ -5130,6 +5230,8 @@ function createStructuralDraftCompiler({ schemaPins = [CRIMSON_CURRENT_SCHEMA], 
     }
     if (scalarOps.length > MAX_STRUCTURAL_SCALAR_OPERATIONS) fail9("STRUCTURAL_OPERATION_LIMIT", "Send fewer changes together so inventory space can be checked.");
     const nonzero = before.audit.nonzeroListMetadata, originalSchema = before.schemaSha256, knowledgeChanges = permittedKnowledgeChanges(sourceIndex, addItems);
+    before = null;
+    sourceIndex.document = null;
     let working = source, scalarReport = null, nativeScope = true;
     const scopeProofs = [], scopeChecks = [], stages = [], paths = new Set([...knowledgeChanges.values()].filter((d) => d.path).map((d) => d.path));
     if (scalarOps.length) {
@@ -5149,8 +5251,6 @@ function createStructuralDraftCompiler({ schemaPins = [CRIMSON_CURRENT_SCHEMA], 
         paths.add(e.path);
       }
     }
-    before = null;
-    sourceIndex.document = null;
     try {
       const requests = [...addItems.length ? [{ operation: "inventory.addItem", family: "catalog_item", items: addItems }] : [], ...addPets.length ? [{ operation: "companions.add", family: "catalog_companion", companions: addPets }] : []];
       for (const op of requests) {
@@ -5174,62 +5274,81 @@ function createStructuralDraftCompiler({ schemaPins = [CRIMSON_CURRENT_SCHEMA], 
       }
       throw error;
     }
-    const reopened = await decodeSave(working), finalIndex = semanticIndex(reopened.plaintext, { hashPlaintext: false, knowledgeDetails, companionDetails: addPets.length > 0 }), after = finalIndex.document, afterItems = records(after, "ItemSaveData"), afterPets = records(after, "MercenarySaveData"), inserted = [], newIds = [];
-    const requestedItems = new Map(addItems.map((op) => [op.definitionKey, op])), requestedPets = new Set(addPets.map((op) => op.characterKey)), itemTotals = /* @__PURE__ */ new Map(), itemBags = /* @__PURE__ */ new Map();
-    for (const bag2 of elements(after.blocks.find((b) => b.type === "InventorySaveData"), "_inventorylist")) for (const r of elements(bag2, "_itemList")) itemBags.set(value(r, "_itemNo"), value(bag2, "_inventoryKey"));
-    let insertedItems = 0, insertedPets = 0, embeddedItems = 0;
-    for (const stage2 of stages) {
-      const pet = stage2.operation === "companions.add";
-      for (const entry of stage2.inserted) {
-        const r = one(pet ? afterPets : afterItems, (o) => String(value(o, pet ? "_mercenaryNo" : "_itemNo")) === entry.instanceId);
-        inserted.push(r);
-        if (pet) {
-          if (!requestedPets.has(entry.characterKey)) fail9("STRUCTURAL_FINAL_IDENTITY_CHANGED");
-          const nestedItems = records({ blocks: [r] }, "ItemSaveData"), actualIds = [{ kind: "companion", instanceId: value(r, "_mercenaryNo") }, ...nestedItems.map((i) => ({ kind: "item", instanceId: value(i, "_itemNo") }))], sortIds = (ids2) => ids2.map((i) => i.kind + ":" + i.instanceId).sort();
-          if (nestedItems.length !== (entry.embeddedItems || 0) || JSON.stringify(sortIds(actualIds)) !== JSON.stringify(sortIds(entry.identities || []))) fail9("STRUCTURAL_FINAL_IDENTITY_CHANGED");
-          insertedPets++;
-          embeddedItems += nestedItems.length;
-          newIds.push(...actualIds.map((i) => i.instanceId));
-        } else {
-          const request = requestedItems.get(entry.definitionKey), definition = catalogItemAdditionDefinition(entry.definitionKey);
-          if (!request || entry.inventoryKey !== definition.defaultInventory || itemBags.get(entry.instanceId) !== definition.defaultInventory || value(r, "_slotNo") !== entry.slot || !/^[1-9]\d{0,19}$/.test(entry.quantity) || BigInt(entry.quantity) > BigInt(definition.maxStack)) fail9("STRUCTURAL_FINAL_IDENTITY_CHANGED");
-          itemTotals.set(entry.definitionKey, (itemTotals.get(entry.definitionKey) || 0n) + BigInt(entry.quantity));
-          insertedItems++;
-          newIds.push(entry.instanceId);
-        }
-        if (value(r, pet ? "_characterKey" : "_itemKey") !== (pet ? entry.characterKey : entry.definitionKey) || !pet && String(value(r, "_stackCount")) !== entry.quantity) fail9("STRUCTURAL_FINAL_IDENTITY_CHANGED");
-      }
-    }
     const actualKnowledge = stages.flatMap((s) => s.decodedDiff.filter((d) => d.operation === "knowledge.add" || d.operation === "knowledge.setLevel"));
-    if (actualKnowledge.length !== knowledgeChanges.size || new Set(actualKnowledge.map((d) => d.key)).size !== actualKnowledge.length) fail9("STRUCTURAL_DISCOVERY_DIFF");
-    let addedKnowledge = 0;
-    for (const change of actualKnowledge) {
-      const allowed = knowledgeChanges.get(change.key), old = sourceIndex.knowledge.get(change.key), row = finalIndex.knowledge.get(change.key);
-      if (!allowed || allowed.operation !== change.operation || !row || row.fields._level?.value !== 1) fail9("STRUCTURAL_DISCOVERY_DIFF");
-      if (change.operation === "knowledge.add") {
-        if (old || !row.range || row.index < sourceIndex.knowledge.size || Object.entries(change.after || {}).some(([key, expected]) => row.fields[key]?.value !== expected)) fail9("STRUCTURAL_DISCOVERY_DIFF");
-        inserted.push(row.range);
-        addedKnowledge++;
-      } else if (change.beforeLevel !== old.fields._level.value || change.afterLevel !== 1 || row.fields._level.path !== allowed.path) fail9("STRUCTURAL_DISCOVERY_DIFF");
-    }
-    if (addItems.some((op) => itemTotals.get(op.definitionKey) !== BigInt(op.quantity))) fail9("STRUCTURAL_FINAL_QUANTITY_CHANGED");
     if (hash(decoded.plaintext) !== input.plaintextSha256) fail9("STRUCTURAL_SOURCE_CHANGED");
     nativeScope = nativeScope && scopeChecks.every((check) => check());
-    const original = nativeScope ? null : scalarDigest(decoded.plaintext, { paths });
-    if (finalIndex.knowledge.size !== sourceIndex.knowledge.size + addedKnowledge || newIds.some((id2) => sourceIndex.identities.has(id2) || finalIndex.identities.get(id2) !== 1) || new Set(newIds).size !== newIds.length || insertedItems !== totalStacks || insertedPets !== addPets.length || finalIndex.itemCount !== sourceIndex.itemCount + insertedItems + embeddedItems || finalIndex.petCount !== sourceIndex.petCount + insertedPets || after.schemaSha256 !== originalSchema || after.audit.nonzeroListMetadata !== nonzero || after.audit.advisoryLocators || after.audit.unconsumedBytes || !nativeScope && JSON.stringify(scalarDigest(reopened.plaintext, { paths, ranges: inserted })) !== JSON.stringify(original)) fail9("STRUCTURAL_UNINTENDED_CHANGE");
-    if (scalarReport) {
-      for (const op of scalarReport.operations) {
-        const target = op.operation === "inventory.setExpansionValue" ? one(elements(one(after.blocks, (b) => b.type === "InventorySaveData"), "_inventorylist"), (b) => value(b, "_inventoryKey") === 2) : one(afterItems, (o) => String(value(o, "_itemNo")) === op.instanceId);
-        if (String(value(target, op.field)) !== op.after || op.operation !== "inventory.setExpansionValue" && itemBags.get(op.instanceId) !== op.inventoryKey) fail9("STRUCTURAL_SCALAR_CHANGED");
+    const nativeItemUnion = nativeScope && !knowledgeDetails && !addPets.length;
+    const reopened = await decodeSave(working);
+    let after, original = null;
+    if (nativeItemUnion) {
+      const proof = scopeProofs.at(-1), entries = stages.flatMap((s) => s.inserted), ids2 = /* @__PURE__ */ new Set(), totals = /* @__PURE__ */ new Map();
+      if (proof?.kind !== "native-item-structural-byte-proof" || proof.outputSha256 !== hash(working) || proof.plaintextSha256 !== hash(reopened.plaintext) || proof.schemaSha256 !== originalSchema || proof.nonzeroListMetadata !== nonzero || actualKnowledge.length || entries.length !== totalStacks) fail9("STRUCTURAL_UNINTENDED_CHANGE");
+      for (const entry of entries) {
+        const definition = catalogItemAdditionDefinition(entry.definitionKey);
+        if (!addItems.some((o) => o.definitionKey === entry.definitionKey) || entry.inventoryKey !== definition.defaultInventory || sourceIndex.identities.has(entry.instanceId) || ids2.has(entry.instanceId) || !/^[1-9]\d{0,19}$/.test(entry.quantity) || BigInt(entry.quantity) > BigInt(definition.maxStack)) fail9("STRUCTURAL_FINAL_IDENTITY_CHANGED");
+        ids2.add(entry.instanceId);
+        totals.set(entry.definitionKey, (totals.get(entry.definitionKey) || 0n) + BigInt(entry.quantity));
+      }
+      if (addItems.some((o) => totals.get(o.definitionKey) !== BigInt(o.quantity))) fail9("STRUCTURAL_FINAL_QUANTITY_CHANGED");
+      after = { schemaSha256: proof.schemaSha256, audit: { nonzeroListMetadata: proof.nonzeroListMetadata, advisoryLocators: 0, unconsumedBytes: 0 } };
+    } else {
+      const finalIndex = semanticIndex(reopened.plaintext, { hashPlaintext: false, knowledgeDetails, companionDetails: addPets.length > 0 });
+      after = finalIndex.document;
+      const afterItems = records(after, "ItemSaveData"), afterPets = records(after, "MercenarySaveData"), inserted = [], newIds = [];
+      const requestedItems = new Map(addItems.map((op) => [op.definitionKey, op])), requestedPets = new Set(addPets.map((op) => op.characterKey)), itemTotals = /* @__PURE__ */ new Map(), itemBags = /* @__PURE__ */ new Map();
+      for (const bag2 of elements(after.blocks.find((b) => b.type === "InventorySaveData"), "_inventorylist")) for (const r of elements(bag2, "_itemList")) itemBags.set(value(r, "_itemNo"), value(bag2, "_inventoryKey"));
+      let insertedItems = 0, insertedPets = 0, embeddedItems = 0;
+      for (const stage2 of stages) {
+        const pet = stage2.operation === "companions.add";
+        for (const entry of stage2.inserted) {
+          const r = one(pet ? afterPets : afterItems, (o) => String(value(o, pet ? "_mercenaryNo" : "_itemNo")) === entry.instanceId);
+          inserted.push(r);
+          if (pet) {
+            if (!requestedPets.has(entry.characterKey)) fail9("STRUCTURAL_FINAL_IDENTITY_CHANGED");
+            const nestedItems = records({ blocks: [r] }, "ItemSaveData"), actualIds = [{ kind: "companion", instanceId: value(r, "_mercenaryNo") }, ...nestedItems.map((i) => ({ kind: "item", instanceId: value(i, "_itemNo") }))], sortIds = (ids2) => ids2.map((i) => i.kind + ":" + i.instanceId).sort();
+            if (nestedItems.length !== (entry.embeddedItems || 0) || JSON.stringify(sortIds(actualIds)) !== JSON.stringify(sortIds(entry.identities || []))) fail9("STRUCTURAL_FINAL_IDENTITY_CHANGED");
+            insertedPets++;
+            embeddedItems += nestedItems.length;
+            newIds.push(...actualIds.map((i) => i.instanceId));
+          } else {
+            const request = requestedItems.get(entry.definitionKey), definition = catalogItemAdditionDefinition(entry.definitionKey);
+            if (!request || entry.inventoryKey !== definition.defaultInventory || itemBags.get(entry.instanceId) !== definition.defaultInventory || value(r, "_slotNo") !== entry.slot || !/^[1-9]\d{0,19}$/.test(entry.quantity) || BigInt(entry.quantity) > BigInt(definition.maxStack)) fail9("STRUCTURAL_FINAL_IDENTITY_CHANGED");
+            itemTotals.set(entry.definitionKey, (itemTotals.get(entry.definitionKey) || 0n) + BigInt(entry.quantity));
+            insertedItems++;
+            newIds.push(entry.instanceId);
+          }
+          if (value(r, pet ? "_characterKey" : "_itemKey") !== (pet ? entry.characterKey : entry.definitionKey) || !pet && String(value(r, "_stackCount")) !== entry.quantity) fail9("STRUCTURAL_FINAL_IDENTITY_CHANGED");
+        }
+      }
+      if (actualKnowledge.length !== knowledgeChanges.size || new Set(actualKnowledge.map((d) => d.key)).size !== actualKnowledge.length) fail9("STRUCTURAL_DISCOVERY_DIFF");
+      let addedKnowledge = 0;
+      for (const change of actualKnowledge) {
+        const allowed = knowledgeChanges.get(change.key), old = sourceIndex.knowledge.get(change.key), row = finalIndex.knowledge.get(change.key);
+        if (!allowed || allowed.operation !== change.operation || !row || row.fields._level?.value !== 1) fail9("STRUCTURAL_DISCOVERY_DIFF");
+        if (change.operation === "knowledge.add") {
+          if (old || !row.range || row.index < sourceIndex.knowledge.size || Object.entries(change.after || {}).some(([key, expected]) => row.fields[key]?.value !== expected)) fail9("STRUCTURAL_DISCOVERY_DIFF");
+          inserted.push(row.range);
+          addedKnowledge++;
+        } else if (change.beforeLevel !== old.fields._level.value || change.afterLevel !== 1 || row.fields._level.path !== allowed.path) fail9("STRUCTURAL_DISCOVERY_DIFF");
+      }
+      if (addItems.some((op) => itemTotals.get(op.definitionKey) !== BigInt(op.quantity))) fail9("STRUCTURAL_FINAL_QUANTITY_CHANGED");
+      original = nativeScope ? null : scalarDigest(decoded.plaintext, { paths });
+      if (finalIndex.knowledge.size !== sourceIndex.knowledge.size + addedKnowledge || newIds.some((id2) => sourceIndex.identities.has(id2) || finalIndex.identities.get(id2) !== 1) || new Set(newIds).size !== newIds.length || insertedItems !== totalStacks || insertedPets !== addPets.length || finalIndex.itemCount !== sourceIndex.itemCount + insertedItems + embeddedItems || finalIndex.petCount !== sourceIndex.petCount + insertedPets || after.schemaSha256 !== originalSchema || after.audit.nonzeroListMetadata !== nonzero || after.audit.advisoryLocators || after.audit.unconsumedBytes || !nativeScope && JSON.stringify(scalarDigest(reopened.plaintext, { paths, ranges: inserted })) !== JSON.stringify(original)) fail9("STRUCTURAL_UNINTENDED_CHANGE");
+      if (scalarReport) {
+        for (const op of scalarReport.operations) {
+          const target = op.operation === "inventory.setExpansionValue" ? one(elements(one(after.blocks, (b) => b.type === "InventorySaveData"), "_inventorylist"), (b) => value(b, "_inventoryKey") === 2) : one(afterItems, (o) => String(value(o, "_itemNo")) === op.instanceId);
+          if (String(value(target, op.field)) !== op.after || op.operation !== "inventory.setExpansionValue" && itemBags.get(op.instanceId) !== op.inventoryKey) fail9("STRUCTURAL_SCALAR_CHANGED");
+        }
       }
     }
-    if (!working.subarray(0, 18).equals(source.subarray(0, 18)) || !working.subarray(74, 128).equals(source.subarray(74, 128)) || !(await encodeSave(reopened.plaintext, reopened.header, { nonce: reopened.header.subarray(26, 42) })).equals(working) || hash(source) !== blob.sha256) fail9("STRUCTURAL_REOPEN_FAILED");
+    if (nativeScope && !scopeChecks.every((check) => check())) fail9("STRUCTURAL_STAGE_VALIDATION_FAILED");
+    if (!working.subarray(0, 18).equals(source.subarray(0, 18)) || !working.subarray(74, 128).equals(source.subarray(74, 128)) || !nativeItemUnion && !(await encodeSave(reopened.plaintext, reopened.header, { nonce: reopened.header.subarray(26, 42) })).equals(working) || hash(source) !== blob.sha256) fail9("STRUCTURAL_REOPEN_FAILED");
     const operations = [...scalarReport?.operations || [], ...stages.flatMap((s) => s.inserted.map((entry) => ({ operation: s.operation, ...entry }))), ...actualKnowledge];
     const report = { schema: "saveglass.structural-draft-preview.v1", revision: "saverift.source-backed-construction.2026-11-01.v2", decoderRevision: DECODER_REVISION, catalogRevision: CATALOG_REVISION, source: "plugin_bundle", backupId: metadata3.id, backupSha256: metadata3.sha256, backupRevision: backup.revision, container: input.container, payload: "save", payloadSha256: blob.sha256, schemaSha256: originalSchema, beforePlaintextSha256: hash(decoded.plaintext), afterPlaintextSha256: hash(reopened.plaintext), planSha256: structuralDraftDigest(input), encodedSha256: hash(working), encodedBytes: working.length, operations, decodedDiff: operations, capacity, stages, runtimeRequirements: stages.flatMap((s) => s.runtimeRequirements), validation: { nativeNoOpByteParity: true, nativeLz4NoOpByteParity: true, originalNoOpByteParity: true, fullDocumentReparsed: true, fullTypedReparse: true, allOtherDecodedValuesUnchanged: true, originalScalarValuesUnchanged: true, ...original ? { originalScalarDigest: original.sha256, originalScalarCount: original.count } : { conservationProof: { format: "native-stage-witnesses.v1", stages: scopeProofs } }, stagewiseReverseStructuralByteParity: true, distinctGlobalNewIdentities: true, discoveryIntendedOnly: true, hmacReverified: true, encodedOutputReopened: true, unknownHeaderBytesPreserved: true, nonzeroListMetadataPreserved: after.audit.nonzeroListMetadata === nonzero, nonzeroListMetadataBefore: nonzero, nonzeroListMetadataAfter: after.audit.nonzeroListMetadata }, gameAcceptance: "known_record_structure_no_per_definition_console_gate", draftOnly: true, originalBackupUnchanged: true, modifiedSaveStored: false, writesEnabled: false, publishEligible: false };
     return retainEncoded ? { report, encoded: working } : report;
   };
 }
-var common, scalarNames, digest2, buildCompanionAdditions2, exact2, canonical2, structuralDraftDigest, fail9, compileStructuralDraft, createStructuralWorkbenchDraft;
+var common, scalarNames, digest2, structuralSnapshots, buildCompanionAdditions2, exact2, canonical2, structuralDraftDigest, fail9, compileStructuralDraft, createStructuralWorkbenchDraft;
 var init_structural_draft = __esm({
   "src/structural-draft.mjs"() {
     init_buffer();
@@ -5246,6 +5365,7 @@ var init_structural_draft = __esm({
     common = ["schema", "container", "payload", "backupSha256", "backupRevision", "payloadSha256", "plaintextSha256", "schemaSha256", "decoderRevision", "catalogRevision", "operations"];
     scalarNames = ["inventory.setQuantity", "inventory.setCopper", "inventory.setExpansionValue"];
     digest2 = /^[a-f0-9]{64}$/;
+    structuralSnapshots = /* @__PURE__ */ new WeakMap();
     buildCompanionAdditions2 = async (...args) => (await Promise.resolve().then(() => (init_crimson_companion_addition(), crimson_companion_addition_exports))).buildCompanionAdditions(...args);
     exact2 = (o, keys2) => o && typeof o === "object" && !Array.isArray(o) && Object.keys(o).length === keys2.length && keys2.every((k) => Object.hasOwn(o, k));
     canonical2 = (o) => Array.isArray(o) ? o.map(canonical2) : o && typeof o === "object" ? Object.fromEntries(Object.keys(o).sort().map((k) => [k, canonical2(o[k])])) : o;
@@ -7498,8 +7618,8 @@ async function opened(bundle, ctx) {
   cachedOpen = { context: ctx, binding, value: value2 };
   return value2;
 }
-async function compilerSnapshot(bundle, ctx) {
-  const r = await load(bundle, ctx), mapped = sourceFromBundle(bundle, ctx, { lazy: true }), artifact = mainArtifact(bundle), decoded = await r.decodeSave(import_buffer.Buffer.from(ctx.readArtifact(artifact.id))), projection = { captureTypes: ["InventorySaveData"], fieldListLimits: { "InventoryElementSaveData._itemList": 1024 } }, document = r.readDocument(decoded.plaintext, projection), container = [...mapped.ids].find(([, d]) => d.id === artifact.id)?.[0].replace(/\/save$/, "");
+async function compilerSnapshot(bundle, ctx, operations) {
+  const r = await load(bundle, ctx), mapped = sourceFromBundle(bundle, ctx, { lazy: true }), artifact = mainArtifact(bundle), decoded = await r.decodeSave(import_buffer.Buffer.from(ctx.readArtifact(artifact.id))), structural = operations.some((o) => ["inventory.addItem", "companions.add"].includes(o.operation)), projection = { captureTypes: ["InventorySaveData", ...operations.some((o) => o.operation === "companions.add") ? ["MercenaryClanSaveData"] : []], fieldListLimits: { "InventoryElementSaveData._itemList": 1024 } }, document = structural ? (await Promise.resolve().then(() => (init_structural_draft(), structural_draft_exports))).prepareStructuralDocument(decoded.plaintext, operations) : r.readDocument(decoded.plaintext, projection), container = [...mapped.ids].find(([, d]) => d.id === artifact.id)?.[0].replace(/\/save$/, "");
   await subsystem("domain");
   return { metadata: mapped.metadata, get source() {
     return mapped.source;
@@ -7611,7 +7731,7 @@ var connector_default = {
   },
   async plan(bundle, { operations, operationDigest }, ctx) {
     if (!Array.isArray(operations) || operations.length > 16 || !/^[a-f0-9]{64}$/.test(operationDigest || "")) fail18("CRIMSON_OPERATION_LOG_INVALID");
-    const ops = operations.map(plainOperation), ordinary = ops.length && ops.every((o) => o.operation !== "document.patchFixedWidth" && o.operation !== "preset.replaceAdventure"), s = !ops.length ? await checkedEnvelope(bundle, ctx) : ordinary ? await compilerSnapshot(bundle, ctx) : await opened(bundle, ctx), r = runtime, research = ops.filter((o) => o.operation === "document.patchFixedWidth"), known = ops.filter((o) => o.operation !== "document.patchFixedWidth");
+    const ops = operations.map(plainOperation), ordinary = ops.length && ops.every((o) => o.operation !== "document.patchFixedWidth" && o.operation !== "preset.replaceAdventure"), s = !ops.length ? await checkedEnvelope(bundle, ctx) : ordinary ? await compilerSnapshot(bundle, ctx, ops) : await opened(bundle, ctx), r = runtime, research = ops.filter((o) => o.operation === "document.patchFixedWidth"), known = ops.filter((o) => o.operation !== "document.patchFixedWidth");
     if (research.reduce((n, o) => n + (o.patches?.length || 0), 0) > 16) fail18("CRIMSON_DOCUMENT_PATCH_LIMIT");
     let output = s.artifact, report = { operations: [], validation: { originalBackupUnchanged: true } }, outputs = bundle.artifacts.filter((a) => !["reference-data", "preset-source"].includes(a.role)), retained = outputs.map((a) => a.id);
     if (ops.some((o) => o.operation === "preset.replaceAdventure")) {

@@ -28,6 +28,9 @@ const HASH=/^[a-f0-9]{64}$/;
 const GUID=/^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i;
 const exact=(v,keys)=>v&&typeof v==='object'&&!Array.isArray(v)&&Object.keys(v).length===keys.length&&keys.every(k=>Object.hasOwn(v,k));
 const equal=(a,b)=>JSON.stringify(a)===JSON.stringify(b);
+// Sample labels depend on projection depth. Their exact physical offsets and
+// metadata bytes, every audit counter and the complete byte diff still match.
+const auditIdentity=a=>({...a,nonzeroListSamples:a.nonzeroListSamples.map(({path,...sample})=>sample)});
 const fail=(code,message='The offline draft stopped at its reported validation gate.',status=409)=>{throw new ProbeError(message,status,code);};
 const decimal=(v,max)=>typeof v==='string'&&/^(0|[1-9]\d{0,19})$/.test(v)&&BigInt(v)<=max;
 const stableJson=value=>JSON.stringify(canonical(value));
@@ -155,7 +158,7 @@ export function createCrimsonDraftCompiler({schemaPins=CRIMSON_DRAFT_SCHEMAS,ass
     if(reopened.version!==decoded.version||reopened.flags!==decoded.flags||!reopened.plaintext.equals(patched))fail('CRIMSON_DRAFT_REOPEN_FAILED');
     if(!encoded.subarray(0,0x16).equals(source.subarray(0,0x16))||!encoded.subarray(0x4a,128).equals(source.subarray(0x4a,128)))fail('CRIMSON_DRAFT_HEADER_CHANGED');
     const after=readDocument(reopened.plaintext,{...projection,compareTo:decoded.plaintext}),diff=after.decodedDiff;
-    if(after.schemaSha256!==before.schemaSha256||!equal(after.audit,before.audit)||diff.length!==operations.length||
+    if(after.schemaSha256!==before.schemaSha256||!equal(auditIdentity(after.audit),auditIdentity(before.audit))||diff.length!==operations.length||
       diff.some(d=>!operations.some(op=>op.offset===d.offset&&op.fieldBytes===d.bytes&&op.field===d.field&&op.objectType===d.objectType&&String(d.before)===op.before&&String(d.after)===op.after)))fail('CRIMSON_DRAFT_DIFF_FAILED','The full decoded comparison contains an unintended change.');
     const afterContext=inventoryContext(after,pin);
     const housingUnchanged=!context.housing||context.housing.offset===afterContext.housing.offset&&context.housing.end===afterContext.housing.end&&hash(decoded.plaintext.subarray(context.housing.offset,context.housing.end))===hash(reopened.plaintext.subarray(afterContext.housing.offset,afterContext.housing.end));

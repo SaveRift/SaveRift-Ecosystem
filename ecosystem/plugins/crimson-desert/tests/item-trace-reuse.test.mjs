@@ -46,6 +46,20 @@ test('structural scope witnesses reject clones and changed bytes, intent or repo
  const original=f.result.encoded[128];f.result.encoded[128]^=1;assert.equal(itemScopeWitness(f.result,f.source,f.inputs),null);f.result.encoded[128]=original;
  assert.ok(itemScopeWitness(f.result,f.source,f.inputs));
 });
+
+test('native relocation metadata proves exact bytes and forged locator arrays retain scalar checks',async()=>{
+ const {traceStructuralDocument,insertTypedRecords}=await import('../src/crimson-structural-layout.mjs'),f=await add({},[{definitionKey:4242,quantity:'2'}]),raw=(await decodeSave(f.source)).plaintext;
+ const added=elements(elements(f.after.blocks.find(b=>b.type==='InventorySaveData'),'_inventorylist')[0],'_itemList').find(i=>value(i,'_itemKey')===4242),record=f.after.plaintext.subarray(added.wrapperStart,added.end);
+ const make=()=>{const trace=traceStructuralDocument(Buffer.from(raw),{captureTypes:['InventorySaveData'],listLimit:1024}),bag=elements(trace.document.blocks[0],'_inventorylist')[0];return{trace,list:bag.fields._itemList,scalar:elements(bag,'_itemList')[0].fields._stackCount.offset};};
+ const native=make(),changed=insertTypedRecords(native.trace,native.list,[record]);
+ assert.equal(changed.conservationProof,'native_metadata_reverse_bytes');assert.equal(changed.raw.equals(f.after.plaintext),true);
+ const copied=make(),legacy=insertTypedRecords({...copied.trace},copied.list,[record]);
+ assert.equal(legacy.conservationProof,'full_scalar_stream');assert.equal(legacy.raw.equals(changed.raw),true);
+ const forged=make();forged.trace.locators.push({pointerOffset:forged.scalar,advertisedPayloadOffset:forged.list.end});
+ assert.throws(()=>insertTypedRecords(forged.trace,forged.list,[record]),{code:'CRIMSON_STRUCTURAL_SEMANTIC_DIFF'});
+ const mutated=make();mutated.trace.document.plaintext[mutated.scalar]^=1;
+ assert.throws(()=>insertTypedRecords(mutated.trace,mutated.list,[record]),{code:'CRIMSON_STRUCTURAL_SOURCE_CHANGED'});
+});
 test('an explicit item with no pickup discovery preserves an empty valid knowledge list',async()=>{
  const {result,after}=await add({knowledgeCount:0},[{definitionKey:4242,quantity:'2'}]);
  const list=after.blocks.find(b=>b.type==='KnowledgeSaveData').fields._list;
@@ -89,6 +103,11 @@ test('combined scalar and item compiler binds fused scalar locators and preserve
  await assert.rejects(hostile(bound.source,bound.metadata,plan,{nonce:Buffer.alloc(16,8),retainEncoded:true}),{code:'STRUCTURAL_UNINTENDED_CHANGE'});
  const invalid=createStructuralDraftCompiler({...options,scalarCompiler:async(...args)=>{const r=await scalarCompiler(...args);r.report.operations[0].fieldBytes++;return r;}});
  await assert.rejects(invalid(bound.source,bound.metadata,plan,{nonce:Buffer.alloc(16,8),retainEncoded:true}),{code:'STRUCTURAL_SCALAR_BINDING_FAILED'});
+ const {prepareStructuralDocument}=await import('../src/structural-draft.mjs'),{bindPreparedSource}=await import('../src/source-binding.mjs'),context={readArtifact:id=>files.get(id)},preparedBound=sourceFromBundle(bundle,context),decoded=await decodeSave(encoded),preparedDocument=prepareStructuralDocument(decoded.plaintext,plan.operations);
+ bindPreparedSource(preparedBound.source,preparedBound.metadata,{context,container:plan.container,payload:'save',payloadSha256:plan.payloadSha256,decoded,document:preparedDocument,projection:{captureTypes:['InventorySaveData'],fieldListLimits:{'InventoryElementSaveData._itemList':1024}}});
+ const reused=await compile(preparedBound.source,preparedBound.metadata,plan,{nonce:Buffer.alloc(16,8),retainEncoded:true});assert.equal(reused.encoded.equals(result.encoded),true);
+ elements(elements(preparedDocument.blocks[0],'_inventorylist')[0],'_itemList')[0].fields._stackCount.value='999';
+ await assert.rejects(compile(preparedBound.source,preparedBound.metadata,plan,{nonce:Buffer.alloc(16,8),retainEncoded:true}),{code:'STRUCTURAL_SOURCE_CHANGED'});
 });
 test('capacity patches receive a fresh strict trace before insertion',async()=>{
  const {result,bags}=await add({count:50},[{definitionKey:4242,quantity:'1'}]);assert.equal(result.report.capacity.before,50);assert.equal(result.report.capacity.after,51);assert.equal(result.report.capacity.automaticExpansion,true);assert.equal(value(bags[0],'_varyExpandSlotCount'),1);assert.equal(elements(bags[0],'_itemList').length,51);
