@@ -5,6 +5,8 @@ import {hash,canonicalJson} from './crypto.mjs';
 import {LIMITS,LIFECYCLE,RUNTIME_PROFILE,PluginError,fail,jsonCopy,logicalPath,validatePackage,createSaveBundle,digest} from './contracts.mjs';
 import {executionProfile} from './execution-profiles.mjs';
 import {createFormatSha256Host,FORMAT_SHA256_LIMITS} from './format-sha256-host.mjs';
+import {compressStandardLz4Block} from './lz4-block.mjs';
+import {chacha20Block,inflateLz4Block} from './format-binary.mjs';
 import {createExecutionLock as createPinnedLock,verifyExecutionLock} from './registry.mjs';
 
 const PAGE=65536;
@@ -41,7 +43,7 @@ export async function createPluginSession(options,host={}){
   const bundle=jsonCopy(options.bundle||createSaveBundle([])),normalized=createSaveBundle(bundle.artifacts,{id:bundle.id,hints:bundle.hints});if(canonicalJson(bundle)!==canonicalJson(normalized))fail('BUNDLE_DIGEST_MISMATCH','Input bundle has changed or contains nonpublic fields.');
   const inputs=new Map(),outputs=new Map();let inputBytes=0;
   for(const artifact of bundle.artifacts){const data=source.get(artifact.id);if(!(data instanceof Uint8Array)||data.length!==artifact.byteLength||data.length>limits.artifactBytes||hash(data)!==artifact.sha256||inputs.has(artifact.id))fail('ARTIFACT_MISMATCH','A selected artifact is missing, oversized, duplicate or changed.');inputBytes+=data.length;if(inputBytes>limits.totalArtifactBytes)fail('ARTIFACT_LIMIT','Selected input bytes exceed the limit.');inputs.set(artifact.id,new Uint8Array(data));}
-  let closed=false,active=false,interrupts=0,hostCalls=0,outputBytes=0,started=Date.now(),deadline=started+limits.timeoutMs,lastFailure=null;
+  let closed=false,active=false,interrupts=0,hostCalls=0,outputBytes=0,compressionBytes=0,binaryBytes=0,started=Date.now(),deadline=started+limits.timeoutMs,lastFailure=null;
   const metrics={runner:RUNTIME_PROFILE,engine:'quickjs-2025-09-13+f1139494/wasm-0.32.0',packageDigest:pkg.packageDigest,executionLockDigest:lock.digest,inputBytes,outputBytes:0,interrupts:0,hostCalls:0,elapsedMs:0,memoryBytes:0};
   function check(){if(closed)fail('SESSION_CLOSED','The isolated session has closed.');if(signal?.aborted)fail('JOB_ABORTED','The plugin job was cancelled.');if(Date.now()>deadline)fail('CPU_LIMIT','The plugin execution deadline was exceeded.');}
   check();
@@ -81,7 +83,50 @@ export async function createPluginSession(options,host={}){
     }finally{view.dispose();}
   });
   addFunction('__saveriftRandom',lengthArg=>{const length=context.getNumber(lengthArg);if(!Number.isSafeInteger(length)||length<1||length>64)fail('RANDOM_LIMIT','Random requests are limited to 64 bytes.');const bytes=new Uint8Array(length);globalThis.crypto.getRandomValues(bytes);return context.newArrayBuffer(bytes.buffer);});
-  addFunction('__saveriftProgress',arg=>{const event=json(arg);if(typeof event.phase!=='string'||event.phase.length>80||!Number.isSafeInteger(event.completed)||event.completed<0||(event.total!==undefined&&(!Number.isSafeInteger(event.total)||event.total<event.completed)))fail('PROGRESS_INVALID','Progress must be bounded counters.');host.onProgress?.(event);return context.undefined;});
+  addFunction('__saveriftLz4Compress',arrayArg=>{
+    const measured=context.callFunction(arrayBufferByteLengthGetter,arrayArg);
+    if(measured.error){measured.error.dispose();fail('FORMAT_COMPRESSION_BUFFER_REQUIRED','A genuine binary ArrayBuffer is required.');}
+    let length;try{length=context.getNumber(measured.value);}finally{measured.value.dispose();}
+    // Bound the branded intrinsic length before QTS_GetArrayBuffer copies it.
+    if(!Number.isSafeInteger(length)||length<1||length>8*1024*1024)fail('FORMAT_COMPRESSION_INPUT_LIMIT','LZ4 input must be 1 byte to 8 MiB.');
+    if(compressionBytes+length>128*1024*1024)fail('FORMAT_COMPRESSION_BYTE_LIMIT','The format compression byte budget is exhausted.');
+    hostCalls+=Math.ceil(length/65536)-1;
+    if(hostCalls>limits.hostCalls)fail('HOST_CALL_LIMIT','The plugin exceeded its shared host-call budget.');
+    compressionBytes+=length;check();const view=context.getArrayBuffer(arrayArg);
+    try{
+      const output=compressStandardLz4Block(view.value);check();
+      if(output.length>length+Math.floor(length/255)+16)fail('FORMAT_COMPRESSION_OUTPUT_LIMIT','The fixed LZ4 output bound was exceeded.');
+      return context.newArrayBuffer(output.buffer.slice(output.byteOffset,output.byteOffset+output.byteLength));
+    }finally{view.dispose();}
+  });
+  function binaryLength(arg,min,max){
+    const measured=context.callFunction(arrayBufferByteLengthGetter,arg);
+    if(measured.error){measured.error.dispose();fail('FORMAT_BINARY_BUFFER_REQUIRED','A genuine binary ArrayBuffer is required.');}
+    let size;try{size=context.getNumber(measured.value);}finally{measured.value.dispose();}
+    if(!Number.isSafeInteger(size)||size<min||size>max)fail('FORMAT_BINARY_INPUT_LIMIT','The fixed binary input size is invalid.');
+    return size;
+  }
+  function chargeBinary(size){
+    if(binaryBytes+size>128*1024*1024)fail('FORMAT_BINARY_BYTE_LIMIT','The binary-math byte budget is exhausted.');
+    hostCalls+=Math.ceil(size/65536)-1;if(hostCalls>limits.hostCalls)fail('HOST_CALL_LIMIT','The plugin exceeded its shared host-call budget.');
+    binaryBytes+=size;check();
+  }
+  addFunction('__saveriftChaCha20',(dataArg,keyArg,nonceArg)=>{
+    const size=binaryLength(dataArg,1,8*1024*1024);binaryLength(keyArg,32,32);binaryLength(nonceArg,16,16);chargeBinary(size);
+    const views=[];try{
+      for(const arg of [dataArg,keyArg,nonceArg])views.push(context.getArrayBuffer(arg));
+      const output=chacha20Block(...views.map(v=>v.value));check();
+      return context.newArrayBuffer(output.buffer.slice(output.byteOffset,output.byteOffset+output.byteLength));
+    }finally{for(const view of views)view.dispose();}
+  });
+  addFunction('__saveriftLz4Decompress',(dataArg,sizeArg)=>{
+    const length=binaryLength(dataArg,1,8*1024*1024),size=context.getNumber(sizeArg);
+    if(!Number.isSafeInteger(size)||size<1||size>32*1024*1024)fail('FORMAT_BINARY_OUTPUT_LIMIT','LZ4 output must be bounded by its declared size.');
+    chargeBinary(length+size);const view=context.getArrayBuffer(dataArg);
+    try{const output=inflateLz4Block(view.value,size);check();return context.newArrayBuffer(output.buffer.slice(output.byteOffset,output.byteOffset+output.byteLength));}
+    finally{view.dispose();}
+  });
+  addFunction('__saveriftProgress',arg=>{const event=json(arg);if(typeof event.phase!=='string'||event.phase.length>80||!Number.isSafeInteger(event.completed)||event.completed<0||(event.total!==undefined&&(!Number.isSafeInteger(event.total)||event.total<event.completed)))fail('PROGRESS_INVALID','Progress must be bounded counters.');host.onProgress?.(event,updateMetrics());return context.undefined;});
   addFunction('__saveriftCatalog',arg=>{const query=json(arg);if(!host.catalogQuery)fail('CATALOG_UNAVAILABLE','No pinned catalog is attached.');const value=jsonCopy(host.catalogQuery(query,{executionLock:lock}),limits.jsonBytes);return context.newString(JSON.stringify(value));});
   addFunction('__saveriftCancelled',()=>{check();return context.undefined;});
   function stringLength(handle){const value=context.getProp(handle,'length');try{return context.getNumber(value);}finally{value.dispose();}}
@@ -159,7 +204,7 @@ export async function createPluginSession(options,host={}){
       if(!runtime.hasPendingJob())fail('ASYNC_UNSUPPORTED','The plugin promise waits on unavailable ambient I/O.');if(++count>limits.pendingJobs)fail('PENDING_JOB_LIMIT','The plugin exceeded its pending-job budget.');const jobs=runtime.executePendingJobs(1);if(jobs.error){const error=guestError(jobs.error);jobs.error.dispose();throw error;}
     }
   }
-  function updateMetrics(){metrics.outputBytes=outputBytes;metrics.interrupts=interrupts;metrics.hostCalls=hostCalls;metrics.elapsedMs=Date.now()-started;Object.assign(metrics,formatSha256.metrics());if(memory)metrics.memoryBytes=memory.buffer.byteLength;if(runtime)metrics.contextsCreated=contexts.size;return {...metrics};}
+  function updateMetrics(){metrics.outputBytes=outputBytes;metrics.interrupts=interrupts;metrics.hostCalls=hostCalls;metrics.compressionBytes=compressionBytes;metrics.binaryBytes=binaryBytes;metrics.elapsedMs=Date.now()-started;Object.assign(metrics,formatSha256.metrics());if(memory)metrics.memoryBytes=memory.buffer.byteLength;if(runtime)metrics.contextsCreated=contexts.size;return {...metrics};}
   const allowed=new Set([...LIFECYCLE,...(pkg.manifest.methods||[])]);
   return {
     packageDigest:pkg.packageDigest,executionLock:lock,bundle,

@@ -135,6 +135,23 @@ limited to 30 seconds / 90 seconds and requires a trusted exact-digest pin.
 parser. Bundle these helpers and all executable dependencies into a release,
 not remote runtime imports.
 
+`lz4-block.mjs` retains the attributed standard no-dictionary, acceleration-one
+kernel and its BSD notice. A fixed pure host helper can perform this bounded
+computation without moving parsing, intent, validation or account operations
+out of the guest. Intrinsic ArrayBuffer length is checked before copying:
+1 byte–8 MiB per call, 128 MiB per fresh engine. Each 64 KiB consumes one call
+from the existing shared 4,096-call job budget. Cancellation and deadlines are
+checked before and after compression. The helper returns only the compressed
+block; it has no keys or I/O and does not change time or memory limits.
+
+`format-binary.mjs` retains the attributed MPL-2.0 ChaCha20 and raw LZ4 decode
+math. Its fixed helpers accept only guest-owned byte arrays: ChaCha requires
+an exact 32-byte public-format key and 16-byte nonce; LZ4 requires a declared
+output of at most 32 MiB. Branded sizes are checked before copying, each 64 KiB
+of work charges the existing shared callback budget, and binary work is capped
+at 128 MiB per engine. These helpers have no account credentials, key store,
+network or save-format authority. Host-side candidate validation is unchanged.
+
 Dependencies are exact-pinned in the adjacent lockfile. QuickJS/Emscripten,
 Noble hashes, Buffer, and their transitive notices must accompany distributed
 artifacts. No source, player fixture or public release has been authorized by

@@ -10,6 +10,11 @@ data and art redistribution remains separately reviewed; absent provider
 data must remain visibly absent rather than silently replaced with private
 service dependencies.
 
+The shared SDK kernels `format-binary.mjs` and `lz4-block.mjs` retain their
+per-file MPL-2.0 and BSD-2-Clause notices respectively. Their extraction does
+not relicense that code under Apache-2.0. Full license text and original
+provenance remain in `plugins/crimson-desert/licenses/`.
+
 Dependency license declarations are recorded in each package lock. Include
 the applicable full dependency notices with built distributions. A package
 lock declaration is not a complete notice/rights audit.

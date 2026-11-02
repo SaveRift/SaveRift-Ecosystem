@@ -1,7 +1,7 @@
 {
   "schema": "saverift.package-build.v1",
-  "packageDigest": "2e5bdb6088712f08ae09afed8f4fc9484971b657e9c4f69cc2682d75383680cb",
-  "byteLength": 1089444,
+  "packageDigest": "3c11ef8f7c7613d54c3f4caa78a977be1682b50732dacee458b4213c1043fdba",
+  "byteLength": 1091630,
   "files": [
     {
       "path": "data/provider-requirements.json",
@@ -85,8 +85,8 @@
     },
     {
       "path": "runtime/connector.mjs",
-      "byteLength": 445589,
-      "sha256": "cad8ffc02a08d4eaf28bb6d089b08aab5992e6e69da870e9247b0b99570ce5fe"
+      "byteLength": 447775,
+      "sha256": "584f0981d9d9765f5639125379832f2332582d7e0dbe3b932ead21a4f6176501"
     },
     {
       "path": "ui/dist/entry.js",
@@ -117,6 +117,8 @@
     "..\\..\\..\\..\\saverift-preview\\ecosystem\\sdk\\node_modules\\ieee754\\index.js",
     "..\\..\\sdk\\buffer.mjs",
     "..\\..\\sdk\\crypto.mjs",
+    "..\\..\\sdk\\format-binary.mjs",
+    "..\\..\\sdk\\lz4-block.mjs",
     "..\\..\\sdk\\schema.mjs",
     "..\\..\\sdk\\text-encoding.mjs",
     "connector.mjs",
