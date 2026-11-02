@@ -49,6 +49,7 @@ export function createPhaseExecutor(host = {}) {
     if (!fixtures.length) return {done: true, result: {status: 'not_run', reason: 'Select an explicitly authorized fixture to run lifecycle/no-op tests.'}};
     if (!['inspect', 'tests', 'candidate'].includes(kind)) fail('JOB_KIND_INVALID', 'The isolated continuation kind is unsupported.');
     const primary = validatePackage(pkg), token = host.executionProfileFor?.(primary), profile = executionProfile(token, primary.packageDigest), managed = referenceDataFor(primary.packageDigest, referenceData, executionLock);
+    const jobCeilings={...SDK_LIMITS,hostCalls:profile.maxJobHostCalls??SDK_LIMITS.hostCalls};
     const selected = inputs(fixtures, managed.artifacts), managedIds = new Set(managed.artifacts.map(value => value.id)), operations = kind === 'tests' ? [] : input.operations;
     const binding = digest({profile, kind, bundle: selected.bundle.bundleDigest, executionLock: executionLock.digest, operations: operations || null, query: input.query || null, catalogs});
     const state = checkpoint ? copy(checkpoint) : {schema: SCHEMA, binding, startedAt: jobStartedAt ?? Date.now(), phase: 'inspection', checks: [], phases: [], runs: []};
@@ -65,14 +66,15 @@ export function createPhaseExecutor(host = {}) {
     const budget = (primary = true) => {
       const left = profile.maxJobWallMs - (Date.now() - state.startedAt);
       if (signal?.aborted || left <= 0) fail(signal?.aborted ? 'JOB_ABORTED' : 'JOB_TIME_LIMIT', signal?.aborted ? 'The plugin job was cancelled.' : 'The complete job deadline includes pauses between phases.');
-      const remaining = Object.fromEntries(Object.entries(consumed).map(([key, value]) => [key, SDK_LIMITS[key] - value]));
+      const remaining = Object.fromEntries(Object.entries(consumed).map(([key, value]) => [key, jobCeilings[key] - value]));
+      if(!primary)remaining.hostCalls=Math.min(remaining.hostCalls,SDK_LIMITS.hostCalls-state.phases.filter(p=>p.phase==='extension').reduce((n,p)=>n+p.hostCalls,0));
       if (Object.values(remaining).some(value => value <= 0)) fail('JOB_RESOURCE_LIMIT', 'The shared isolated job budget is exhausted.');
       return {...remaining, timeoutMs: Math.min(primary ? profile.maxPhaseMs : SDK_LIMITS.timeoutMs, left)};
     };
     budget();
     function account(name, metrics, count = 0, packageId) {
       const row = {phase: name, ...(packageId ? {packageId} : {}), ...metrics, createdArtifacts: count};
-      for (const key of Object.keys(consumed)) {const value = key === 'outputArtifacts' ? count : metrics[key]; if (!integer(value)) fail('RUNNER_METRICS_INVALID', 'The runner resource report is invalid.'); consumed[key] += value; if (consumed[key] > SDK_LIMITS[key]) fail('JOB_RESOURCE_LIMIT', 'The shared isolated job budget was exceeded.');}
+      for (const key of Object.keys(consumed)) {const value = key === 'outputArtifacts' ? count : metrics[key]; if (!integer(value)) fail('RUNNER_METRICS_INVALID', 'The runner resource report is invalid.'); consumed[key] += value; if (consumed[key] > jobCeilings[key]) fail('JOB_RESOURCE_LIMIT', 'The shared isolated job budget was exceeded.');}
       state.phases.push(row); budget();
     }
     const pinnedHost = executionHost(host, catalogs, managed.resources);
@@ -146,7 +148,7 @@ export function createPhaseExecutor(host = {}) {
       const handle = await reopened.call('open', [finalBundle]); reopenedQuery = await reopened.call('query', [handle, state.defaultQuery]); await reopened.call('close', [handle]);
     } finally {const metrics = reopened.metrics(), count = reopened.artifacts().size; reopened.close(); reopened = null; account('reopen', metrics, count);}
     state.checks.push({name: 'independent-reopen', status: 'passed'});
-    const result = {status: 'passed', checks: state.checks, runtime: {phases: state.phases, profile: {id: profile.id, maxJobWallMs: profile.maxJobWallMs, maxPhaseMs: profile.maxPhaseMs, maxJobInterrupts: SDK_LIMITS.interrupts, maxJobHostCalls: SDK_LIMITS.hostCalls, resumable: true, checkpointBytes: PHASE_CHECKPOINT_LIMITS.bytes}, totals: consumed}, executionLockDigest: executionLock.digest, gameAcceptance: 'unverified', entitlement: 'host-review-required', summary: kind === 'tests' ? {description: state.description, originalQuery: state.originalQuery} : {before: state.originalQuery, after: reopenedQuery, changes: candidate.summary?.changes || [], candidateBundleDigest: finalBundle.bundleDigest, artifacts: descriptors}};
+    const result = {status: 'passed', checks: state.checks, runtime: {phases: state.phases, profile: {id: profile.id, maxJobWallMs: profile.maxJobWallMs, maxPhaseMs: profile.maxPhaseMs, maxJobInterrupts: SDK_LIMITS.interrupts, maxJobHostCalls: jobCeilings.hostCalls, resumable: true, checkpointBytes: PHASE_CHECKPOINT_LIMITS.bytes}, totals: consumed}, executionLockDigest: executionLock.digest, gameAcceptance: 'unverified', entitlement: 'host-review-required', summary: kind === 'tests' ? {description: state.description, originalQuery: state.originalQuery} : {before: state.originalQuery, after: reopenedQuery, changes: candidate.summary?.changes || [], candidateBundleDigest: finalBundle.bundleDigest, artifacts: descriptors}};
     if (kind === 'candidate') result.privateArtifacts = descriptors.map(descriptor => ({...descriptor, bytes: finalArtifacts.get(descriptor.id)}));
     return {done: true, result};
   };

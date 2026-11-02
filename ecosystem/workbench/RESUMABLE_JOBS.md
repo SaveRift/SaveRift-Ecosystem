@@ -43,6 +43,17 @@ fake tokens and different package digests are rejected. Extensions retain the
 default 10-second engine ceiling. Every other resource ceiling remains unchanged,
 and explicit limits remain reduce-only within the selected fixed profile.
 
+An adapter may separately select
+`createReviewedLargeSaveProfile({packageDigest, profile:'developer-large-save-v2'})`
+for a newly reviewed primary artifact. This fixed profile permits 8,192 shared
+host calls across the complete job, including byte-weighted pure computation.
+It retains the same 30/90-second bounds, 64 MiB Wasm/48 MiB heap, 100,000
+interrupts and all format-helper byte/output limits. All extensions together
+retain 4,096 calls and their default engine ceiling; they cannot receive a v2
+capability. The default factory remains v1, preserving existing artifact grants
+and checkpoint bindings. v2 requires its own complete local and hosted evidence;
+increasing an allowance alone is not a successful workload test.
+
 A host must pin only the reviewed package digest; package ID or version alone is
 insufficient. A new artifact needs fresh review and a fresh digest pin. This
 profile does not approve a release, registry promotion, production cutover or

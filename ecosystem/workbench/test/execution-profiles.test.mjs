@@ -4,6 +4,7 @@ import assert from 'node:assert/strict';
 import {createReviewedLargeSaveProfile, executionProfile} from '../../sdk/execution-profiles.mjs';
 import {createPluginSession} from '../../sdk/runner.mjs';
 import {validatePackage} from '../../sdk/contracts.mjs';
+import {createExecutionLock} from '../../sdk/registry.mjs';
 import {createIsolatedExecutor} from '../executor.mjs';
 import {TEMPLATES} from '../templates.mjs';
 import {packageFromSource, composeExecution} from '../execution.mjs';
@@ -32,6 +33,30 @@ test('full and resumed hosts bind the profile and report fixed30/90 policy', asy
   await assert.rejects(createIsolatedExecutor().step(args, first.checkpoint), {code: 'JOB_CHECKPOINT_INVALID'});
   let result = first; while (!result.done) result = await createIsolatedExecutor(host).step(args, JSON.parse(JSON.stringify(result.checkpoint)));
   assert.equal(result.result.runtime.profile.maxPhaseMs, 30000); assert.equal(result.result.runtime.profile.maxJobWallMs, 90000);
+});
+
+test('expanded reviewed primary work is fixed, opaque and leaves ordinary and extension quotas intact',async()=>{
+ const {pkg:source}=sample(),pkg={manifest:source.manifest,files:{...source.files,[source.manifest.entrypoints.runtime]:'export default {detect(_,ctx){for(let i=0;i<4500;i++)ctx.randomBytes(1);return {done:true};}}'}},pin=validatePackage(pkg).packageDigest,executionLock=composeExecution({...pkg,digest:pin}).executionLock;
+ const token=createReviewedLargeSaveProfile({packageDigest:pin,profile:'developer-large-save-v2'});
+ assert.equal(executionProfile(token,pin).maxJobHostCalls,8192);assert.equal(executionProfile(token,pin).maxPhaseMs,30000);
+ assert.throws(()=>createReviewedLargeSaveProfile({packageDigest:pin,profile:'arbitrary'}),{code:'EXECUTION_PROFILE_INVALID'});
+ await assert.rejects(createPluginSession({package:pkg,executionLock,executionProfile:token,limits:{hostCalls:8193}}),{code:'LIMITS_INVALID'});
+ await assert.rejects(createPluginSession({package:pkg,executionLock,executionProfile:JSON.parse(JSON.stringify(token))}),{code:'EXECUTION_PROFILE_DENIED'});
+ for(const profile of [undefined,createReviewedLargeSaveProfile({packageDigest:pin})]){
+  const session=await createPluginSession({package:pkg,executionLock,executionProfile:profile});try{await assert.rejects(session.call('detect',[null]),{code:'HOST_CALL_LIMIT'});assert.equal(session.artifacts().size,0);}finally{session.close();}
+ }
+ const session=await createPluginSession({package:pkg,executionLock,executionProfile:token});try{assert.deepEqual(await session.call('detect',[null]),{done:true});assert.equal(session.metrics().hostCalls,4500);assert.equal(session.artifacts().size,0);}finally{session.close();}
+ const extension={...pkg,manifest:{...pkg.manifest,kind:'extension'}},extensionPin=validatePackage(extension).packageDigest,extensionToken=createReviewedLargeSaveProfile({packageDigest:extensionPin,profile:'developer-large-save-v2'});
+ await assert.rejects(createPluginSession({package:extension,executionLock:createExecutionLock({connector:{id:extension.manifest.id,version:extension.manifest.version,digest:extensionPin}}),executionProfile:extensionToken}),{code:'EXECUTION_PROFILE_DENIED'});
+});
+
+test('expanded full and resumed jobs report the same bound and reject a profile change',async()=>{
+ const {pkg,executionLock,fixtures}=sample(),token=createReviewedLargeSaveProfile({packageDigest:pkg.packageDigest,profile:'developer-large-save-v2'}),host={executionProfileFor:()=>token},args={kind:'tests',package:pkg,executionLock,fixtures,input:{}};
+ const executor=createIsolatedExecutor(host),full=await executor(args);assert.equal(full.runtime.profile.maxJobHostCalls,8192);assert.equal(full.runtime.profile.id,'developer-large-save-v2');assert.ok(full.runtime.totals.hostCalls<8192);
+ let result=await executor.step(args);await assert.rejects(createIsolatedExecutor({executionProfileFor:()=>createReviewedLargeSaveProfile({packageDigest:pkg.packageDigest})}).step(args,result.checkpoint),{code:'JOB_CHECKPOINT_INVALID'});
+ const exhausted=structuredClone(result.checkpoint);exhausted.phases[0].hostCalls=8191;await assert.rejects(executor.step(args,exhausted),error=>['HOST_CALL_LIMIT','JOB_RESOURCE_LIMIT'].includes(error.code));
+ while(!result.done)result=await executor.step(args,JSON.parse(JSON.stringify(result.checkpoint)));
+ assert.equal(result.result.runtime.profile.maxJobHostCalls,8192);assert.equal(result.result.runtime.totals.hostCalls,full.runtime.totals.hostCalls);
 });
 test('profiled malicious CPU, heap, callbacks and cancellation remain contained without outputs', async () => {
   const {pkg: source} = sample();

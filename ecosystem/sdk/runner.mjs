@@ -15,7 +15,7 @@ export function createExecutionLock(packageInput){
   const pkg=validatePackage(packageInput);return createPinnedLock({connector:{id:pkg.manifest.id,version:pkg.manifest.version,digest:pkg.packageDigest}});
 }
 function boundedLimits(input={},profile){
-  const ceilings={...LIMITS,timeoutMs:profile.maxPhaseMs};
+  const ceilings={...LIMITS,timeoutMs:profile.maxPhaseMs,hostCalls:profile.maxJobHostCalls??LIMITS.hostCalls};
   const limits={...ceilings};for(const [key,value]of Object.entries(input)){if(!own(ceilings,key)||!Number.isSafeInteger(value)||value<1||value>ceilings[key])fail('LIMITS_INVALID','Execution limits may only reduce documented quotas.');limits[key]=value;}
   if(limits.memoryBytes<16*1024*1024||limits.memoryBytes%PAGE||limits.heapBytes>=limits.memoryBytes)fail('LIMITS_INVALID','Wasm memory must be page aligned and larger than the heap limit.');return limits;
 }
@@ -36,6 +36,7 @@ function normalizedModule(request,base){
  */
 export async function createPluginSession(options,host={}){
   const pkg=validatePackage(options?.package),profile=executionProfile(options?.executionProfile,pkg.packageDigest),limits=boundedLimits(options?.limits,profile),lock=verifyLock(options?.executionLock,pkg),signal=options?.signal;
+  if(pkg.manifest.kind==='extension'&&profile.maxJobHostCalls)fail('EXECUTION_PROFILE_DENIED','The expanded computation profile is primary-only.');
   if(pkg.descriptors.length>limits.packageFiles||pkg.byteLength>limits.packageBytes)fail('PACKAGE_LIMIT','The package exceeds its reduced byte or file limit.');
   if(pkg.descriptors.some(file=>/\.(?:mjs|js)$/.test(file.path)&&file.byteLength>limits.sourceBytes))fail('SOURCE_LIMIT','An executable module exceeds its reduced source limit.');
   if(pkg.manifest.kind&&!['game','extension'].includes(pkg.manifest.kind))fail('PACKAGE_NOT_EXECUTABLE','Only connector and system-extension packages execute in the runner.');

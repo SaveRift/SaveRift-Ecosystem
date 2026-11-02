@@ -19,15 +19,19 @@ export function createIsolatedExecutor(host = {}) {
     if (!fixtures.length) return {status: 'not_run', reason: 'Select an explicitly authorized fixture to run lifecycle/no-op tests.'};
     const primary = validatePackage(pkg), token = host.executionProfileFor?.(primary), profile = executionProfile(token, primary.packageDigest), managed = referenceDataFor(primary.packageDigest, referenceData, executionLock);
     const selected = inputs(fixtures, managed.artifacts), managedIds = new Set(managed.artifacts.map(value => value.id)), checks = [], phases = [];
-    const budget = {startedAt: Date.now(), wallMs: profile.maxJobWallMs, interrupts: SDK_LIMITS.interrupts, hostCalls: SDK_LIMITS.hostCalls, outputBytes: SDK_LIMITS.outputBytes, outputArtifacts: SDK_LIMITS.outputArtifacts};
+    const maxJobHostCalls=profile.maxJobHostCalls??SDK_LIMITS.hostCalls;let extensionHostCalls=0;
+    const budget = {startedAt: Date.now(), wallMs: profile.maxJobWallMs, interrupts: SDK_LIMITS.interrupts, hostCalls: maxJobHostCalls, outputBytes: SDK_LIMITS.outputBytes, outputArtifacts: SDK_LIMITS.outputArtifacts};
     function limitsForPhase(primary = true) {
       const remainingMs = budget.wallMs - (Date.now() - budget.startedAt);
       if (remainingMs <= 0 || signal?.aborted) fail(signal?.aborted ? 'JOB_ABORTED' : 'JOB_TIME_LIMIT', signal?.aborted ? 'The plugin job was cancelled.' : 'The offline job exceeded its total wall-clock limit.');
       if (budget.interrupts <= 0 || budget.hostCalls <= 0 || budget.outputBytes <= 0 || budget.outputArtifacts <= 0) fail('JOB_RESOURCE_LIMIT', 'The offline job exhausted its shared instruction or artifact budget.');
-      return {timeoutMs: Math.min(primary ? profile.maxPhaseMs : SDK_LIMITS.timeoutMs, remainingMs), interrupts: budget.interrupts, hostCalls: budget.hostCalls, outputBytes: budget.outputBytes, outputArtifacts: budget.outputArtifacts};
+      const hostCalls=primary?budget.hostCalls:Math.min(budget.hostCalls,SDK_LIMITS.hostCalls-extensionHostCalls);
+      if(hostCalls<=0)fail('JOB_RESOURCE_LIMIT','The shared extension callback budget is exhausted.');
+      return {timeoutMs: Math.min(primary ? profile.maxPhaseMs : SDK_LIMITS.timeoutMs, remainingMs), interrupts: budget.interrupts, hostCalls, outputBytes: budget.outputBytes, outputArtifacts: budget.outputArtifacts};
     }
     function accountPhase(phase, metrics, artifactCount = 0, packageId) {
       budget.interrupts -= metrics.interrupts; budget.hostCalls -= metrics.hostCalls; budget.outputBytes -= metrics.outputBytes; budget.outputArtifacts -= artifactCount;
+      if(phase==='extension')extensionHostCalls+=metrics.hostCalls;
       phases.push({phase, ...(packageId ? {packageId} : {}), ...metrics});
       if (budget.interrupts < 0 || budget.hostCalls < 0 || budget.outputBytes < 0 || budget.outputArtifacts < 0) fail('JOB_RESOURCE_LIMIT', 'The offline job exceeded its shared instruction or artifact budget.');
       if (Date.now() - budget.startedAt > budget.wallMs) fail('JOB_TIME_LIMIT', 'The offline job exceeded its total wall-clock limit.');
@@ -88,7 +92,7 @@ export function createIsolatedExecutor(host = {}) {
       const handle = await reopened.call('open', [finalBundle]); reopenedQuery = await reopened.call('query', [handle, defaultQuery]); await reopened.call('close', [handle]);
     } finally { const metrics = reopened.metrics(), count = reopened.artifacts().size; reopened.close(); reopened = null; accountPhase('reopen', metrics, count); }
     checks.push({name: 'independent-reopen', status: 'passed'});
-    const result = {status: 'passed', checks, runtime: {phases, profile: {maxJobWallMs: budget.wallMs, maxPhaseMs: profile.maxPhaseMs, id: profile.id, maxJobInterrupts: SDK_LIMITS.interrupts, maxJobHostCalls: SDK_LIMITS.hostCalls}, totals: {interrupts: SDK_LIMITS.interrupts - budget.interrupts, hostCalls: SDK_LIMITS.hostCalls - budget.hostCalls, outputBytes: SDK_LIMITS.outputBytes - budget.outputBytes, outputArtifacts: SDK_LIMITS.outputArtifacts - budget.outputArtifacts}}, executionLockDigest: executionLock.digest, gameAcceptance: 'unverified', entitlement: 'host-review-required', summary: kind === 'tests' ? {description, originalQuery} : {before: originalQuery, after: reopenedQuery, changes: candidate.summary?.changes || [], candidateBundleDigest: finalBundle.bundleDigest, artifacts: descriptors}};
+    const result = {status: 'passed', checks, runtime: {phases, profile: {maxJobWallMs: budget.wallMs, maxPhaseMs: profile.maxPhaseMs, id: profile.id, maxJobInterrupts: SDK_LIMITS.interrupts, maxJobHostCalls}, totals: {interrupts: SDK_LIMITS.interrupts - budget.interrupts, hostCalls: maxJobHostCalls - budget.hostCalls, outputBytes: SDK_LIMITS.outputBytes - budget.outputBytes, outputArtifacts: SDK_LIMITS.outputArtifacts - budget.outputArtifacts}}, executionLockDigest: executionLock.digest, gameAcceptance: 'unverified', entitlement: 'host-review-required', summary: kind === 'tests' ? {description, originalQuery} : {before: originalQuery, after: reopenedQuery, changes: candidate.summary?.changes || [], candidateBundleDigest: finalBundle.bundleDigest, artifacts: descriptors}};
     if (kind === 'candidate') result.privateArtifacts = descriptors.map(descriptor => ({...descriptor, bytes: finalArtifacts.get(descriptor.id)}));
     return result;
   };
