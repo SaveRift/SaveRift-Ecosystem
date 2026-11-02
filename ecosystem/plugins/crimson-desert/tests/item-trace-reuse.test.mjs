@@ -106,6 +106,11 @@ test('combined scalar and item compiler binds fused scalar locators and preserve
  const {prepareStructuralDocument}=await import('../src/structural-draft.mjs'),{bindPreparedSource}=await import('../src/source-binding.mjs'),context={readArtifact:id=>files.get(id)},preparedBound=sourceFromBundle(bundle,context),decoded=await decodeSave(encoded),preparedDocument=prepareStructuralDocument(decoded.plaintext,plan.operations);
  bindPreparedSource(preparedBound.source,preparedBound.metadata,{context,container:plan.container,payload:'save',payloadSha256:plan.payloadSha256,decoded,document:preparedDocument,projection:{captureTypes:['InventorySaveData'],fieldListLimits:{'InventoryElementSaveData._itemList':1024}}});
  const reused=await compile(preparedBound.source,preparedBound.metadata,plan,{nonce:Buffer.alloc(16,8),retainEncoded:true});assert.equal(reused.encoded.equals(result.encoded),true);
+ const changedOriginal=createStructuralDraftCompiler({...options,itemCompiler:async(...args)=>{
+  const r=await options.itemCompiler(...args);decoded.plaintext[decoded.plaintext.length-1]^=1;return r;
+ }});
+ await assert.rejects(changedOriginal(preparedBound.source,preparedBound.metadata,plan,{nonce:Buffer.alloc(16,8),retainEncoded:true}),{code:'STRUCTURAL_SOURCE_CHANGED'});
+ decoded.plaintext[decoded.plaintext.length-1]^=1;
  elements(elements(preparedDocument.blocks[0],'_inventorylist')[0],'_itemList')[0].fields._stackCount.value='999';
  await assert.rejects(compile(preparedBound.source,preparedBound.metadata,plan,{nonce:Buffer.alloc(16,8),retainEncoded:true}),{code:'STRUCTURAL_SOURCE_CHANGED'});
 });
