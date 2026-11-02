@@ -4,7 +4,8 @@ import {Buffer} from 'node:buffer';
 import {sha256, fail} from './storage.mjs';
 import {TOOL_DEFINITIONS, toolDefinition} from './tool-definitions.mjs';
 import {PINNED_DOCS, TEMPLATES} from './templates.mjs';
-import {validatePackage, createSaveBundle} from '../sdk/contracts.mjs';
+import {validatePackage} from '../sdk/contracts.mjs';
+import {inputs as executionInputs, boundedJobSummary} from './executor-shared.mjs';
 import {createCatalogSnapshot, createCrosswalk} from '../sdk/data.mjs';
 import {compileUiPackage} from '../ui/vanilla-frame.mjs';
 import {createDraft, editDraft} from '../sdk/draft.mjs';
@@ -50,8 +51,9 @@ function parseCsv(input) {
   return rows.map(values => { if (values.length !== headers.length) fail('CATALOG_CSV_INVALID', 'CSV rows must have the same number of columns.'); return Object.fromEntries(headers.map((h, i) => [h, values[i]])); });
 }
 
-export function createWorkspaceService({store, executeJob, templates = TEMPLATES, schedule = promise => { void promise.catch(() => {}); }, now = Date.now, previewBase = '/developer/preview', access, collaboration, hostCapabilities, resumableJobs = false, phaseLeaseMs = 45000} = {}) {
+export function createWorkspaceService({store, executeJob, templates = TEMPLATES, schedule = promise => { void promise.catch(() => {}); }, now = Date.now, previewBase = '/developer/preview', access, collaboration, hostCapabilities, resumableJobs = false, phaseLeaseMs = 45000, resolveReferenceData} = {}) {
   if (!store) throw Error('A private workspace store is required.');
+  if (resolveReferenceData !== undefined && typeof resolveReferenceData !== 'function') throw Error('Managed reference data requires a trusted host resolver.');
   if (typeof resumableJobs !== 'boolean' || !Number.isSafeInteger(phaseLeaseMs) || phaseLeaseMs < 11000 || phaseLeaseMs > 60000) throw Error('A bounded trusted-host phase policy is required.');
   const controllers = new Map();
   const requireScope = (principal, scope) => { if (!principal?.scopes?.includes(scope)) fail('SCOPE_REQUIRED', `Developer authorization requires ${scope}.`, 403); };
@@ -322,8 +324,16 @@ export function createWorkspaceService({store, executeJob, templates = TEMPLATES
     if (ids.length > 8 || new Set(ids).size !== ids.length || ids.includes(primary.id)) fail('EXTENSION_SELECTION_INVALID', 'Choose a bounded unique set of built extensions.');
     const dependencyWorkspaces = [];
     const extensions = await Promise.all(ids.map(async id => { const row = await readRequired(principal, 'artifacts', id); await assertEvidence(principal, row.value); await assertGrants(principal, row.value.gameGrants); dependencyWorkspaces.push((await workspace(principal, row.value.workspaceId)).value); return row.value; }));
-    const selected = composeExecution(primary, extensions);
-    selected.gameGrants = await captureGrants(principal, [primaryWorkspace.value, ...dependencyWorkspaces]);
+    const gameGrants = await captureGrants(principal, [primaryWorkspace.value, ...dependencyWorkspaces]);
+    const artifactGrants = [primary, ...extensions].flatMap(artifact => artifact.gameGrants || []);
+    await assertGrants(principal, artifactGrants); await assertGrants(principal, gameGrants);
+    const baseExecution = composeExecution(primary, extensions);
+    const referenceData = typeof resolveReferenceData === 'function' ? await resolveReferenceData({principal, gameId: primaryWorkspace.value.gameId, primary: {...baseExecution.executionLock.connector}, extensions: baseExecution.executionLock.extensions.map(pin => ({...pin})), baseExecutionLockDigest: baseExecution.executionLock.digest}) : null;
+    // An async host lookup cannot revive a revoked artifact or migrated source.
+    await assertGrants(principal, artifactGrants); await assertGrants(principal, gameGrants);
+    for (const artifact of [primary, ...extensions]) await assertEvidence(principal, artifact);
+    const selected = referenceData ? composeExecution(primary, extensions, referenceData) : baseExecution;
+    selected.gameGrants = gameGrants;
     selected.evidenceBindings = [primary, ...extensions].map(artifact => ({workspaceId: artifact.workspaceId, evidenceEpoch: artifact.evidenceEpoch || null}));
     if (args.executionLockDigest && args.executionLockDigest !== selected.executionLock.digest) fail('DEPENDENCY_MISMATCH', 'The selected execution dependency lock changed.');
     return selected;
@@ -334,7 +344,7 @@ export function createWorkspaceService({store, executeJob, templates = TEMPLATES
   async function sourceDraft(principal, selected, fixtureIds) {
     const artifact = selected.primary;
     const fixtures = await fixtureInputs(principal, artifact.workspaceId, fixtureIds, {ai: false});
-    const bundle = createSaveBundle(fixtures.map(f => ({id: f.id, logicalPath: f.name, role: f.role, byteLength: f.byteLength, sha256: f.sha256})));
+    const {bundle} = executionInputs(fixtures, selected.referenceArtifacts);
     const id = `draft_${digest({artifact: artifact.digest, lock: selected.executionLock.digest, bundle: bundle.bundleDigest, ...(artifact.evidenceEpoch ? {evidenceEpoch: artifact.evidenceEpoch} : {})}).slice(0, 40)}`;
     const name = objectKey(principal, 'drafts', id); let row = await store.get(name);
     if (!row) {
@@ -408,7 +418,7 @@ export function createWorkspaceService({store, executeJob, templates = TEMPLATES
       const stored = await store.get(checkpointKey), envelope = stored && !stored.value.deleted ? stored.value : null;
       const binding = {jobId, workspaceId: row.value.workspaceId, createdAt: row.value.createdAt, evidenceBindings: row.value.evidenceBindings, gameGrants: row.value.gameGrants, inputDigest: digest(row.value.input)};
       if (row.value.checkpointDigest ? !envelope || digest(envelope) !== row.value.checkpointDigest || canonical(envelope.binding) !== canonical(binding) : envelope) fail('JOB_CHECKPOINT_INVALID', 'The private continuation no longer matches this immutable job.', 409);
-      const advanced = await executeJob.step({kind: row.value.type, package: {manifest: artifact.manifest, files: artifact.files}, extensions: selected.extensions.map(a => ({package: {manifest: a.manifest, files: a.files}})), executionLock: selected.executionLock, dataPackages: selected.dataPackages, catalogs: selected.catalogs, fixtures, input: row.value.input, signal: controller.signal, jobStartedAt: row.value.createdAt}, envelope?.checkpoint || null);
+      const advanced = await executeJob.step({kind: row.value.type, package: {manifest: artifact.manifest, files: artifact.files}, extensions: selected.extensions.map(a => ({package: {manifest: a.manifest, files: a.files}})), executionLock: selected.executionLock, dataPackages: selected.dataPackages, referenceData: selected.referenceData, catalogs: selected.catalogs, fixtures, input: row.value.input, signal: controller.signal, jobStartedAt: row.value.createdAt}, envelope?.checkpoint || null);
       let current = await guard();
       if (advanced?.done === false) {
         if (!advanced.checkpoint || encode(JSON.stringify(advanced.checkpoint)).length > PHASE_CHECKPOINT_LIMITS.bytes) fail('JOB_CHECKPOINT_LIMIT', 'The private continuation exceeds its hosted quota.');
@@ -431,6 +441,7 @@ export function createWorkspaceService({store, executeJob, templates = TEMPLATES
         await store.put(candidateKey, {workspaceId: row.value.workspaceId, evidenceEpoch: row.value.evidenceEpoch || null, evidenceBindings: row.value.evidenceBindings, gameGrants: row.value.gameGrants || [], artifacts, createdAt: now()}, {ifAbsent: true});
         const {privateArtifacts, ...publicResult} = result; result = {...publicResult, candidateDownloadPath: `/api/developer/candidates/${jobId}`};
       }
+      result = boundedJobSummary(result);
       if (encode(JSON.stringify(result)).length > LIMITS.responseBytes) fail('RUNNER_OUTPUT_LIMIT', 'The isolated runner output exceeded its report limit.');
       current = await guard();
       await store.put(jobKey, {...current.value, status: result.status, phaseState: 'complete', phaseLease: null, checkpointDigest: null, result, finishedAt: now()}, {ifMatch: current.etag});
@@ -489,7 +500,7 @@ export function createWorkspaceService({store, executeJob, templates = TEMPLATES
       else {
         const selected = await execution(principal, row.value.input), artifact = selected.primary;
         const fixtures = await fixtureInputs(principal, row.value.workspaceId, row.value.input.fixtureIds, {ai: row.value.input.aiAccessRequired !== false});
-        result = await executeJob({kind: row.value.type, package: {manifest: artifact.manifest, files: artifact.files}, extensions: selected.extensions.map(a => ({package: {manifest: a.manifest, files: a.files}})), executionLock: selected.executionLock, dataPackages: selected.dataPackages, catalogs: selected.catalogs, fixtures, input: row.value.input, signal: controller.signal});
+        result = await executeJob({kind: row.value.type, package: {manifest: artifact.manifest, files: artifact.files}, extensions: selected.extensions.map(a => ({package: {manifest: a.manifest, files: a.files}})), executionLock: selected.executionLock, dataPackages: selected.dataPackages, referenceData: selected.referenceData, catalogs: selected.catalogs, fixtures, input: row.value.input, signal: controller.signal});
       }
       await assertGrants(principal, row.value.gameGrants);
       await assertEvidence(principal, row.value);
@@ -500,6 +511,7 @@ export function createWorkspaceService({store, executeJob, templates = TEMPLATES
         const {privateArtifacts, ...publicResult} = result; result = {...publicResult, candidateDownloadPath: `/api/developer/candidates/${jobId}`};
       }
       if (!result || !['passed', 'failed', 'not_run', 'needs_review'].includes(result.status)) fail('RUNNER_RESULT_INVALID', 'The isolated runner returned an invalid job result.');
+      result = boundedJobSummary(result);
       if (encode(JSON.stringify(result)).length > LIMITS.responseBytes) fail('RUNNER_OUTPUT_LIMIT', 'The isolated runner output exceeded its report limit.');
       const current = await readRequired(principal, 'jobs', jobId);
       if (current.value.status === 'cancelled') {
@@ -780,7 +792,7 @@ export function createWorkspaceService({store, executeJob, templates = TEMPLATES
       const {preview, primary, execution: selected, gameGrants} = await this.readPreview(principal, previewId);
       if (!executeJob) return {status: 'not_run', reason: 'An isolated runtime executor is not configured.'};
       const fixtures = await fixtureInputs(principal, preview.workspaceId, preview.fixtureIds, {ai: false});
-      const result = await executeJob({kind: 'inspect', package: {manifest: primary.manifest, files: primary.files}, extensions: selected.extensions.map(a => ({package: {manifest: a.manifest, files: a.files}})), executionLock: selected.executionLock, dataPackages: selected.dataPackages, catalogs: selected.catalogs, fixtures, input: {query}, signal});
+      const result = await executeJob({kind: 'inspect', package: {manifest: primary.manifest, files: primary.files}, extensions: selected.extensions.map(a => ({package: {manifest: a.manifest, files: a.files}})), executionLock: selected.executionLock, dataPackages: selected.dataPackages, referenceData: selected.referenceData, catalogs: selected.catalogs, fixtures, input: {query}, signal});
       await assertGrants(principal, gameGrants);
       await assertEvidence(principal, preview);
       if (encode(JSON.stringify(result)).length > LIMITS.responseBytes) fail('RUNNER_OUTPUT_LIMIT', 'The preview query exceeds its report limit.');

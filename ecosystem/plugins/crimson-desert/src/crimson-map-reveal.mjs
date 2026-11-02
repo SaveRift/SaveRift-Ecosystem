@@ -5,6 +5,14 @@ import {Buffer} from '../../../sdk/buffer.mjs';
 import {decodeSave,encodeSave,CodecError} from './crimson-codec.mjs';
 import {readDocument} from './crimson-document.mjs';
 import {hash} from './source-binding.mjs';
+const mapOutputWitnesses=new WeakMap();
+// Only the fixed map writer can register this exact typed/byte-preserving
+// result. Serialized receipts, result clones and changed bytes cannot reuse it.
+export function mapOutputWitness(result,source){
+ const proof=mapOutputWitnesses.get(result);
+ if(!proof||!Buffer.isBuffer(source)||!Buffer.isBuffer(result?.encoded)||hash(source)!==proof.sourceSha256||hash(result.encoded)!==proof.outputSha256||hash(JSON.stringify(result.report))!==proof.reportSha256)return null;
+ return Object.freeze({...proof});
+}
 
 const fogFields=[{name:'_fogRLESaveData',type:'ReflectObject',kind:4,size:8,aux:8}];
 const rleFields=[{name:'_jumpingTable',type:'uint32',kind:3,size:4,aux:4096},{name:'_codeList',type:'uint8',kind:3,size:1,aux:4096},{name:'_lengthList',type:'uint8',kind:3,size:1,aux:4096}];
@@ -19,7 +27,7 @@ const fail=code=>{throw new CodecError('The map-reveal preview stopped at its co
 function metadata(raw,{compareTo}={}){
  // Strict traversal still visits every root, list, scalar and array. Release
  // UI projections immediately; this operation needs only schema/audit/diff.
- const d=readDocument(raw,{...(compareTo?{compareTo}:{}),onScalar:()=>{}});
+ const d=readDocument(raw,{captureTypes:['FogSaveData'],listLimit:0,hashPlaintext:false,...(compareTo?{compareTo}:{})});
  for(const root of d.blocks)root.fields=null;return d;
 }
 function locateFog(raw,schema){
@@ -65,7 +73,9 @@ export function createMapRevealPreview({schemaPins=[mapRevealProfile.schemaSha25
   const encoded=changed?await encodeSave(raw,decoded.header,nonce===undefined?{}:{nonce}):Buffer.from(source),reopened=await decodeSave(encoded);
   if(!reopened.plaintext.equals(raw)||!encoded.subarray(0,0x12).equals(source.subarray(0,0x12))||!encoded.subarray(0x4a,128).equals(source.subarray(0x4a,128))||hash(source)!==sourceHash)fail('CRIMSON_MAP_REOPEN_FAILED');
   if(!(await encodeSave(reopened.plaintext,reopened.header,{nonce:reopened.header.subarray(0x1a,0x2a)})).equals(encoded))fail('CRIMSON_MAP_NATIVE_PARITY_FAILED');
-  return {encoded,report:{schema:MAP_REVEAL_REVISION,revision:mapRevealProfile.revision,status:changed?'preview_ready':'already_revealed',scope:mapRevealProfile.scope,sourceSha256:sourceHash,beforePlaintextSha256:hash(decoded.plaintext),afterPlaintextSha256:hash(raw),schemaSha256:before.schemaSha256,outputSha256:hash(encoded),encodedBytes:encoded.length,coverage:{encodedFogSegments:fog.code.count,fullyRevealedSegmentsBefore:alreadyRevealed,segmentsToReveal:changed,fullyRevealedSegmentsAfter:fog.code.count},decodedDiff:changed?[{operation:'fog.revealMap',path:fog.path,objectType:'SimpleRunLengthEncodingSaveData',field:'_codeList',bytes:fog.code.count,changedBytes:changed,beforeSha256:hash(original),afterSha256:hash(raw.subarray(fog.code.start,fog.code.end)),fillValue:255}]:[],source:mapRevealProfile.source,validation:{nativeNoOpByteParity:true,fullTypedReparse:true,intendedFogArrayOnly:true,bytesOutsideFogRangeUnchanged:true,rleJumpingAndLengthsUnchanged:true,knowledgeUnchanged:true,discoveriesUnchanged:true,treasureStateUnchanged:true,questsUnchanged:true,inventoryCompanionsUnchanged:true,unknownHeaderBytesPreserved:true,hmacReverified:true,encodedOutputReopened:true,nonzeroListMetadataBefore:before.audit.nonzeroListMetadata,nonzeroListMetadataAfter:after.audit.nonzeroListMetadata},sourceSaveUnchanged:true,canSend:false,cloudRequests:0,publicationEnabled:false,gameAcceptance:'unverified_map_recipe',nexusUnlock:false,treasureReveal:false,modifiedDataStored:false}};
+  const result={encoded,report:{schema:MAP_REVEAL_REVISION,revision:mapRevealProfile.revision,status:changed?'preview_ready':'already_revealed',scope:mapRevealProfile.scope,sourceSha256:sourceHash,beforePlaintextSha256:hash(decoded.plaintext),afterPlaintextSha256:hash(raw),schemaSha256:before.schemaSha256,outputSha256:hash(encoded),encodedBytes:encoded.length,coverage:{encodedFogSegments:fog.code.count,fullyRevealedSegmentsBefore:alreadyRevealed,segmentsToReveal:changed,fullyRevealedSegmentsAfter:fog.code.count},decodedDiff:changed?[{operation:'fog.revealMap',path:fog.path,objectType:'SimpleRunLengthEncodingSaveData',field:'_codeList',bytes:fog.code.count,changedBytes:changed,beforeSha256:hash(original),afterSha256:hash(raw.subarray(fog.code.start,fog.code.end)),fillValue:255}]:[],source:mapRevealProfile.source,validation:{nativeNoOpByteParity:true,fullTypedReparse:true,intendedFogArrayOnly:true,bytesOutsideFogRangeUnchanged:true,rleJumpingAndLengthsUnchanged:true,knowledgeUnchanged:true,discoveriesUnchanged:true,treasureStateUnchanged:true,questsUnchanged:true,inventoryCompanionsUnchanged:true,unknownHeaderBytesPreserved:true,hmacReverified:true,encodedOutputReopened:true,nonzeroListMetadataBefore:before.audit.nonzeroListMetadata,nonzeroListMetadataAfter:after.audit.nonzeroListMetadata},sourceSaveUnchanged:true,canSend:false,cloudRequests:0,publicationEnabled:false,gameAcceptance:'unverified_map_recipe',nexusUnlock:false,treasureReveal:false,modifiedDataStored:false}};
+  mapOutputWitnesses.set(result,Object.freeze({kind:"native-map-byte-proof",sourceSha256:sourceHash,outputSha256:result.report.outputSha256,plaintextSha256:result.report.afterPlaintextSha256,schemaSha256:before.schemaSha256,audit:Object.freeze({advisoryLocators:after.audit.advisoryLocators,unconsumedBytes:after.audit.unconsumedBytes,nonzeroListMetadata:after.audit.nonzeroListMetadata}),reportSha256:hash(JSON.stringify(result.report))}));
+  return result;
  };
 }
 export const previewMapReveal=createMapRevealPreview();

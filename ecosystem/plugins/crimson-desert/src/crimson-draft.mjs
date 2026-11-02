@@ -7,7 +7,7 @@ import {readDocument,field,value,elements,DECODER_REVISION} from './crimson-docu
 import {FISH_QUANTITY_RULE,quantityTarget} from './crimson-policy.mjs';
 const PREVIOUS_HOUSING_SCHEMA='606d393978b53c27a3e827fb6a592ce2a6c2e91f2de82dd063e5be93d0cfdedf';
 import {CATALOG_REVISION,catalogItem} from './crimson-domain.mjs';
-import {assertOfflineDraftCapability,assertSourceBinding,preparedSource} from './source-binding.mjs';
+import {assertOfflineDraftCapability,assertSourceBinding,preparedSource,preparedSourceNativeParity} from './source-binding.mjs';
 import {STANDARD_LZ4_PROFILE} from './lz4-standard.mjs';
 import {existingStackQuantityProfile,validInventoryKey} from './inventory-quantity-profile.mjs';
 
@@ -28,9 +28,20 @@ const HASH=/^[a-f0-9]{64}$/;
 const GUID=/^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i;
 const exact=(v,keys)=>v&&typeof v==='object'&&!Array.isArray(v)&&Object.keys(v).length===keys.length&&keys.every(k=>Object.hasOwn(v,k));
 const equal=(a,b)=>JSON.stringify(a)===JSON.stringify(b);
+// Sample labels depend on projection depth. Their exact physical offsets and
+// metadata bytes, every audit counter and the complete byte diff still match.
+const auditIdentity=a=>({...a,nonzeroListSamples:a.nonzeroListSamples.map(({path,...sample})=>sample)});
 const fail=(code,message='The offline draft stopped at its reported validation gate.',status=409)=>{throw new ProbeError(message,status,code);};
 const decimal=(v,max)=>typeof v==='string'&&/^(0|[1-9]\d{0,19})$/.test(v)&&BigInt(v)<=max;
 const stableJson=value=>JSON.stringify(canonical(value));
+const scalarScopeWitnesses=new WeakMap();
+// Only this compiler can register a successful exact-byte scalar proof.
+// Serialized flags, result clones and another engine cannot manufacture it.
+export function scalarScopeWitness(result,source,input){
+ const proof=scalarScopeWitnesses.get(result);
+ if(!proof||!Buffer.isBuffer(source)||!Buffer.isBuffer(result?.encoded)||hash(source)!==proof.sourceSha256||hash(result.encoded)!==proof.outputSha256||hash(stableJson(input))!==proof.intentSha256||hash(stableJson(result.report))!==proof.reportSha256)return null;
+ return Object.freeze({...proof});
+}
 function canonical(value){if(Array.isArray(value))return value.map(canonical);if(value&&typeof value==='object')return Object.fromEntries(Object.keys(value).sort().map(k=>[k,canonical(value[k])]));return value;}
 
 function validateInput(input){
@@ -128,14 +139,18 @@ export function createCrimsonDraftCompiler({schemaPins=CRIMSON_DRAFT_SCHEMAS,ass
     if(!pin||input.schemaSha256!==before.schemaSha256)fail('CRIMSON_DRAFT_SCHEMA_UNSUPPORTED','This snapshot schema is outside the reviewed offline composition pins.');
     if(input.plaintextSha256!==before.plaintextSha256)fail('CRIMSON_DRAFT_STALE','The original plaintext binding changed.');
     assertCapability({schemaSha256:before.schemaSha256,saveVersion:decoded.version,container:input.container,payload:input.payload});
-    const noOp=await encodeSave(decoded.plaintext,decoded.header,{nonce:decoded.header.subarray(0x1a,0x2a)});
-    if(!noOp.equals(source))fail('CRIMSON_DRAFT_NATIVE_PARITY_FAILED','The original save does not reproduce byte-for-byte with the native-compatible encoder.');
+    if(!await preparedSourceNativeParity(backup,metadata,input,decoded,source,encodeSave))fail('CRIMSON_DRAFT_NATIVE_PARITY_FAILED','The original save does not reproduce byte-for-byte with the native-compatible encoder.');
     const context=inventoryContext(before,pin),operations=input.operations.map(op=>resolveOperation(before,context,op)),ordered=[...operations].sort((a,b)=>a.offset-b.offset);
     if(ordered.some((target,i)=>i>0&&target.offset<ordered[i-1].offset+ordered[i-1].fieldBytes))fail('CRIMSON_DRAFT_CONFLICT','Two draft operations target the same or overlapping existing field.');
     const patched=Buffer.from(decoded.plaintext);
     for(const op of operations){if(op.fieldBytes===8)patched.writeBigUInt64LE(BigInt(op.after),op.offset);else patched.writeUInt16LE(Number(op.after),op.offset);}
-    let changedBytes=0,range=0;
-    for(let at=0;at<patched.length;at++)if(patched[at]!==decoded.plaintext[at]){while(range<ordered.length&&at>=ordered[range].offset+ordered[range].fieldBytes)range++;if(range>=ordered.length||at<ordered[range].offset)fail('CRIMSON_DRAFT_DIFF_FAILED');changedBytes++;}
+    let changedBytes=0,rangeEnd=0;
+    for(const op of ordered){
+      if(!patched.subarray(rangeEnd,op.offset).equals(decoded.plaintext.subarray(rangeEnd,op.offset)))fail('CRIMSON_DRAFT_DIFF_FAILED');
+      for(let at=op.offset;at<op.offset+op.fieldBytes;at++)if(patched[at]!==decoded.plaintext[at])changedBytes++;
+      rangeEnd=op.offset+op.fieldBytes;
+    }
+    if(!patched.subarray(rangeEnd).equals(decoded.plaintext.subarray(rangeEnd)))fail('CRIMSON_DRAFT_DIFF_FAILED');
     // All operations are applied to one source, followed by one encoding pass.
     const encoded=await encodeSave(patched,decoded.header,nonce===undefined?{}:{nonce});
     if(encoded.length>8*1024*1024)fail('CRIMSON_DRAFT_ENCODED_LIMIT');
@@ -143,7 +158,7 @@ export function createCrimsonDraftCompiler({schemaPins=CRIMSON_DRAFT_SCHEMAS,ass
     if(reopened.version!==decoded.version||reopened.flags!==decoded.flags||!reopened.plaintext.equals(patched))fail('CRIMSON_DRAFT_REOPEN_FAILED');
     if(!encoded.subarray(0,0x16).equals(source.subarray(0,0x16))||!encoded.subarray(0x4a,128).equals(source.subarray(0x4a,128)))fail('CRIMSON_DRAFT_HEADER_CHANGED');
     const after=readDocument(reopened.plaintext,{...projection,compareTo:decoded.plaintext}),diff=after.decodedDiff;
-    if(after.schemaSha256!==before.schemaSha256||!equal(after.audit,before.audit)||diff.length!==operations.length||
+    if(after.schemaSha256!==before.schemaSha256||!equal(auditIdentity(after.audit),auditIdentity(before.audit))||diff.length!==operations.length||
       diff.some(d=>!operations.some(op=>op.offset===d.offset&&op.fieldBytes===d.bytes&&op.field===d.field&&op.objectType===d.objectType&&String(d.before)===op.before&&String(d.after)===op.after)))fail('CRIMSON_DRAFT_DIFF_FAILED','The full decoded comparison contains an unintended change.');
     const afterContext=inventoryContext(after,pin);
     const housingUnchanged=!context.housing||context.housing.offset===afterContext.housing.offset&&context.housing.end===afterContext.housing.end&&hash(decoded.plaintext.subarray(context.housing.offset,context.housing.end))===hash(reopened.plaintext.subarray(afterContext.housing.offset,afterContext.housing.end));
@@ -153,7 +168,10 @@ export function createCrimsonDraftCompiler({schemaPins=CRIMSON_DRAFT_SCHEMAS,ass
       schemaSha256:before.schemaSha256,decoderRevision:DECODER_REVISION,catalogRevision:CATALOG_REVISION,planSha256:hash(stableJson(input)),operations:manifest,decodedDiff:diff,changedBytes,beforePlaintextSha256:before.plaintextSha256,afterPlaintextSha256:after.plaintextSha256,encodedSha256:hash(encoded),encodedBytes:encoded.length,
       validation:{backupIntegrity:'verified',snapshotRevisionBinding:'verified',liveCloudRevisionCheck:'not_performed',originalNoOpByteParity:true,unknownHeaderBytesPreserved:true,fullDocumentReparsed:true,comparedLeafFields:after.comparison.comparedLeafFields,objectCount:after.audit.objects,unconsumedBytes:after.audit.unconsumedBytes,intendedDecodedFields:operations.length,allOtherPlaintextBytesUnchanged:true,allOtherDecodedValuesUnchanged:true,omittedListMarkersPreserved:after.audit.omittedListMarkers,nonzeroListMetadataPreserved:after.audit.nonzeroListMetadata,housingBranchBytesUnchanged:housingUnchanged,housingBranchPresent:Boolean(context.housing),housingRecords:context.housing?.value.count??0,hmacReverified:true,encodedOutputReopened:true,encodingPasses:1,noOpEncodingPasses:1,gameAcceptance:'unverified'},
       draftOnly:true,originalBackupUnchanged:true,modifiedSaveStored:false,encodedBytesReturned:false,writesEnabled:false,publishEligible:false,gates:{structuralAdditions:'disabled',cloudPublication:'disabled',restore:'disabled',gameEngineAcceptance:'unverified'},message:'The combined draft passed intended-only comparison and native-compatible re-open checks. Publication requires the separate account, backup, revision and confirmation gates; game acceptance of this draft remains unverified.'};
-    return retainEncoded?{report,encoded}:report;
+    if(!retainEncoded)return report;
+    const result={report,encoded};
+    scalarScopeWitnesses.set(result,Object.freeze({kind:'native-scalar-byte-proof',sourceSha256:hash(source),outputSha256:hash(encoded),intentSha256:hash(stableJson(input)),reportSha256:hash(stableJson(report))}));
+    return result;
   };
 }
 export const compileCrimsonDraft=createCrimsonDraftCompiler();

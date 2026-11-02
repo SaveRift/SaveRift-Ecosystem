@@ -43,6 +43,17 @@ fake tokens and different package digests are rejected. Extensions retain the
 default 10-second engine ceiling. Every other resource ceiling remains unchanged,
 and explicit limits remain reduce-only within the selected fixed profile.
 
+An adapter may separately select
+`createReviewedLargeSaveProfile({packageDigest, profile:'developer-large-save-v2'})`
+for a newly reviewed primary artifact. This fixed profile permits 8,192 shared
+host calls across the complete job, including byte-weighted pure computation.
+It retains the same 30/90-second bounds, 64 MiB Wasm/48 MiB heap, 100,000
+interrupts and all format-helper byte/output limits. All extensions together
+retain 4,096 calls and their default engine ceiling; they cannot receive a v2
+capability. The default factory remains v1, preserving existing artifact grants
+and checkpoint bindings. v2 requires its own complete local and hosted evidence;
+increasing an allowance alone is not a successful workload test.
+
 A host must pin only the reviewed package digest; package ID or version alone is
 insufficient. A new artifact needs fresh review and a fresh digest pin. This
 profile does not approve a release, registry promotion, production cutover or
@@ -54,3 +65,37 @@ actual target platform: some Worker clocks advance only with I/O, so JavaScript
 wall-clock checks alone are not proof of a CPU deadline. The shared interrupt
 ceiling and platform CPU/memory controls remain mandatory. Local timing and
 self-reopen results do not establish hosted execution or in-game acceptance.
+
+## Deployment-owned reference packages
+
+An optional trusted-host `resolveReferenceData` callback may attach an exact
+data package to a verified executable closure. The callback receives the primary
+pin, every extension pin and the base execution-lock digest, and its result must
+echo that exact digest as `baseExecutionLockDigest` alongside `primaryDigest`.
+Changing an extension or base catalog therefore requires a new host approval.
+The host must approve every executable that can read the selected data; primary
+identity alone is insufficient. The callback is disabled by default
+and has no browser/MCP argument or consent-grant capability. The host remains
+responsible for permitted use and exact package selection; package metadata
+never grants access.
+
+Every resource is checked against its package's byte/hash manifest. The data
+package enters the execution lock, and its read-only handles enter the same
+bundle used by the source-bound draft, full/resumed runner and preview. A
+changed package invalidates an existing job/preview lock. Resource lookup
+requires the exact resource method, identifier and selected artifact handle.
+
+Managed bytes remain outside workspace source, fixture records and exports.
+They do not consume a player's fixture slots or change that fixture's AI
+consent. Existing package, input, engine and job limits still apply. Managed
+handles, roles and exact resource-byte copies cannot be returned as candidate
+saves/downloads. Source, account grants and player-fixture consent are checked
+independently, including after asynchronous host resolution.
+
+Those output guards prevent accidental artifact mixing; they are not data-loss
+prevention. Approved connector/extension code can read selected reference bytes
+and may return reference values in bounded queries or derived output. Permitted
+use, confidentiality and complete-closure approval remain host responsibilities.
+Completed candidates retain their validated historical provider pin. A later
+provider change invalidates pending jobs/previews but does not erase an already
+passed candidate download or backup; publication/revocation checks are separate.

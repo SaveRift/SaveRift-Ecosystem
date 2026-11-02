@@ -38,13 +38,43 @@ test('encrypted R2 store lists account-prefixed workspaces and rejects stale CAS
   await assert.rejects(store.get('test/moved'), {code: 'PRIVATE_OBJECT_INVALID'});
 });
 
+test('conditional R2 reuse always rechecks storage and immediately observes replaced consent and tombstones', async () => {
+  const bucket = mockR2(), read = bucket.get.bind(bucket), crypt = codec(); let bodyReads = 0, decryptions = 0, reads = 0;
+  bucket.get = async (key, options) => { reads++; const row = bucket.rows.get(key); if (row && options?.onlyIf?.etagDoesNotMatch === row.etag) return {etag: row.etag}; bodyReads++; return read(key); };
+  const options = {bucket, seal: crypt.seal, unseal: async (...args) => {decryptions++; return crypt.unseal(...args);}}, a = createR2Store(options), b = createR2Store(options);
+  await a.put('test/owned', {aiAccess: true, source: 'x'.repeat(20000)});
+  const first = await a.get('test/owned'); first.value.aiAccess = false;
+  assert.equal((await a.get('test/owned')).value.aiAccess, true);
+  assert.equal(reads, 2); assert.equal(bodyReads, 1); assert.equal(decryptions, 1);
+  await b.put('test/owned', {aiAccess: false, source: 'y'.repeat(20000)});
+  assert.equal((await a.get('test/owned')).value.aiAccess, false);
+  assert.equal(decryptions, 2);
+  await b.delete('test/owned'); assert.equal((await a.get('test/owned')).value.deleted, true);
+  await a.put('test/original', {data: 'z'.repeat(20000)}); await a.get('test/original');
+  bucket.rows.set('developer-v1/test/owned', bucket.rows.get('developer-v1/test/original'));
+  await assert.rejects(a.get('test/owned'), {code: 'PRIVATE_OBJECT_INVALID'});
+  bucket.rows.delete('developer-v1/test/original'); assert.equal(await a.get('test/original'), null);
+  const c = createR2Store({...options, bucket: {...bucket, get: async () => ({etag: 'unexpected-without-body'})}});
+  await assert.rejects(c.get('test/owned'), {code: 'PRIVATE_OBJECT_INVALID'});
+});
+
+test('conditional R2 reuse evicts bounded text and cannot reuse an unexpected metadata version', async () => {
+  const bucket = mockR2(), read = bucket.get.bind(bucket), crypt = codec(); let bodyReads = 0, wrongMetadata = false;
+  bucket.get = async (key, options) => { const row = bucket.rows.get(key); if (row && options?.onlyIf?.etagDoesNotMatch === row.etag) return {etag: wrongMetadata ? 'unexpected' : row.etag}; bodyReads++; return read(key); };
+  const store = createR2Store({bucket, ...crypt});
+  for(let i=0;i<5;i++){await store.put('large/row'+i,{text:'x'.repeat(1024*1024)});await store.get('large/row'+i);}
+  const before = bodyReads; await store.get('large/row0'); assert.equal(bodyReads, before+1);
+  wrongMetadata = true; await assert.rejects(store.get('large/row0'), {code: 'PRIVATE_OBJECT_INVALID'});
+});
+
 test('directory store persists source privately and serializes conditional writes without caller filesystem paths', async () => {
   const directory = await mkdtemp(join(tmpdir(), 'saverift-directory-'));
   try { const store = await createDirectoryStore(directory), row = await store.put('test/object', {hello: 'persisted'}, {ifAbsent: true});
     const reopened = await createDirectoryStore(directory); assert.equal((await reopened.get('test/object')).value.hello, 'persisted');
     const results = await Promise.allSettled([store.put('test/object', {hello: 'a'}, {ifMatch: row.etag}), reopened.put('test/object', {hello: 'b'}, {ifMatch: row.etag})]);
     assert.equal(results.filter(r => r.status === 'fulfilled').length, 1);
-    assert.equal((await stat(directory)).mode & 0o777, 0o700);
+    // Windows exposes synthesized POSIX mode bits; chmod is checked on Unix.
+    if(process.platform!=='win32')assert.equal((await stat(directory)).mode & 0o777, 0o700);
   } finally { await rm(directory, {recursive: true, force: true}); }
 });
 

@@ -8,11 +8,11 @@ import {DEFAULT_SCOPES} from '../tool-definitions.mjs';
 import {createGameAccess} from '../../collaboration/enrollment.mjs';
 const alice = {id: 'resumed-owner', scopes: [...DEFAULT_SCOPES]}, bob = {id: 'independent-owner', scopes: [...DEFAULT_SCOPES]};
 const deferred = () => {let resolve; const promise = new Promise(done => resolve = done); return {promise, resolve};};
-async function harness({executeJob = createIsolatedExecutor(), enrolled = false, now} = {}) {
+async function harness({executeJob = createIsolatedExecutor(), enrolled = false, now, resumable = true} = {}) {
   const store = createMemoryStore(), tasks = [], access = enrolled ? createGameAccess({store}) : undefined;
   if (access) await access.enroll(alice, {gameId: 'synthetic', expectedRevision: 0});
   const collaboration = {verifyDiscovery: async () => ({gameId: 'synthetic', project: access.getProject('synthetic')})};
-  const service = () => createWorkspaceService({store, executeJob, access, collaboration, resumableJobs: true, schedule: p => tasks.push(p), ...(now ? {now} : {})});
+  const service = () => createWorkspaceService({store, executeJob, access, collaboration, resumableJobs: resumable, schedule: p => tasks.push(p), ...(now ? {now} : {})});
   const call = (name, args, principal = alice, context) => service().dispatch(principal, 'saverift_' + name, args, context);
   const workspace = (await call('workspace_create', {template: 'synthetic-json', name: 'Resumed test', ...(enrolled ? {gameId: 'synthetic', discoveryId: 'discovery_valid123'} : {})})).workspace;
   const build = await call('plugin_build', {workspaceId: workspace.id, expectedRevision: workspace.revision}); await Promise.all(tasks.splice(0));
@@ -20,10 +20,39 @@ async function harness({executeJob = createIsolatedExecutor(), enrolled = false,
   const current = (await call('workspace_status', {workspaceId: workspace.id})).workspace;
   const args = {workspaceId: current.id, artifactId, fixtureIds: current.fixtures.map(f => f.id)};
   const rows = async category => (await store.list('developers/', 1000)).filter(row => row.key.includes('/' + category + '/'));
-  return {store, access, service, call, args, rows};
+  return {store, access, service, call, args, rows, tasks};
 }
 function fakeExecutor(step) {const fn = () => {throw Error('The full pipeline must not run.');}; fn.step = step; return fn;}
 function pause(checkpoint = null) {return {done: false, checkpoint: {phases: [...(checkpoint?.phases || []), {phase: 'synthetic'}], marker: 'private-checkpoint-marker'}};}
+
+for (const resumable of [false, true]) test(`large diagnostic queries become digest receipts after validation in ${resumable ? 'resumed' : 'full'} jobs`, async () => {
+  const query = {records: Array.from({length: 1200}, (_, i) => ({id: i, label: 'Synthetic 猫 record '.repeat(8)}))};
+  const result = {status: 'passed', checks: [{name: 'independent-reopen', status: 'passed'}], executionLockDigest: 'a'.repeat(64), summary: {description: {domainApis: {'test.domain': '0.1.0'}}, originalQuery: query, before: query, after: query, changes: [{operation: 'test.level.set', before: 7, after: 12}], candidateBundleDigest: 'b'.repeat(64)}};
+  const executeJob = Object.assign(async () => structuredClone(result), {step: async () => ({done: true, result: structuredClone(result)})});
+  const h = await harness({executeJob, resumable}), start = await h.call('tests_run', h.args); await Promise.all(h.tasks.splice(0));
+  const status = await h.call('job_status', {workspaceId: h.args.workspaceId, jobId: start.jobId}), stored = status.job.result;
+  assert.equal(status.status, 'passed'); assert.deepEqual(stored.checks, result.checks);
+  assert.equal(stored.executionLockDigest, result.executionLockDigest);
+  assert.deepEqual(stored.summary.changes, result.summary.changes);
+  assert.equal(stored.summary.candidateBundleDigest, result.summary.candidateBundleDigest);
+  assert.deepEqual(stored.summary.description, result.summary.description);
+  for (const name of ['originalQuery', 'before', 'after']) {
+    assert.equal(stored.summary[name].detail, 'omitted_from_job_report');
+    assert.equal(stored.summary[name].sha256, sha256(JSON.stringify(query)));
+    assert.equal(stored.summary[name].byteLength, new TextEncoder().encode(JSON.stringify(query)).length);
+  }
+  assert.ok(new TextEncoder().encode(JSON.stringify(status)).length < 64 * 1024);
+  assert.equal(result.summary.originalQuery.records.length, 1200);
+});
+
+for (const resumable of [false, true]) test(`large validation and intent reports still fail the existing quota in ${resumable ? 'resumed' : 'full'} jobs`, async () => {
+  const result = {status: 'passed', summary: {before: {large: 'x'.repeat(100000)}, changes: [{operation: 'test.excessive', detail: 'x'.repeat(70000)}]}};
+  const executeJob = Object.assign(async () => structuredClone(result), {step: async () => ({done: true, result: structuredClone(result)})});
+  const h = await harness({executeJob, resumable}), start = await h.call('tests_run', h.args); await Promise.all(h.tasks.splice(0));
+  const status = await h.call('job_status', {workspaceId: h.args.workspaceId, jobId: start.jobId});
+  assert.equal(status.status, 'failed'); assert.equal(status.job.result.code, 'RUNNER_OUTPUT_LIMIT');
+  assert.equal((await h.rows('candidates')).length, 0);
+});
 
 test('separate HTTP hosts resume one fresh engine per poll and expose no checkpoints', async () => {
   const h = await harness(), job = await h.call('tests_run', h.args), ref = {workspaceId: h.args.workspaceId, jobId: job.jobId};

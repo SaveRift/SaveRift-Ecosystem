@@ -63,9 +63,23 @@ class InterpreterSHA256 extends SHA256 {
 const nobleSha256=wrapConstructor(()=>new InterpreterSHA256());
 
 const bytes=value=>typeof value==='string'?Buffer.from(value):value instanceof Uint8Array?value:new Uint8Array(value);
-export const sha256=value=>Buffer.from(nobleSha256(bytes(value))).toString('hex');
+const hostSha256=()=>['Init','Update','Final','Abort'].every(name=>typeof globalThis['__saveriftSha256'+name]==='function');
+export const sha256=value=>hostSha256()?createHash('sha256').update(value).digest('hex'):Buffer.from(nobleSha256(bytes(value))).toString('hex');
 export const hash=sha256;
-export const hmacSha256=(key,value)=>Buffer.from(hmac(nobleSha256,bytes(key),bytes(value)));
+export function hmacSha256(key,value){
+  if(!hostSha256())return Buffer.from(hmac(nobleSha256,bytes(key),bytes(value)));
+  // HMAC construction remains inside the guest. The fixed host primitive only
+  // hashes bounded caller-supplied bytes; it never imports a key or signs an
+  // account request. These are public game-format integrity keys, not account
+  // credentials. No separate host HMAC/key-handle capability is exposed.
+  let material=bytes(key),derived=false;
+  if(material.length>64){material=createHash('sha256').update(material).digest();derived=true;}
+  const innerPad=new Uint8Array(64).fill(0x36),outerPad=new Uint8Array(64).fill(0x5c);
+  for(let i=0;i<material.length;i++){innerPad[i]^=material[i];outerPad[i]^=material[i];}
+  let inner,outer;
+  try{inner=createHash('sha256');inner.update(innerPad).update(value);const middle=inner.digest();outer=createHash('sha256');return outer.update(outerPad).update(middle).digest();}
+  finally{inner?.destroy();outer?.destroy();innerPad.fill(0);outerPad.fill(0);if(derived)material.fill(0);}
+}
 export function canonicalJson(value){
   const ancestors=new Set();let nodes=0;
   function visit(value,depth){
@@ -84,8 +98,35 @@ export function canonicalJson(value){
 // Compatibility surface for the extracted format code, not node:crypto.
 export function createHash(algorithm){
   if(algorithm!=='sha256')throw new TypeError('Only SHA-256 is supported.');
+  if(hostSha256()){
+    const init=globalThis.__saveriftSha256Init,update=globalThis.__saveriftSha256Update,final=globalThis.__saveriftSha256Final,abort=globalThis.__saveriftSha256Abort;
+    const updateText=typeof globalThis.__saveriftSha256UpdateText==='function'?globalThis.__saveriftSha256UpdateText:null;
+    const id=init();let finished=false;
+    const ascii=/^[\x01-\x7f]*$/,unsafeFfi=/[\u0000\ud800-\udfff\ufeff]/;
+    function binaryUpdate(data){if(!data.length)update(id,new ArrayBuffer(0));for(let offset=0;offset<data.length;offset+=65536){const end=Math.min(data.length,offset+65536);update(id,data.buffer.slice(data.byteOffset+offset,data.byteOffset+end));}}
+    function textUpdate(value){
+      if(typeof value!=='string')throw TypeError('A primitive format-hash string is required.');
+      if(finished)throw new Error('Hash already finalized.');
+      if(!value.length){updateText(id,'');return api;}
+      for(let offset=0;offset<value.length;){
+        let end=Math.min(value.length,offset+65536),chunk=value.slice(offset,end);
+        if(ascii.test(chunk)){updateText(id,chunk);offset=end;continue;}
+        end=Math.min(value.length,offset+16384);
+        const last=value.charCodeAt(end-1),next=value.charCodeAt(end);
+        if(last>=0xd800&&last<=0xdbff&&next>=0xdc00&&next<=0xdfff)end--;
+        chunk=value.slice(offset,end);
+        if(unsafeFfi.test(chunk))binaryUpdate(bytes(chunk));else updateText(id,chunk);
+        offset=end;
+      }return api;
+    }
+    const api={
+      update(value){if(finished)throw new Error('Hash already finalized.');if(updateText&&typeof value==='string')return textUpdate(value);binaryUpdate(bytes(value));return api;},
+      digest(encoding){if(finished)throw new Error('Hash already finalized.');finished=true;const out=Buffer.from(new Uint8Array(final(id)));return encoding?out.toString(encoding):out;},
+      destroy(){if(finished)return;finished=true;abort(id);}
+    };if(updateText)api.updateText=textUpdate;return api;
+  }
   const state=nobleSha256.create();let finished=false;
-  const api={update(value){if(finished)throw new Error('Hash already finalized.');state.update(bytes(value));return api;},digest(encoding){if(finished)throw new Error('Hash already finalized.');finished=true;const out=Buffer.from(state.digest());return encoding?out.toString(encoding):out;}};
+  const api={update(value){if(finished)throw new Error('Hash already finalized.');state.update(bytes(value));return api;},digest(encoding){if(finished)throw new Error('Hash already finalized.');finished=true;const out=Buffer.from(state.digest());return encoding?out.toString(encoding):out;},destroy(){finished=true;state.destroy();}};
   return api;
 }
 export function randomBytes(length){
@@ -97,7 +138,8 @@ export function randomBytes(length){
 function equal(a,b){a=bytes(a);b=bytes(b);if(a.length!==b.length)return false;let diff=0;for(let i=0;i<a.length;i++)diff|=a[i]^b[i];return diff===0;}
 
 // Format-integrity crypto is public format knowledge. It cannot sign Xbox
-// requests or use account keys; raw HMAC keys stay inside the guest interpreter.
+// requests or use account keys. A guest may use the bounded pure SHA primitive
+// for format input bytes; all HMAC construction and format decisions stay here.
 export const formatCrypto=Object.freeze({
   getRandomValues(array){const data=randomBytes(array.byteLength);array.set(data);return array;},
   subtle:Object.freeze({
