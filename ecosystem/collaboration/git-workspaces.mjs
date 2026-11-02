@@ -75,7 +75,7 @@ export function threeWaySourceMerge(baseFiles, localFiles, remoteFiles) {
   return {files: checkedFiles(files), conflicts, changes: diffSourceFiles(remote, files)};
 }
 
-const publicFields = ['id', 'gameId', 'revision', 'packageRoots', 'packageId', 'projectDigest', 'issueNumber', 'featureKey', 'branch', 'baseCommit', 'gitHead', 'treeSha', 'lastSynchronizedCommit', 'dirty', 'evidenceState', 'createdAt', 'updatedAt', 'syncState'];
+const publicFields = ['id', 'gameId', 'revision', 'packageRoots', 'packageId', 'projectDigest', 'issueNumber', 'featureKey', 'branch', 'baseRef', 'baseCommit', 'gitHead', 'treeSha', 'lastSynchronizedCommit', 'dirty', 'evidenceState', 'createdAt', 'updatedAt', 'syncState'];
 function pick(value, fields) { const result = {}; if (!plain(value)) return result; for (const key of fields) if (own(value, key) && (value[key] === null || ['string', 'boolean', 'number'].includes(typeof value[key]))) result[key] = value[key]; return result; }
 export function publicBranchWorkspace(record) {
   if (!plain(record)) sourceFail('BRANCH_WORKSPACE_INVALID');

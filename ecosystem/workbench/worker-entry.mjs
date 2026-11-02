@@ -9,7 +9,7 @@ import {createCollaborationService} from '../collaboration/service.mjs';
 import {DEFAULT_GAME_PROJECTS} from '../collaboration/projects.mjs';
 import {createGithubRouter} from '../collaboration/github-router.mjs';
 
-export function createDeveloperWorker({authenticate, createStore, executeJob, templates, allowedHosts, allowedOrigins, assetFetch, projects = DEFAULT_GAME_PROJECTS, createGitAdapter, createGithubIdentity, externalMutationsEnabled = false, reviewSource}) {
+export function createDeveloperWorker({authenticate, createStore, executeJob, templates, allowedHosts, allowedOrigins, assetFetch, projects = DEFAULT_GAME_PROJECTS, createGitAdapter, createGithubIdentity, externalMutationsEnabled = false, reviewSource, hostCapabilities}) {
   if (typeof authenticate !== 'function' || typeof createStore !== 'function' || typeof assetFetch !== 'function') throw Error('Trusted deployment adapters are required.');
   return {
     async fetch(request, env, ctx) {
@@ -18,7 +18,7 @@ export function createDeveloperWorker({authenticate, createStore, executeJob, te
       const identity = typeof createGithubIdentity === 'function' ? await createGithubIdentity(env, {access}) : null;
       const git = typeof createGitAdapter === 'function' ? await createGitAdapter(env, {access, identity}) : null;
       const collaboration = createCollaborationService({store, access, git, externalMutationsEnabled, reviewSource});
-      const service = createWorkspaceService({store, access, collaboration, executeJob, templates, schedule: promise => ctx.waitUntil(promise)});
+      const service = createWorkspaceService({store, access, collaboration, executeJob, templates, hostCapabilities, schedule: promise => ctx.waitUntil(promise)});
       const options = {service, authenticate: req => authenticate(req, env), allowedHosts, allowedOrigins};
       const url = new URL(request.url);
       if (url.pathname === '/mcp') return createDeveloperMcpHandler(options).fetch(request);
