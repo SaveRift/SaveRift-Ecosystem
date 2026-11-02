@@ -7,7 +7,7 @@ import {readDocument,field,value,elements,DECODER_REVISION} from './crimson-docu
 import {FISH_QUANTITY_RULE,quantityTarget} from './crimson-policy.mjs';
 const PREVIOUS_HOUSING_SCHEMA='606d393978b53c27a3e827fb6a592ce2a6c2e91f2de82dd063e5be93d0cfdedf';
 import {CATALOG_REVISION,catalogItem} from './crimson-domain.mjs';
-import {assertOfflineDraftCapability,assertSourceBinding,preparedSource} from './source-binding.mjs';
+import {assertOfflineDraftCapability,assertSourceBinding,preparedSource,preparedSourceNativeParity} from './source-binding.mjs';
 import {STANDARD_LZ4_PROFILE} from './lz4-standard.mjs';
 import {existingStackQuantityProfile,validInventoryKey} from './inventory-quantity-profile.mjs';
 
@@ -128,8 +128,7 @@ export function createCrimsonDraftCompiler({schemaPins=CRIMSON_DRAFT_SCHEMAS,ass
     if(!pin||input.schemaSha256!==before.schemaSha256)fail('CRIMSON_DRAFT_SCHEMA_UNSUPPORTED','This snapshot schema is outside the reviewed offline composition pins.');
     if(input.plaintextSha256!==before.plaintextSha256)fail('CRIMSON_DRAFT_STALE','The original plaintext binding changed.');
     assertCapability({schemaSha256:before.schemaSha256,saveVersion:decoded.version,container:input.container,payload:input.payload});
-    const noOp=await encodeSave(decoded.plaintext,decoded.header,{nonce:decoded.header.subarray(0x1a,0x2a)});
-    if(!noOp.equals(source))fail('CRIMSON_DRAFT_NATIVE_PARITY_FAILED','The original save does not reproduce byte-for-byte with the native-compatible encoder.');
+    if(!await preparedSourceNativeParity(backup,metadata,input,decoded,source,encodeSave))fail('CRIMSON_DRAFT_NATIVE_PARITY_FAILED','The original save does not reproduce byte-for-byte with the native-compatible encoder.');
     const context=inventoryContext(before,pin),operations=input.operations.map(op=>resolveOperation(before,context,op)),ordered=[...operations].sort((a,b)=>a.offset-b.offset);
     if(ordered.some((target,i)=>i>0&&target.offset<ordered[i-1].offset+ordered[i-1].fieldBytes))fail('CRIMSON_DRAFT_CONFLICT','Two draft operations target the same or overlapping existing field.');
     const patched=Buffer.from(decoded.plaintext);

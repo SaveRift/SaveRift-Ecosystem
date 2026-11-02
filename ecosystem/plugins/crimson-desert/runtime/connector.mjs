@@ -4014,8 +4014,7 @@ function createCrimsonDraftCompiler({ schemaPins = CRIMSON_DRAFT_SCHEMAS, assert
     if (!pin || input.schemaSha256 !== before.schemaSha256) fail5("CRIMSON_DRAFT_SCHEMA_UNSUPPORTED", "This snapshot schema is outside the reviewed offline composition pins.");
     if (input.plaintextSha256 !== before.plaintextSha256) fail5("CRIMSON_DRAFT_STALE", "The original plaintext binding changed.");
     assertCapability({ schemaSha256: before.schemaSha256, saveVersion: decoded.version, container: input.container, payload: input.payload });
-    const noOp = await encodeSave(decoded.plaintext, decoded.header, { nonce: decoded.header.subarray(26, 42) });
-    if (!noOp.equals(source)) fail5("CRIMSON_DRAFT_NATIVE_PARITY_FAILED", "The original save does not reproduce byte-for-byte with the native-compatible encoder.");
+    if (!await preparedSourceNativeParity(backup, metadata3, input, decoded, source, encodeSave)) fail5("CRIMSON_DRAFT_NATIVE_PARITY_FAILED", "The original save does not reproduce byte-for-byte with the native-compatible encoder.");
     const context = inventoryContext(before, pin), operations = input.operations.map((op) => resolveOperation(before, context, op)), ordered = [...operations].sort((a, b) => a.offset - b.offset);
     if (ordered.some((target, i) => i > 0 && target.offset < ordered[i - 1].offset + ordered[i - 1].fieldBytes)) fail5("CRIMSON_DRAFT_CONFLICT", "Two draft operations target the same or overlapping existing field.");
     const patched = import_buffer.Buffer.from(decoded.plaintext);
@@ -4444,6 +4443,7 @@ function knowledge(raw) {
   return { document, list, rows: [...rows2.values()], byKey };
 }
 function applyDiscovery(raw, definition, types2) {
+  if (!definition.knowledgeKeys.length) return { raw, decodedDiff: [], reverseStructuralByteParity: true };
   const before = knowledge(raw), patch = import_buffer.Buffer.from(raw), diff = [];
   for (const key of definition.knowledgeKeys) {
     const row = before.byKey.get(key);
@@ -5607,7 +5607,7 @@ function createMixedDraftCompiler({ schemaPins = [CRIMSON_CURRENT_SCHEMA], struc
     if (nonce !== void 0 && (!import_buffer.Buffer.isBuffer(nonce) || nonce.length !== 16) || typeof retainEncoded !== "boolean") fail13("MIXED_OPTIONS_INVALID");
     const { bytes: source, prepared } = structuralSourcePayload(backup, ownedMetadata, input), decoded = prepared?.decoded || await decodeSave(source), before = prepared?.document || metadata2(decoded.plaintext);
     if (decoded.version !== 2 || before.schemaSha256 !== input.schemaSha256 || before.plaintextSha256 !== input.plaintextSha256 || before.audit.advisoryLocators || before.audit.unconsumedBytes) fail13("MIXED_SOURCE_CHANGED");
-    if (!(await encodeSave(decoded.plaintext, decoded.header, { nonce: decoded.header.subarray(26, 42) })).equals(source)) fail13("MIXED_NATIVE_PARITY_FAILED");
+    if (!await preparedSourceNativeParity(backup, ownedMetadata, input, decoded, source, encodeSave)) fail13("MIXED_NATIVE_PARITY_FAILED");
     let working = source, plainHash = before.plaintextSha256;
     const stages = [], diff = [], nonCart = input.operations.filter((op) => !cartography.includes(op.operation));
     async function accept(domain, result, { operations = false, structural = false, expectedPlanSha256, expectedBindings } = {}) {
@@ -5662,6 +5662,7 @@ var init_mixed_draft = __esm({
     init_structural_publication_profile();
     init_crimson_abyss_nexus();
     init_crimson_map_reveal();
+    init_source_binding();
     MIXED_PLAN_SCHEMA = "saveglass.mixed-draft-plan.v1";
     MIXED_PUBLICATION_PROFILE = "saveglass-crimson-mixed107.v1";
     common2 = ["schema", "container", "payload", "backupSha256", "backupRevision", "payloadSha256", "plaintextSha256", "schemaSha256", "decoderRevision", "catalogRevision", "operations"];

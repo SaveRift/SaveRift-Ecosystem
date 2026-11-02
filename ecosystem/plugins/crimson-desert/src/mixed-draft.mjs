@@ -11,6 +11,7 @@ import {assertStructuralPlan,structuralSourcePayload,createStructuralWorkbenchDr
 import {STRUCTURAL_PLAN_SCHEMA,MAX_STRUCTURAL_OPERATIONS} from './structural-publication-profile.mjs';
 import {previewAbyssNexus} from './crimson-abyss-nexus.mjs';
 import {previewMapReveal} from './crimson-map-reveal.mjs';
+import {preparedSourceNativeParity} from './source-binding.mjs';
 export const MIXED_PLAN_SCHEMA='saveglass.mixed-draft-plan.v1';
 export const MIXED_PUBLICATION_PROFILE='saveglass-crimson-mixed107.v1';
 const common=['schema','container','payload','backupSha256','backupRevision','payloadSha256','plaintextSha256','schemaSha256','decoderRevision','catalogRevision','operations'];
@@ -40,7 +41,7 @@ export function createMixedDraftCompiler({schemaPins=[CRIMSON_CURRENT_SCHEMA],st
   // independent/cloned sources still decode and traverse before composition.
   const {bytes:source,prepared}=structuralSourcePayload(backup,ownedMetadata,input),decoded=prepared?.decoded||await decodeSave(source),before=prepared?.document||metadata(decoded.plaintext);
   if(decoded.version!==2||before.schemaSha256!==input.schemaSha256||before.plaintextSha256!==input.plaintextSha256||before.audit.advisoryLocators||before.audit.unconsumedBytes)fail('MIXED_SOURCE_CHANGED');
-  if(!(await encodeSave(decoded.plaintext,decoded.header,{nonce:decoded.header.subarray(0x1a,0x2a)})).equals(source))fail('MIXED_NATIVE_PARITY_FAILED');
+  if(!await preparedSourceNativeParity(backup,ownedMetadata,input,decoded,source,encodeSave))fail('MIXED_NATIVE_PARITY_FAILED');
   let working=source,plainHash=before.plaintextSha256;const stages=[],diff=[],nonCart=input.operations.filter(op=>!cartography.includes(op.operation));
   async function accept(domain,result,{operations=false,structural=false,expectedPlanSha256,expectedBindings}={}){
    const {encoded,report}=result||{},v=report?.validation;

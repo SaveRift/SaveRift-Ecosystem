@@ -44,6 +44,9 @@ function knowledge(raw){
  return {document,list,rows:[...rows.values()],byKey};
 }
 function applyDiscovery(raw,definition,types){
+ // No discovery mapping means exact byte preservation. The surrounding strict
+ // structural walk/reopen still validates the complete knowledge branch.
+ if(!definition.knowledgeKeys.length)return {raw,decodedDiff:[],reverseStructuralByteParity:true};
  const before=knowledge(raw),patch=Buffer.from(raw),diff=[];
  for(const key of definition.knowledgeKeys){const row=before.byKey.get(key);if(row){const level=row.fields._level;if(level?.bytes!==4||level.type!=='TLevel'||!Number.isSafeInteger(level.value)||level.value<0)fail('CRIMSON_ITEM_KNOWLEDGE_LEVEL_UNSUPPORTED');if(level.value<1){patch.writeUInt32LE(1,level.offset);diff.push({operation:'knowledge.setLevel',key,field:'_level',beforeLevel:level.value,afterLevel:1});}}}
  const missing=definition.knowledgeKeys.filter(key=>!before.byKey.has(key));let output=patch,reverse=true;

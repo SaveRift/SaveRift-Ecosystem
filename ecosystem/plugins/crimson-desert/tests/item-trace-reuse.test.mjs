@@ -16,7 +16,7 @@ configureDataProviders([['crimson-construction-items.json',data],['crimson-items
 const {createCatalogItemAddition}=await import('../src/crimson-item-addition.mjs');
 const str=s=>Buffer.concat([u32(Buffer.byteLength(s)),Buffer.from(s)]);
 const fields=[['_saveVersion','uint32',0,4],['_itemNo','ItemNo',0,8],['_itemKey','ItemKey',0,4],['_slotNo','TItemSlotNo',0,2],['_stackCount','TStackCount',0,8],['_enchantLevel','uint16',0,2],['_endurance','uint16',0,2],['_maxSocketCount','uint8',0,1],['_validSocketCount','uint8',0,1],['_transferredItemKey','ItemKey',0,4],['_maxChargeUseableCount','uint32',0,4],['_chargedUseableCount','uint64',0,8],['_isNewMark','bool',0,1],['_socketSaveDataList','ReflectObject',6,0]];
-function fixture({count=1,quantity='5',secondBag=false,ownedKey=101}={}){
+function fixture({count=1,quantity='5',secondBag=false,ownedKey=101,knowledgeCount=1}={}){
  const types=[['InventorySaveData',[['_inventorylist','ReflectObject',6,0]]],['InventoryElementSaveData',[['_inventoryKey','InventoryKey',0,2],['_varyExpandSlotCount','TInventorySlotNo',0,2],['_itemList','ReflectObject',6,0]]],['ItemSaveData',fields],['ItemSocketSaveData',[['_invented','uint32',0,4]]],['KnowledgeSaveData',[['_list','ReflectObject',6,0]]],['KnowledgeElementSaveData',[['_key','KnowledgeKey',0,4],['_level','TLevel',0,4],['_learnedFieldTime','uint64',0,8],['_isNewMark','bool',0,1]]]];
  const schema=Buffer.concat([u32(1),u16(types.length),...types.flatMap(([name,defs])=>[str(name),u16(defs.length),...defs.map(([name,type,kind,size])=>Buffer.concat([str(name),str(type),u16(kind),u16(size),u32(0)]))])]),prefix=Buffer.alloc(14);prefix.writeUInt16LE(65535);prefix.writeUInt16LE(4,2);
  const base=14+schema.length+12+40,chunks=[];let pos=base;
@@ -24,7 +24,7 @@ function fixture({count=1,quantity='5',secondBag=false,ownedKey=101}={}){
  function object(index,mask,build){emit(u16(mask.length));emit(Buffer.from(mask));emit(u16(index));emit(Buffer.from([0]));emit(Buffer.alloc(8,255));emit(u32(pos+4));const start=pos;emit(u32(17));build();emit(u32(pos-start));}
  function list(count,build){emit(Buffer.from([0]));emit(u32(count));emit(Buffer.from([0,9,0,0,0,0,0,0,0,0,0,0,0]));for(let i=0;i<count;i++)build(i);}
  emit(u16(1));emit(Buffer.from([1]));emit(u32(17));list(secondBag?2:1,b=>object(1,[7],()=>{emit(u16(b?3:2));emit(u16(0));list(b?0:count,i=>object(2,[31,0],()=>{emit(u32(1));emit(u64(100+i));emit(u32(ownedKey));emit(u16(i));emit(u64(quantity));emit(Buffer.from([1]));}));}));
- const firstBytes=pos-base,secondStart=pos;emit(u16(1));emit(Buffer.from([1]));emit(u32(17));list(1,()=>object(5,[15],()=>{emit(u32(9));emit(u32(1));emit(u64(123));emit(Buffer.from([1]));}));
+ const firstBytes=pos-base,secondStart=pos;emit(u16(1));emit(Buffer.from([1]));emit(u32(17));list(knowledgeCount,()=>object(5,[15],()=>{emit(u32(9));emit(u32(1));emit(u64(123));emit(Buffer.from([1]));}));
  const block=Buffer.concat(chunks),raw=Buffer.concat([prefix,schema,u32(0),u32(2),u32(pos),u32(0),u32(0),u32(0),u32(base),u32(firstBytes),u32(4),u32(0),u32(0),u32(secondStart),u32(pos-secondStart),block]);
  return raw;
 }
@@ -33,8 +33,22 @@ async function add(options,inputs){
  const encoded=await encodeSave(raw,header,{nonce:Buffer.alloc(16,7)}),sourceCopy=Buffer.from(encoded),compiler=createCatalogItemAddition({schemaPins:[document.schemaSha256]}),result=await compiler.many(encoded,inputs,{nonce:Buffer.alloc(16,8)}),after=readDocument((await decodeSave(result.encoded)).plaintext),bags=elements(after.blocks.find(b=>b.type==='InventorySaveData'),'_inventorylist');
  assert.equal(encoded.equals(sourceCopy),true);assert.equal(result.report.validation.reverseStructuralByteParity,true);assert.equal(result.report.validation.allOtherOriginalScalarValuesUnchanged,true);assert.equal(result.report.validation.nonzeroListMetadataBefore,result.report.validation.nonzeroListMetadataAfter);assert.equal(result.report.validation.nativeOutputNoOpByteParity,true);
  for(const bag of bags)for(const item of elements(bag,'_itemList').filter(i=>value(i,'_itemKey')===101))assert.equal(value(item,'_stackCount'),options.quantity||'5');
- return {result,bags};
+ return {result,bags,after};
 }
+test('an explicit item with no pickup discovery preserves an empty valid knowledge list',async()=>{
+ const {result,after}=await add({knowledgeCount:0},[{definitionKey:4242,quantity:'2'}]);
+ const list=after.blocks.find(b=>b.type==='KnowledgeSaveData').fields._list;
+ assert.equal(list.count,0);assert.equal(list.value.elements.length,0);assert.equal(list.value.metadataBytes[1],9);
+ assert.deepEqual(result.report.discovery.changes,[]);assert.ok(result.report.decodedDiff.every(change=>change.operation==='inventory.addItem'));
+});
+
+test('no-discovery items still reject malformed knowledge during full typed traversal',async()=>{
+ const raw=fixture({knowledgeCount:0}),document=readDocument(raw),header=Buffer.alloc(128);header.write('SAVE');header.writeUInt16LE(2,4);header.writeUInt16LE(128,6);
+ raw[document.schema.toc[1].offset+7]=2;
+ const source=await encodeSave(raw,header,{nonce:Buffer.alloc(16,7)});
+ await assert.rejects(createCatalogItemAddition({schemaPins:[document.schemaSha256]}).many(source,[{definitionKey:4242,quantity:'2'}],{nonce:Buffer.alloc(16,8)}),{code:'PARC_TYPED_INVALID'});
+});
+
 test('unchanged first working inventory reuses its complete original scalar and locator proof',async()=>{
  const {result,bags}=await add({},[{definitionKey:4242,quantity:'2'}]);assert.equal(elements(bags[0],'_itemList').length,2);assert.equal(result.report.capacity.automaticExpansion,false);assert.equal(value(elements(bags[0],'_itemList')[1],'_stackCount'),'2');
 });
