@@ -10,7 +10,7 @@ import {gzipSync} from 'node:zlib';
 
 export const PLAN_SCHEMA='saverift.release-export-plan.v1';
 const ROOTS=['ecosystem/sdk/','ecosystem/ui/','ecosystem/workbench/','ecosystem/collaboration/','ecosystem/plugins/synthetic','ecosystem/plugins/crimson-desert/','ecosystem/registry/','ecosystem/tests/','ecosystem/scripts/','docs/ecosystem/public/'];
-const SUPPORT=new Set(['ecosystem/package.json','ecosystem/package-lock.json','ecosystem/.gitignore','ecosystem/README.md','ecosystem/LICENSE','ecosystem/NOTICE','ecosystem/AGENTS.md','scripts/ecosystem-release-audit.mjs','tests/ecosystem-release-audit.test.mjs','.github/workflows/ecosystem-ci.yml']);
+const SUPPORT=new Set(['.gitattributes','ecosystem/package.json','ecosystem/package-lock.json','ecosystem/.gitignore','ecosystem/README.md','ecosystem/LICENSE','ecosystem/NOTICE','ecosystem/AGENTS.md','scripts/ecosystem-release-audit.mjs','tests/ecosystem-release-audit.test.mjs','.github/workflows/ecosystem-ci.yml']);
 const RIGHTS=new Set(['original','licensed-code','synthetic','import-recipe']);
 const HASH=/^[a-f0-9]{64}$/;
 const MAX_FILE=8*1024*1024,MAX_TOTAL=48*1024*1024;

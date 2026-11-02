@@ -10,9 +10,17 @@ test('a reviewed source branch is distinct from the real repository default bran
   const repository={id:'147',owner:'example',name:'ecosystem',defaultBranch:'main'};
   const project={id:'example',displayName:'Example',packageId:'example.game',packageRoots:['ecosystem/plugins/example/'],templateIds:['example'],license:'Apache-2.0',repository,baseRef:'bootstrap/reviewed',baseCommit:sha,maintainers:['maintainer']};
   const access=createGameAccess({store,projects:[project]}),reads=[];
-  const git={getRepository:async()=>repository,readHead:async input=>{reads.push(input.branch);return {sha,treeSha};},listIssues:async()=>({issues:[],hasMore:false}),listDraftPRs:async()=>({pullRequests:[],hasMore:false})};
+  const pullRequests=[
+    {number:1,draft:true,headRef:'bootstrap/reviewed'},
+    {number:2,draft:true,headRef:'saverift/example/inventory'},
+    {number:3,draft:true,headRef:'bootstrap/reviewed-other'},
+    {number:4,draft:true,headRef:'other-game/feature'},
+    {number:5,draft:false,headRef:'bootstrap/reviewed'}
+  ].map(pr=>({title:'Reviewed work',url:'https://github.com/example/ecosystem/pull/'+pr.number,state:'open',headSha:sha,baseSha:sha,baseRef:'main',...pr}));
+  const git={getRepository:async()=>repository,readHead:async input=>{reads.push(input.branch);return {sha,treeSha};},listIssues:async()=>({issues:[],hasMore:false}),listDraftPRs:async()=>({pullRequests,hasMore:false})};
   const service=createCollaborationService({store,access,git});
   const result=await service.discoverProject(actor,{gameId:'example'});
   assert.equal(result.state,'current');assert.equal(result.head.sha,sha);assert.equal(result.project.repository.defaultBranch,'main');assert.equal(result.project.baseRef,'bootstrap/reviewed');assert.equal(result.project.baseCommit,sha);assert.deepEqual(reads,['bootstrap/reviewed']);
+  assert.deepEqual(result.draftPullRequests.map(pr=>pr.number),[1,2]);
   await assert.rejects(async()=>createGameAccess({store,projects:[{...project,baseRef:'../another-repository'}]}),{code:'PROJECT_CONFIGURATION_INVALID'});
 });

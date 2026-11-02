@@ -22,6 +22,7 @@ class Node {
   focus() { this.focused = true; }
 }
 async function browser({configured = false, discoveryUnavailable = false, configure} = {}) {
+  const descendants = node => node.children.flatMap(child => [child, ...descendants(child)]);
   const nodes = new Map(), classNodes = new Map(), tabs = [], panels = [];
   const html = await readFile(new URL('../index.html', import.meta.url), 'utf8');
   for (const match of html.matchAll(/<([a-z][a-z0-9]*)\b([^>]*)>/gi)) {
@@ -31,7 +32,7 @@ async function browser({configured = false, discoveryUnavailable = false, config
     const tab = /\bdata-tab="([^"]+)"/.exec(attrs)?.[1], panel = /\bdata-panel="([^"]+)"/.exec(attrs)?.[1];
     if (tab) { node.dataset.tab = tab; tabs.push(node); } if (panel) { node.dataset.panel = panel; panels.push(node); } if (id) nodes.set(id, node); const classes = /\bclass="([^"]+)"/.exec(attrs)?.[1]?.split(/\s+/) || []; for (const name of classes) if (!classNodes.has(name)) classNodes.set(name, node);
   }
-  const document = {querySelector: selector => selector.startsWith('.') ? classNodes.get(selector.slice(1)) : nodes.get(selector.slice(1)), querySelectorAll: selector => selector === '[data-tab]' ? tabs : selector === '[data-panel]' ? panels : selector === '#file-list button' ? nodes.get('file-list').children : [], createElement: tag => new Node(tag), createTextNode: text => Object.assign(new Node('#text'), {_text: text})};
+  const document = {querySelector: selector => selector.startsWith('.') ? classNodes.get(selector.slice(1)) : nodes.get(selector.slice(1)), querySelectorAll: selector => selector === '[data-tab]' ? tabs : selector === '[data-panel]' ? panels : selector === '#file-list button' ? nodes.get('file-list').children : selector === '#fixture-list input' ? descendants(nodes.get('fixture-list')).filter(node=>node.tagName==='INPUT') : [], createElement: tag => new Node(tag), createTextNode: text => Object.assign(new Node('#text'), {_text: text})};
   const calls = [], storage = new Map(); let membership = {state: 'disabled', role: 'contributor', revision: 0};
   const project = {id: 'synthetic', displayName: 'Synthetic examples', packageId: 'example.synthetic-game', packageRoots: ['ecosystem/plugins/synthetic-game/'], capabilities: ['custom progression graph'], templateIds: ['synthetic-json'], license: 'Apache-2.0', repository: configured ? {id: '123', owner: 'example', name: 'ecosystem', url: 'https://github.com/example/ecosystem'} : null, maintainers: []};
   const discovery = {discoveryId: 'discovery-1', head: configured ? {sha: '1'.repeat(40)} : null, issues: configured ? [{number: 7, title: 'Add synthetic skills', state: 'open', url: 'https://github.com/example/ecosystem/issues/7'}] : [], workItems: [], contributors: [], draftPullRequests: [], github: {state: configured ? 'connected' : 'not_configured', canonical: configured}};
@@ -205,4 +206,22 @@ test('private claims require a separate reviewed public post and uncertain outco
   await b.nodes.get('reconcile-work-publication').click();
   assert.equal(posts, 1); assert.equal(b.nodes.get('reconcile-work-publication').hidden, true);
   assert.match(b.nodes.get('work-publication-state').textContent, /Published to the canonical GitHub issue/);
+});
+
+test('pending consent prevents a misleading checkbox or workspace selection before its stored response',async()=>{
+ const fixture={id:'fixture_synthetic',name:'invented.json',role:'main',byteLength:2,synthetic:false,aiAccess:false},workspace={id:'ws_test',name:'Synthetic consent test',gameId:'synthetic',revision:1,files:[],fixtures:[fixture],jobs:[]};
+ let accept,started;const ready=new Promise(resolve=>started=resolve);
+ const b=await browser({configure({handlers,routes}){
+  handlers.workspace_status=()=>({workspace:structuredClone(workspace)});
+  routes['/fixtures/fixture_synthetic/consent']=args=>new Promise(resolve=>{accept=()=>{fixture.aiAccess=args.aiAccess;workspace.revision++;resolve({status:'passed'});};started();});
+ }});
+ await b.enroll();await b.openWorkspace(workspace.id);
+ const checkbox=b.nodes.get('fixture-list').firstChild.children.find(node=>node.tagName==='LABEL').firstChild;
+ assert.equal(checkbox.disabled,false);assert.equal(checkbox.checked,false);
+ checkbox.checked=true;const saving=checkbox.onchange();await ready;assert.equal(checkbox.disabled,true);
+ b.nodes.get('workspaces').value='ws_other';await b.nodes.get('workspaces').onchange();assert.equal(b.nodes.get('workspaces').value,workspace.id);
+ assert.ok(!b.calls.some(call=>call.name==='workspace_status'&&call.args.workspaceId==='ws_other'));
+ accept();await saving;
+ const stored=b.nodes.get('fixture-list').firstChild.children.find(node=>node.tagName==='LABEL').firstChild;
+ assert.equal(stored.checked,true);assert.equal(stored.disabled,false);assert.match(b.nodes.get('notice').textContent,/available for bounded AI inspection/);
 });

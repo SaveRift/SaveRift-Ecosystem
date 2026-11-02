@@ -3,6 +3,7 @@
 import {mkdir, readFile, writeFile, rename, unlink, readdir, open, chmod} from 'node:fs/promises';
 import {resolve, join} from 'node:path';
 import {randomUUID} from 'node:crypto';
+import {setTimeout as delay} from 'node:timers/promises';
 import {sha256, fail} from './storage.mjs';
 
 export async function createDirectoryStore(directory) {
@@ -26,7 +27,15 @@ export async function createDirectoryStore(directory) {
         if (options.ifAbsent && prior || options.ifMatch !== undefined && prior?.etag !== options.ifMatch) fail('REVISION_CONFLICT', 'This workspace changed. Refresh before retrying.', 409);
         const row = {key, value, etag: randomUUID()};
         await writeFile(tmp, JSON.stringify(row), {mode: 0o600, flag: 'wx'});
-        await rename(tmp, path(key));
+        // Windows readers/scanners can briefly hold the destination open.
+        // Keep the same exclusive CAS lock and atomic replacement throughout.
+        for(let attempt=0;;attempt++){
+          try{await rename(tmp,path(key));break;}
+          catch(error){
+            if(process.platform!=='win32'||!['EPERM','EACCES','EBUSY'].includes(error.code)||attempt>=4)throw error;
+            await delay(10*2**attempt);
+          }
+        }
         return {etag: row.etag, value: structuredClone(value)};
       } finally { await unlink(tmp).catch(() => {}); await lock.close(); await unlink(lockPath); }
     },

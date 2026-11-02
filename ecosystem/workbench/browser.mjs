@@ -14,13 +14,15 @@ const dependencySelection = () => ({extensionArtifactIds: ($('#extension-artifac
 const show = (message, error = false) => { $('#notice').textContent = message || ''; $('#notice').classList.toggle('error', error); };
 async function api(path, options = {}) {
   const response = await fetch(`/api/developer${path}`, {credentials: 'same-origin', ...options});
-  const result = await response.json(); if (!response.ok || result.status === 'failed') throw Object.assign(Error(typeof result.error === 'string' ? result.error : result.error?.message || result.message || result.code || 'Developer operation failed.'), {code: result.code || result.error?.code, status: response.status}); return result;
+  // A completed failed job is a successful status response, with its report.
+  const result = await response.json(); if (!response.ok) throw Object.assign(Error(typeof result.error === 'string' ? result.error : result.error?.message || result.message || result.code || 'Developer operation failed.'), {code: result.code || result.error?.code, status: response.status}); return result;
 }
 const post = (path, body) => api(path, {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(body)});
 const call = (name, args = {}) => post('/call', {name: `saverift_${name}`, arguments: args});
 function el(tag, text, className) { const node = document.createElement(tag); if (text !== undefined) node.textContent = text; if (className) node.className = className; return node; }
 function action(selector, handler) { $(selector).addEventListener('click', () => task(handler)); }
-async function task(handler) { if (busy) return; busy = true; $('#identity-state').classList.add('status-running'); try { await handler(); } catch (error) { show(error.message, true); } finally { busy = false; $('#identity-state').classList.remove('status-running'); } }
+function fixtureBusyState() { for (const input of document.querySelectorAll('#fixture-list input')) input.disabled = busy || !workspaceToolsEnabled(); }
+async function task(handler) { if (busy) return; busy = true; fixtureBusyState(); $('#identity-state').classList.add('status-running'); try { await handler(); } catch (error) { show(error.message, true); } finally { busy = false; fixtureBusyState(); $('#identity-state').classList.remove('status-running'); } }
 function tab(name) { document.querySelectorAll('[data-panel]').forEach(node => { node.hidden = node.dataset.panel !== name; }); document.querySelectorAll('[data-tab]').forEach(node => node.classList.toggle('selected', node.dataset.tab === name)); }
 document.querySelectorAll('[data-tab]').forEach(button => button.onclick = () => tab(button.dataset.tab));
 async function reloadList(selectedId) {
@@ -29,6 +31,7 @@ async function reloadList(selectedId) {
   if (selectedId) $('#workspaces').value = selectedId;
 }
 async function loadWorkspace(id) {
+  $('#candidate-downloads').replaceChildren();
   clearMigrationReview(); migrationOpen = false; migrationGameId = '';
   frame?.revoke(); frame = undefined; preview = undefined; draft = undefined; artifactId = undefined;
   $('#extension-artifacts').value = ''; $('#preview-view').replaceChildren(el('option', 'Automatic view')); $('#preview-view').firstChild.value = '';
@@ -57,6 +60,9 @@ async function renderWorkspace() {
     const button = el('button', file.path); button.disabled = !workspaceToolsEnabled(); button.classList.toggle('active', editingPath === file.path); button.onclick = () => task(() => openFile(file.path)); $('#file-list').append(button);
     const label = el('label'), checkbox = el('input'); checkbox.type = 'checkbox'; checkbox.value = file.path; checkbox.checked = true; label.append(checkbox, document.createTextNode(file.path)); $('#release-files').append(label);
   }
+  const selectedJob = $('#job-history').value; $('#job-history').replaceChildren();
+  for (const job of workspace.jobs || []) { const option = el('option', `${job.type} · ${job.id}`); option.value = job.id; $('#job-history').append(option); }
+  if ((workspace.jobs || []).some(job => job.id === selectedJob)) $('#job-history').value = selectedJob;
   renderFixtures(); renderMigration(); updateProjectControls();
   if (!editingPath || !workspace.files.some(f => f.path === editingPath)) editingPath = workspace.files[0]?.path;
   if (editingPath && !sourceOnly) await openFile(editingPath);
@@ -73,6 +79,7 @@ function renderFixtures() {
   for (const f of workspace.fixtures) {
     const card = el('article', undefined, 'fixture-card'); card.append(el('strong', f.name), el('small', `${f.synthetic ? 'Synthetic example' : 'Private upload'} · ${f.byteLength.toLocaleString()} bytes · ${f.role}`));
     const label = el('label'), toggle = el('input'); toggle.type = 'checkbox'; toggle.checked = f.aiAccess || f.synthetic; toggle.disabled = f.synthetic || !workspaceToolsEnabled(); toggle.dataset.synthetic = String(f.synthetic);
+    toggle.disabled = busy || !workspaceToolsEnabled();
     toggle.onchange = () => task(async () => { await post(`/fixtures/${f.id}/consent`, {workspaceId: workspace.id, aiAccess: toggle.checked}); await refreshWorkspace(); show(toggle.checked ? 'This fixture is available for bounded AI inspection.' : 'AI fixture access revoked.'); });
     label.append(toggle, document.createTextNode(f.synthetic ? 'Original synthetic data · safe for examples' : 'Allow AI inspection of this fixture')); card.append(label);
     const remove = el('button', 'Delete fixture'); remove.disabled = !workspaceToolsEnabled(); remove.onclick = () => task(async () => { if (!confirm(`Delete ${f.name} from this private workspace?`)) return; await api(`/fixtures/${f.id}?workspaceId=${workspace.id}`, {method: 'DELETE'}); await refreshWorkspace(); }); card.append(remove); $('#fixture-list').append(card);
@@ -80,7 +87,7 @@ function renderFixtures() {
 }
 async function createWorkspace() { checkSavedSourceIfOpen(); if (projectTools && (!project || !discovery?.discoveryId || membership?.state !== 'enabled')) throw Error('Review the game project and enable its developer tools first.'); const template = $('#template-choice').value || 'synthetic-json', name = template === 'synthetic-json' ? 'My synthetic game' : $('#template-choice').selectedOptions[0].textContent; const result = await call('workspace_create', {name: name.slice(0,80), template, ...(projectTools ? {gameId: project.id, discoveryId: discovery.discoveryId} : {})}); await reloadList(result.workspace.id); await loadWorkspace(result.workspace.id); show(template === 'synthetic-json' ? 'Synthetic workspace created. This is demonstration data, never a live game save.' : 'Connector source forked privately. Attach an owned fixture before testing; no player files were imported.'); }
 action('#create-workspace', createWorkspace); action('#create-first', createWorkspace);
-$('#workspaces').onchange = () => { if ($('#workspaces').value) return task(async () => { try { checkSavedSourceIfOpen(); } catch (error) { $('#workspaces').value = workspace?.id || ''; throw error; } await loadWorkspace($('#workspaces').value); }); };
+$('#workspaces').onchange = () => { if (busy) { $('#workspaces').value = workspace?.id || ''; return; } if ($('#workspaces').value) return task(async () => { try { checkSavedSourceIfOpen(); } catch (error) { $('#workspaces').value = workspace?.id || ''; throw error; } await loadWorkspace($('#workspaces').value); }); };
 action('#save-file', async () => { if (!workspace || !editingPath) return; const result = await call('workspace_patch', {workspaceId: workspace.id, expectedRevision: workspace.revision, ...(workspace.gitBinding ? {expectedGitHead: workspace.gitBinding.gitHead} : {}), edits: [{path: editingPath, content: $('#source-editor').value}]}); workspace = result.workspace; clearGitReviews(); if (workspace.gitBinding) await loadBranchWorkspace(); await renderWorkspace(); show('Source saved. Build a new artifact to preview these changes.'); });
 action('#new-file', async () => { const path = prompt('New relative source path, for example runtime/skills.mjs'); if (!path) return; const result = await call('workspace_patch', {workspaceId: workspace.id, expectedRevision: workspace.revision, ...(workspace.gitBinding ? {expectedGitHead: workspace.gitBinding.gitHead} : {}), edits: [{path, content: '// Your new game system\n'}]}); workspace = result.workspace; clearGitReviews(); if (workspace.gitBinding) await loadBranchWorkspace(); editingPath = path; await renderWorkspace(); });
 $('#fixture-upload').onchange = () => task(async () => { const file = $('#fixture-upload').files[0]; if (!file) return; try { const upload = await call('fixture_upload_prepare', {workspaceId: workspace.id, name: file.name, byteLength: file.size, role: $('#fixture-role').value}); await api(`/uploads/${upload.uploadId}`, {method: 'POST', headers: {'Content-Type': 'application/octet-stream'}, body: file}); await refreshWorkspace(); show('Fixture uploaded privately. AI inspection stays off until you enable it.'); } finally { $('#fixture-upload').value = ''; } });
@@ -89,18 +96,23 @@ action('#query-catalog', async () => { $('#catalog-results').textContent = JSON.
 async function waitForJob(job) {
   for (let i = 0; i < 180; i++) {
     const result = await call('job_status', {workspaceId: workspace.id, jobId: job.jobId}); $('#job-results').textContent = JSON.stringify(result, null, 2);
-    if (!['pending', 'running'].includes(result.status)) { await refreshWorkspace(); if (result.status === 'failed') throw Error(result.job.result?.error || 'The isolated job failed.'); return result.job; }
+    if (!['pending', 'running'].includes(result.status)) { await refreshWorkspace(); if (result.status === 'failed') throw Error([result.job.result?.code, result.job.result?.error || result.job.result?.reason || 'The isolated job failed.'].filter(Boolean).join(': ')); return result.job; }
     await new Promise(resolve => setTimeout(resolve, 350));
   }
   throw Error('This job is still running. Reopen Build & test to check its durable status.');
 }
-action('#build-plugin', async () => { const job = await waitForJob(await call('plugin_build', {workspaceId: workspace.id, expectedRevision: workspace.revision})); artifactId = job.result.artifactId; $('#artifact-state').textContent = `Built source revision ${job.result.sourceRevision} · ${artifactId}`; show('Immutable source package built. Run conformance before preparing a release.'); });
-action('#run-tests', async () => { if (!artifactId) throw Error('Build a source package first.'); const job = await waitForJob(await call('tests_run', {workspaceId: workspace.id, artifactId, fixtureIds: fixtures(), ...dependencySelection()})); show(job.status === 'passed' ? 'Isolated lifecycle, no-op byte parity and fresh-engine re-open passed. Game acceptance remains unverified.' : `Tests: ${job.status}. ${job.result.reason || ''}`); });
+action('#build-plugin', async () => { $('#candidate-downloads').replaceChildren(); const job = await waitForJob(await call('plugin_build', {workspaceId: workspace.id, expectedRevision: workspace.revision})); artifactId = job.result.artifactId; $('#artifact-state').textContent = `Built source revision ${job.result.sourceRevision} · ${artifactId}`; show('Immutable source package built. Run conformance before preparing a release.'); });
+action('#run-tests', async () => { if (!artifactId) throw Error('Build a source package first.'); $('#candidate-downloads').replaceChildren(); const job = await waitForJob(await call('tests_run', {workspaceId: workspace.id, artifactId, fixtureIds: fixtures(), ...dependencySelection()})); show(job.status === 'passed' ? 'Isolated lifecycle, no-op byte parity and fresh-engine re-open passed. Game acceptance remains unverified.' : `Tests: ${job.status}. ${job.result.reason || ''}`); });
+action('#open-job', async () => { const jobId = $('#job-history').value; if (!workspace || !(workspace.jobs || []).some(job => job.id === jobId)) throw Error('Choose a saved job from this workspace.'); $('#candidate-downloads').replaceChildren(); const job = await waitForJob({jobId}); await candidateDownloads(job); show(`Saved ${job.type} job: ${job.status}. Game acceptance remains unverified.`); });
+async function candidateDownloads(job) {
+  $('#candidate-downloads').replaceChildren();
+  if (job.type === 'candidate' && job.status === 'passed' && job.result.candidateDownloadPath) { const output = await api(`/candidates/${job.id}`); for (const artifact of output.artifacts) { const link = el('a', `Download offline ${artifact.logicalPath}`, 'download'); link.href = artifact.downloadPath; $('#candidate-downloads').append(link); } }
+}
 async function candidate(args) {
   if (!artifactId) throw Error('Build a source package first.');
+  $('#candidate-downloads').replaceChildren(); $('#job-results').textContent = 'Starting offline validation…'; show('Validating your offline draft…');
   const job = await waitForJob(await call('candidate_prepare', {workspaceId: workspace.id, artifactId, fixtureIds: fixtures(), ...dependencySelection(), ...args}));
-  $('#candidate-downloads').replaceChildren();
-  if (job.result.candidateDownloadPath) { const output = await api(`/candidates/${job.id}`); for (const artifact of output.artifacts) { const link = el('a', `Download offline ${artifact.logicalPath}`, 'download'); link.href = artifact.downloadPath; $('#candidate-downloads').append(link); } }
+  await candidateDownloads(job);
   show(`Offline candidate ${job.status}. No Xbox write or public publication occurred.`); tab('run');
 }
 action('#prepare-candidate', async () => { const operations = JSON.parse($('#operations').value); await candidate({operations, ...(draft ? {expectedDraftRevision: draft.revision} : {})}); });
@@ -151,7 +163,7 @@ function updateProjectControls() {
   $('#publish-work').disabled = !remote || !githubReady || !workPublicationReview || workPublicationUnknown;
   $('#reconcile-work-publication').disabled = !remote || !githubReady || !workPublicationTarget || workPublicationTarget.gameId !== project?.id;
   $('#developer-opt-in').disabled = membership?.state === 'suspended';
-  for (const id of ['save-file', 'new-file', 'import-catalog', 'query-catalog', 'build-plugin', 'run-tests', 'prepare-candidate', 'open-preview', 'prepare-preview-draft', 'prepare-release', 'fixture-upload']) $('#' + id).disabled = !workspaceToolsEnabled();
+  for (const id of ['save-file', 'new-file', 'import-catalog', 'query-catalog', 'build-plugin', 'run-tests', 'prepare-candidate', 'open-preview', 'prepare-preview-draft', 'prepare-release', 'fixture-upload', 'open-job', 'job-history']) $('#' + id).disabled = !workspaceToolsEnabled();
   $('#export-source').disabled = !workspace; $('#source-editor').disabled = !workspaceToolsEnabled();
   for (const control of document.querySelectorAll('#fixture-list button, #fixture-list input')) control.disabled = !workspaceToolsEnabled() || (control.type === 'checkbox' && control.dataset.synthetic === 'true');
   updateMigrationControls();

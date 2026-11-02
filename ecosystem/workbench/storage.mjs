@@ -30,16 +30,35 @@ export function createMemoryStore() {
 export function createR2Store({bucket, seal, unseal, prefix = 'developer-v1'}) {
   if (!bucket || typeof seal !== 'function' || typeof unseal !== 'function') throw Error('Encrypted R2 dependencies are required.');
   const keyFor = key => { checkKey(key); return `${prefix}/${key}`; };
+  // Request-local parsed-text reuse. Every read still checks the current R2
+  // etag; changed grants, consent, source and tombstones cannot hit old data.
+  const cached = new Map(); let cachedBytes = 0;
+  const forget = name => { const prior = cached.get(name); if (prior) cachedBytes -= prior.bytes; cached.delete(name); };
+  function remember(name, etag, text) {
+    forget(name); const bytes = text.length * 2;
+    if (bytes < 16384 || bytes > 8 * 1024 * 1024) return;
+    while (cached.size >= 16 || cachedBytes + bytes > 8 * 1024 * 1024) forget(cached.keys().next().value);
+    cached.set(name, {etag, text, bytes}); cachedBytes += bytes;
+  }
   async function get(key) {
-    const name = keyFor(key), row = await bucket.get(name);
-    if (!row) return null;
-    try { return {etag: row.etag, value: JSON.parse(new TextDecoder().decode(await unseal(new Uint8Array(await row.arrayBuffer()), name)))}; }
+    const name = keyFor(key), prior = cached.get(name), row = await bucket.get(name, prior ? {onlyIf: {etagDoesNotMatch: prior.etag}} : undefined);
+    if (!row) { forget(name); return null; }
+    try {
+      if (typeof row.arrayBuffer !== 'function') {
+        if (!prior || row.etag !== prior.etag) throw Error('Unexpected conditional object response.');
+        return {etag: row.etag, value: JSON.parse(prior.text)};
+      }
+      forget(name);
+      const text = new TextDecoder().decode(await unseal(new Uint8Array(await row.arrayBuffer()), name)), value = JSON.parse(text);
+      remember(name, row.etag, text); return {etag: row.etag, value};
+    }
     catch { fail('PRIVATE_OBJECT_INVALID', 'The private workspace object could not be verified.', 409); }
   }
   return {
     get,
     async put(key, value, options = {}) {
       const name = keyFor(key), bytes = new TextEncoder().encode(JSON.stringify(value));
+      forget(name);
       const onlyIf = options.ifAbsent ? {etagDoesNotMatch: '*'} : options.ifMatch !== undefined ? {etagMatches: options.ifMatch} : undefined;
       const row = await bucket.put(name, await seal(bytes, name), {onlyIf, httpMetadata: {contentType: 'application/octet-stream'}});
       if (!row) fail('REVISION_CONFLICT', 'This workspace changed. Refresh before retrying.', 409);

@@ -4,13 +4,15 @@ import {Buffer} from 'node:buffer';
 import {sha256, fail} from './storage.mjs';
 import {TOOL_DEFINITIONS, toolDefinition} from './tool-definitions.mjs';
 import {PINNED_DOCS, TEMPLATES} from './templates.mjs';
-import {validatePackage, createSaveBundle} from '../sdk/contracts.mjs';
+import {validatePackage} from '../sdk/contracts.mjs';
+import {inputs as executionInputs, boundedJobSummary} from './executor-shared.mjs';
 import {createCatalogSnapshot, createCrosswalk} from '../sdk/data.mjs';
 import {compileUiPackage} from '../ui/vanilla-frame.mjs';
 import {createDraft, editDraft} from '../sdk/draft.mjs';
 import {createOperationCatalog} from '../sdk/operation-catalog.mjs';
 import {packageFromSource, composeExecution} from './execution.mjs';
 import {migrationSourceDiff, migrationFixtureMetadata} from './migration.mjs';
+import {PHASE_CHECKPOINT_LIMITS} from './phase-executor.mjs';
 
 export const WORKBENCH_SCHEMA = 'saverift.developer-workspace.v1';
 export const LIMITS = Object.freeze({files: 256, sourceBytes: 4 * 1024 * 1024, fileBytes: 1024 * 1024, fixtures: 8, fixtureBytes: 8 * 1024 * 1024, fixtureTotalBytes: 16 * 1024 * 1024, jobs: 30, workspaces: 20, responseBytes: 64 * 1024, previewMs: 15 * 60000});
@@ -49,8 +51,10 @@ function parseCsv(input) {
   return rows.map(values => { if (values.length !== headers.length) fail('CATALOG_CSV_INVALID', 'CSV rows must have the same number of columns.'); return Object.fromEntries(headers.map((h, i) => [h, values[i]])); });
 }
 
-export function createWorkspaceService({store, executeJob, templates = TEMPLATES, schedule = promise => { void promise.catch(() => {}); }, now = Date.now, previewBase = '/developer/preview', access, collaboration, hostCapabilities} = {}) {
+export function createWorkspaceService({store, executeJob, templates = TEMPLATES, schedule = promise => { void promise.catch(() => {}); }, now = Date.now, previewBase = '/developer/preview', access, collaboration, hostCapabilities, resumableJobs = false, phaseLeaseMs = 45000, resolveReferenceData} = {}) {
   if (!store) throw Error('A private workspace store is required.');
+  if (resolveReferenceData !== undefined && typeof resolveReferenceData !== 'function') throw Error('Managed reference data requires a trusted host resolver.');
+  if (typeof resumableJobs !== 'boolean' || !Number.isSafeInteger(phaseLeaseMs) || phaseLeaseMs < 11000 || phaseLeaseMs > 60000) throw Error('A bounded trusted-host phase policy is required.');
   const controllers = new Map();
   const requireScope = (principal, scope) => { if (!principal?.scopes?.includes(scope)) fail('SCOPE_REQUIRED', `Developer authorization requires ${scope}.`, 403); };
   const principalId = principal => {
@@ -320,8 +324,16 @@ export function createWorkspaceService({store, executeJob, templates = TEMPLATES
     if (ids.length > 8 || new Set(ids).size !== ids.length || ids.includes(primary.id)) fail('EXTENSION_SELECTION_INVALID', 'Choose a bounded unique set of built extensions.');
     const dependencyWorkspaces = [];
     const extensions = await Promise.all(ids.map(async id => { const row = await readRequired(principal, 'artifacts', id); await assertEvidence(principal, row.value); await assertGrants(principal, row.value.gameGrants); dependencyWorkspaces.push((await workspace(principal, row.value.workspaceId)).value); return row.value; }));
-    const selected = composeExecution(primary, extensions);
-    selected.gameGrants = await captureGrants(principal, [primaryWorkspace.value, ...dependencyWorkspaces]);
+    const gameGrants = await captureGrants(principal, [primaryWorkspace.value, ...dependencyWorkspaces]);
+    const artifactGrants = [primary, ...extensions].flatMap(artifact => artifact.gameGrants || []);
+    await assertGrants(principal, artifactGrants); await assertGrants(principal, gameGrants);
+    const baseExecution = composeExecution(primary, extensions);
+    const referenceData = typeof resolveReferenceData === 'function' ? await resolveReferenceData({principal, gameId: primaryWorkspace.value.gameId, primary: {...baseExecution.executionLock.connector}, extensions: baseExecution.executionLock.extensions.map(pin => ({...pin})), baseExecutionLockDigest: baseExecution.executionLock.digest}) : null;
+    // An async host lookup cannot revive a revoked artifact or migrated source.
+    await assertGrants(principal, artifactGrants); await assertGrants(principal, gameGrants);
+    for (const artifact of [primary, ...extensions]) await assertEvidence(principal, artifact);
+    const selected = referenceData ? composeExecution(primary, extensions, referenceData) : baseExecution;
+    selected.gameGrants = gameGrants;
     selected.evidenceBindings = [primary, ...extensions].map(artifact => ({workspaceId: artifact.workspaceId, evidenceEpoch: artifact.evidenceEpoch || null}));
     if (args.executionLockDigest && args.executionLockDigest !== selected.executionLock.digest) fail('DEPENDENCY_MISMATCH', 'The selected execution dependency lock changed.');
     return selected;
@@ -332,7 +344,7 @@ export function createWorkspaceService({store, executeJob, templates = TEMPLATES
   async function sourceDraft(principal, selected, fixtureIds) {
     const artifact = selected.primary;
     const fixtures = await fixtureInputs(principal, artifact.workspaceId, fixtureIds, {ai: false});
-    const bundle = createSaveBundle(fixtures.map(f => ({id: f.id, logicalPath: f.name, role: f.role, byteLength: f.byteLength, sha256: f.sha256})));
+    const {bundle} = executionInputs(fixtures, selected.referenceArtifacts);
     const id = `draft_${digest({artifact: artifact.digest, lock: selected.executionLock.digest, bundle: bundle.bundleDigest, ...(artifact.evidenceEpoch ? {evidenceEpoch: artifact.evidenceEpoch} : {})}).slice(0, 40)}`;
     const name = objectKey(principal, 'drafts', id); let row = await store.get(name);
     if (!row) {
@@ -347,14 +359,110 @@ export function createWorkspaceService({store, executeJob, templates = TEMPLATES
     if (row.value.jobs.length >= LIMITS.jobs) fail('JOB_QUOTA', 'This workspace has reached its job limit.', 429);
     const gameGrants = input.gameGrants || row.gameGrants || [];
     await assertGrants(principal, gameGrants);
-    const value = {id: identifier('job'), workspaceId: row.value.id, evidenceEpoch: row.value.evidenceEpoch || null, evidenceBindings: input.evidenceBindings || [{workspaceId: row.value.id, evidenceEpoch: row.value.evidenceEpoch || null}], gameId: row.value.gameId || null, gameGrants, revision: row.value.revision, type, status: 'pending', createdAt: now(), input};
+    const resumable = resumableJobs && typeof executeJob?.step === 'function' && type !== 'build';
+    const consentProofs = [];
+    if (resumable && input.aiAccessRequired !== false) for (const id of input.fixtureIds || []) {const record = await fixture(principal, row.value.id, id, {ai: true}); consentProofs.push({id, etag: record.etag, sha256: record.value.sha256, byteLength: record.value.byteLength});}
+    const value = {id: identifier('job'), workspaceId: row.value.id, evidenceEpoch: row.value.evidenceEpoch || null, evidenceBindings: input.evidenceBindings || [{workspaceId: row.value.id, evidenceEpoch: row.value.evidenceEpoch || null}], gameId: row.value.gameId || null, gameGrants, revision: row.value.revision, type, status: 'pending', createdAt: now(), input, ...(resumable ? {resumable: true, phaseState: 'waiting', phaseLease: null, checkpointDigest: null, consentProofs} : {})};
     await store.put(objectKey(principal, 'jobs', value.id), value, {ifAbsent: true});
     await update(principal, row, row.value.revision, v => v.jobs.unshift({id: value.id, type, createdAt: value.createdAt}));
-    schedule(runJob(principal, value.id));
+    // Held HTTP execution: one phase completes before returning. This avoids
+    // relying on the platform's post-response waitUntil grace period.
+    if (resumable) await runJobStep(principal, value.id);
+    else schedule(runJob(principal, value.id));
     return {status: 'pending', jobId: value.id, workspaceId: row.value.id, workspaceRevision: row.value.revision};
+  }
+  async function assertJobFixtureAuthorization(principal, value, ai) {
+    for (const id of value.input.fixtureIds || []) {
+      const record = await fixture(principal, value.workspaceId, id, {ai});
+      if (ai && value.resumable) {
+        const proof = value.consentProofs.find(item => item.id === id);
+        if (!proof || proof.etag !== record.etag || proof.sha256 !== record.value.sha256 || proof.byteLength !== record.value.byteLength) fail('FIXTURE_AUTHORIZATION_CHANGED', 'Fixture authorization changed. Start a new offline job.', 409);
+      }
+    }
+  }
+  // Checkpoints are encrypted by the private store and never included in tool
+  // responses. A lease is deliberately not recoverable by replay: an uncertain
+  // engine may have completed, so an expired lease requires a new offline job.
+  async function runJobStep(principal, jobId, initialRow) {
+    let row = initialRow || await readRequired(principal, 'jobs', jobId);
+    if (!['pending', 'running'].includes(row.value.status)) return;
+    const jobKey = objectKey(principal, 'jobs', jobId), checkpointKey = objectKey(principal, 'jobcheckpoints', jobId), candidateKey = objectKey(principal, 'candidates', jobId);
+    if (row.value.phaseState === 'executing') {
+      if (row.value.phaseLease?.expiresAt > now()) return;
+      try {await store.put(jobKey, {...row.value, status: 'failed', phaseState: 'interrupted', phaseLease: null, finishedAt: now(), result: {status: 'failed', code: 'JOB_PHASE_INTERRUPTED', error: 'The previous isolated phase did not finish with a verified checkpoint. Start a new offline job.'}}, {ifMatch: row.etag});}
+      catch (error) {if (error.code !== 'REVISION_CONFLICT') throw error; return;}
+      await store.delete(checkpointKey); await store.delete(candidateKey); return;
+    }
+    if (row.value.phaseState !== 'waiting') fail('JOB_PHASE_INVALID', 'This job cannot resume from its current phase.', 409);
+    const leaseId = identifier('phase');
+    try {row = await store.put(jobKey, {...row.value, status: 'running', startedAt: row.value.startedAt || now(), phaseState: 'executing', phaseLease: {id: leaseId, expiresAt: now() + phaseLeaseMs}}, {ifMatch: row.etag});}
+    catch (error) {if (error.code === 'REVISION_CONFLICT') return; throw error;}
+    const controller = new AbortController(); controllers.set(jobId, controller);
+    let checkpointWritten, committed = false;
+    async function guard() {
+      const current = await readRequired(principal, 'jobs', jobId);
+      if (current.value.status !== 'running' || current.value.phaseState !== 'executing' || current.value.phaseLease?.id !== leaseId || current.value.phaseLease.expiresAt <= now()) fail('JOB_PHASE_INTERRUPTED', 'This phase is no longer authorized to persist results.', 409);
+      await workspace(principal, row.value.workspaceId);
+      await assertEvidence(principal, row.value); await assertGrants(principal, row.value.gameGrants);
+      await assertJobFixtureAuthorization(principal, row.value, row.value.input.aiAccessRequired !== false);
+      return current;
+    }
+    async function removeOwnCheckpoint() {
+      if (!checkpointWritten) return;
+      try {await store.delete(checkpointKey, {ifMatch: checkpointWritten.etag});} catch (error) {if (error.code !== 'REVISION_CONFLICT') throw error;}
+    }
+    try {
+      await guard();
+      const selected = await execution(principal, row.value.input), artifact = selected.primary;
+      const fixtures = await fixtureInputs(principal, row.value.workspaceId, row.value.input.fixtureIds, {ai: row.value.input.aiAccessRequired !== false});
+      const stored = await store.get(checkpointKey), envelope = stored && !stored.value.deleted ? stored.value : null;
+      const binding = {jobId, workspaceId: row.value.workspaceId, createdAt: row.value.createdAt, evidenceBindings: row.value.evidenceBindings, gameGrants: row.value.gameGrants, inputDigest: digest(row.value.input)};
+      if (row.value.checkpointDigest ? !envelope || digest(envelope) !== row.value.checkpointDigest || canonical(envelope.binding) !== canonical(binding) : envelope) fail('JOB_CHECKPOINT_INVALID', 'The private continuation no longer matches this immutable job.', 409);
+      const advanced = await executeJob.step({kind: row.value.type, package: {manifest: artifact.manifest, files: artifact.files}, extensions: selected.extensions.map(a => ({package: {manifest: a.manifest, files: a.files}})), executionLock: selected.executionLock, dataPackages: selected.dataPackages, referenceData: selected.referenceData, catalogs: selected.catalogs, fixtures, input: row.value.input, signal: controller.signal, jobStartedAt: row.value.createdAt}, envelope?.checkpoint || null);
+      let current = await guard();
+      if (advanced?.done === false) {
+        if (!advanced.checkpoint || encode(JSON.stringify(advanced.checkpoint)).length > PHASE_CHECKPOINT_LIMITS.bytes) fail('JOB_CHECKPOINT_LIMIT', 'The private continuation exceeds its hosted quota.');
+        const next = {binding, checkpoint: advanced.checkpoint};
+        checkpointWritten = await store.put(checkpointKey, next, stored ? {ifMatch: stored.etag} : {ifAbsent: true});
+        current = await guard();
+        // Progress is derived from bounded counters, never from plugin text.
+        const phases = advanced.checkpoint.phases;
+        const progress = {completedEngines: Array.isArray(phases) ? phases.length : 0};
+        await store.put(jobKey, {...current.value, phaseState: 'waiting', phaseLease: null, checkpointDigest: digest(next), progress}, {ifMatch: current.etag});
+        return;
+      }
+      if (advanced?.done !== true) fail('RUNNER_RESULT_INVALID', 'The isolated phase returned an invalid result.');
+      let result = advanced.result;
+      if (!result || !['passed', 'failed', 'not_run', 'needs_review'].includes(result.status)) fail('RUNNER_RESULT_INVALID', 'The isolated runner returned an invalid job result.');
+      if (result.privateArtifacts) {
+        if (result.status !== 'passed') fail('VALIDATED_CANDIDATE_REQUIRED', 'Only a completed validated candidate can be retained.');
+        const artifacts = result.privateArtifacts.map(({bytes, ...descriptor}) => ({...descriptor, bytes: Buffer.from(bytes).toString('base64')}));
+        await guard();
+        await store.put(candidateKey, {workspaceId: row.value.workspaceId, evidenceEpoch: row.value.evidenceEpoch || null, evidenceBindings: row.value.evidenceBindings, gameGrants: row.value.gameGrants || [], artifacts, createdAt: now()}, {ifAbsent: true});
+        const {privateArtifacts, ...publicResult} = result; result = {...publicResult, candidateDownloadPath: `/api/developer/candidates/${jobId}`};
+      }
+      result = boundedJobSummary(result);
+      if (encode(JSON.stringify(result)).length > LIMITS.responseBytes) fail('RUNNER_OUTPUT_LIMIT', 'The isolated runner output exceeded its report limit.');
+      current = await guard();
+      await store.put(jobKey, {...current.value, status: result.status, phaseState: 'complete', phaseLease: null, checkpointDigest: null, result, finishedAt: now()}, {ifMatch: current.etag});
+      committed = true;
+      await store.delete(checkpointKey);
+    } catch (error) {
+      // Cleanup failure cannot turn a durably committed candidate into a
+      // passed job with missing bytes. An orphan checkpoint remains private.
+      if (committed) return;
+      await removeOwnCheckpoint();
+      await store.delete(candidateKey);
+      const current = await readRequired(principal, 'jobs', jobId);
+      if (current.value.status === 'running' && current.value.phaseLease?.id === leaseId) {
+        await store.delete(checkpointKey);
+        await store.put(jobKey, {...current.value, status: 'failed', phaseState: 'interrupted', phaseLease: null, checkpointDigest: null, finishedAt: now(), result: {status: 'failed', code: error.code || 'ISOLATED_JOB_FAILED', error: 'The isolated phase could not complete safely. Start a new offline job after reviewing authorization and inputs.'}}, {ifMatch: current.etag});
+      }
+    } finally {if (controllers.get(jobId) === controller) controllers.delete(jobId);}
   }
   async function runJob(principal, jobId) {
     let row = await readRequired(principal, 'jobs', jobId);
+    if (row.value.resumable) return runJobStep(principal, jobId, row);
     if (row.value.status !== 'pending') return;
     row = await store.put(objectKey(principal, 'jobs', jobId), {...row.value, status: 'running', startedAt: now()}, {ifMatch: row.etag});
     const controller = new AbortController(); controllers.set(jobId, controller);
@@ -392,7 +500,7 @@ export function createWorkspaceService({store, executeJob, templates = TEMPLATES
       else {
         const selected = await execution(principal, row.value.input), artifact = selected.primary;
         const fixtures = await fixtureInputs(principal, row.value.workspaceId, row.value.input.fixtureIds, {ai: row.value.input.aiAccessRequired !== false});
-        result = await executeJob({kind: row.value.type, package: {manifest: artifact.manifest, files: artifact.files}, extensions: selected.extensions.map(a => ({package: {manifest: a.manifest, files: a.files}})), executionLock: selected.executionLock, dataPackages: selected.dataPackages, catalogs: selected.catalogs, fixtures, input: row.value.input, signal: controller.signal});
+        result = await executeJob({kind: row.value.type, package: {manifest: artifact.manifest, files: artifact.files}, extensions: selected.extensions.map(a => ({package: {manifest: a.manifest, files: a.files}})), executionLock: selected.executionLock, dataPackages: selected.dataPackages, referenceData: selected.referenceData, catalogs: selected.catalogs, fixtures, input: row.value.input, signal: controller.signal});
       }
       await assertGrants(principal, row.value.gameGrants);
       await assertEvidence(principal, row.value);
@@ -403,6 +511,7 @@ export function createWorkspaceService({store, executeJob, templates = TEMPLATES
         const {privateArtifacts, ...publicResult} = result; result = {...publicResult, candidateDownloadPath: `/api/developer/candidates/${jobId}`};
       }
       if (!result || !['passed', 'failed', 'not_run', 'needs_review'].includes(result.status)) fail('RUNNER_RESULT_INVALID', 'The isolated runner returned an invalid job result.');
+      result = boundedJobSummary(result);
       if (encode(JSON.stringify(result)).length > LIMITS.responseBytes) fail('RUNNER_OUTPUT_LIMIT', 'The isolated runner output exceeded its report limit.');
       const current = await readRequired(principal, 'jobs', jobId);
       if (current.value.status === 'cancelled') {
@@ -587,8 +696,18 @@ export function createWorkspaceService({store, executeJob, templates = TEMPLATES
       if (!draft.operations.length) fail('DRAFT_EMPTY', 'Stage at least one offline change first.');
       return startJob(principal, row, 'candidate', {...args, evidenceBindings: selected.evidenceBindings, gameGrants: selected.gameGrants, operations: draft.operations, draftId: draft.id, draftRevision: draft.revision, executionLockDigest: selected.executionLock.digest, aiAccessRequired});
     },
-    job_status: async (principal, args, context) => { await workspace(principal, args.workspaceId); const row = await readRequired(principal, 'jobs', args.jobId, args.workspaceId); await assertEvidence(principal, row.value); await assertGrants(principal, row.value.gameGrants); if (context.channel !== 'trusted-ui' && row.value.input.fixtureIds?.length) await fixtureInputs(principal, args.workspaceId, row.value.input.fixtureIds); const {input, gameGrants, ...job} = row.value; return {status: job.status, job}; },
-    job_cancel: async (principal, args) => { await workspace(principal, args.workspaceId); const row = await readRequired(principal, 'jobs', args.jobId, args.workspaceId); if (!['pending', 'running'].includes(row.value.status)) return {status: row.value.status, jobId: args.jobId}; controllers.get(args.jobId)?.abort(); await store.put(objectKey(principal, 'jobs', args.jobId), {...row.value, status: 'cancelled', finishedAt: now()}, {ifMatch: row.etag}); return {status: 'cancelled', jobId: args.jobId}; },
+    job_status: async (principal, args, context) => {
+      await workspace(principal, args.workspaceId); let row = await readRequired(principal, 'jobs', args.jobId, args.workspaceId);
+      await assertEvidence(principal, row.value); await assertGrants(principal, row.value.gameGrants);
+      if (context.channel !== 'trusted-ui') await assertJobFixtureAuthorization(principal, row.value, true);
+      if (row.value.resumable && ['pending', 'running'].includes(row.value.status)) {await runJobStep(principal, args.jobId, row); row = await readRequired(principal, 'jobs', args.jobId, args.workspaceId);}
+      // Recheck immediately before exposure, including consent for the channel.
+      await assertEvidence(principal, row.value); await assertGrants(principal, row.value.gameGrants);
+      if (context.channel !== 'trusted-ui') await assertJobFixtureAuthorization(principal, row.value, true);
+      const {input, gameGrants, consentProofs, phaseLease, checkpointDigest, ...job} = row.value;
+      return {status: job.status, job};
+    },
+    job_cancel: async (principal, args) => { await workspace(principal, args.workspaceId); const row = await readRequired(principal, 'jobs', args.jobId, args.workspaceId); if (!['pending', 'running'].includes(row.value.status)) return {status: row.value.status, jobId: args.jobId}; controllers.get(args.jobId)?.abort(); await store.put(objectKey(principal, 'jobs', args.jobId), {...row.value, status: 'cancelled', ...(row.value.resumable ? {phaseState: 'cancelled', phaseLease: null, checkpointDigest: null} : {}), finishedAt: now()}, {ifMatch: row.etag}); if (row.value.resumable) {await store.delete(objectKey(principal, 'jobcheckpoints', args.jobId)); await store.delete(objectKey(principal, 'candidates', args.jobId));} return {status: 'cancelled', jobId: args.jobId}; },
     preview_open: async (principal, args, context) => {
       await workspace(principal, args.workspaceId); const selected = await execution(principal, args);
       const available = [selected.primary, ...selected.extensions], view = args.uiArtifactId ? available.find(a => a.id === args.uiArtifactId) : available.find(a => a.manifest.ui) || selected.primary;
@@ -673,7 +792,7 @@ export function createWorkspaceService({store, executeJob, templates = TEMPLATES
       const {preview, primary, execution: selected, gameGrants} = await this.readPreview(principal, previewId);
       if (!executeJob) return {status: 'not_run', reason: 'An isolated runtime executor is not configured.'};
       const fixtures = await fixtureInputs(principal, preview.workspaceId, preview.fixtureIds, {ai: false});
-      const result = await executeJob({kind: 'inspect', package: {manifest: primary.manifest, files: primary.files}, extensions: selected.extensions.map(a => ({package: {manifest: a.manifest, files: a.files}})), executionLock: selected.executionLock, dataPackages: selected.dataPackages, catalogs: selected.catalogs, fixtures, input: {query}, signal});
+      const result = await executeJob({kind: 'inspect', package: {manifest: primary.manifest, files: primary.files}, extensions: selected.extensions.map(a => ({package: {manifest: a.manifest, files: a.files}})), executionLock: selected.executionLock, dataPackages: selected.dataPackages, referenceData: selected.referenceData, catalogs: selected.catalogs, fixtures, input: {query}, signal});
       await assertGrants(principal, gameGrants);
       await assertEvidence(principal, preview);
       if (encode(JSON.stringify(result)).length > LIMITS.responseBytes) fail('RUNNER_OUTPUT_LIMIT', 'The preview query exceeds its report limit.');
