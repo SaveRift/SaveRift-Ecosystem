@@ -30,6 +30,7 @@ async function reloadList(selectedId) {
   if (selectedId) $('#workspaces').value = selectedId;
 }
 async function loadWorkspace(id) {
+  $('#candidate-downloads').replaceChildren();
   clearMigrationReview(); migrationOpen = false; migrationGameId = '';
   frame?.revoke(); frame = undefined; preview = undefined; draft = undefined; artifactId = undefined;
   $('#extension-artifacts').value = ''; $('#preview-view').replaceChildren(el('option', 'Automatic view')); $('#preview-view').firstChild.value = '';
@@ -100,12 +101,16 @@ async function waitForJob(job) {
 }
 action('#build-plugin', async () => { const job = await waitForJob(await call('plugin_build', {workspaceId: workspace.id, expectedRevision: workspace.revision})); artifactId = job.result.artifactId; $('#artifact-state').textContent = `Built source revision ${job.result.sourceRevision} · ${artifactId}`; show('Immutable source package built. Run conformance before preparing a release.'); });
 action('#run-tests', async () => { if (!artifactId) throw Error('Build a source package first.'); const job = await waitForJob(await call('tests_run', {workspaceId: workspace.id, artifactId, fixtureIds: fixtures(), ...dependencySelection()})); show(job.status === 'passed' ? 'Isolated lifecycle, no-op byte parity and fresh-engine re-open passed. Game acceptance remains unverified.' : `Tests: ${job.status}. ${job.result.reason || ''}`); });
-action('#open-job', async () => { const jobId = $('#job-history').value; if (!workspace || !(workspace.jobs || []).some(job => job.id === jobId)) throw Error('Choose a saved job from this workspace.'); const job = await waitForJob({jobId}); show(`Saved ${job.type} job: ${job.status}. Game acceptance remains unverified.`); });
+action('#open-job', async () => { const jobId = $('#job-history').value; if (!workspace || !(workspace.jobs || []).some(job => job.id === jobId)) throw Error('Choose a saved job from this workspace.'); $('#candidate-downloads').replaceChildren(); const job = await waitForJob({jobId}); await candidateDownloads(job); show(`Saved ${job.type} job: ${job.status}. Game acceptance remains unverified.`); });
+async function candidateDownloads(job) {
+  $('#candidate-downloads').replaceChildren();
+  if (job.type === 'candidate' && job.status === 'passed' && job.result.candidateDownloadPath) { const output = await api(`/candidates/${job.id}`); for (const artifact of output.artifacts) { const link = el('a', `Download offline ${artifact.logicalPath}`, 'download'); link.href = artifact.downloadPath; $('#candidate-downloads').append(link); } }
+}
 async function candidate(args) {
   if (!artifactId) throw Error('Build a source package first.');
+  $('#candidate-downloads').replaceChildren(); $('#job-results').textContent = 'Starting offline validation…'; show('Validating your offline draft…');
   const job = await waitForJob(await call('candidate_prepare', {workspaceId: workspace.id, artifactId, fixtureIds: fixtures(), ...dependencySelection(), ...args}));
-  $('#candidate-downloads').replaceChildren();
-  if (job.result.candidateDownloadPath) { const output = await api(`/candidates/${job.id}`); for (const artifact of output.artifacts) { const link = el('a', `Download offline ${artifact.logicalPath}`, 'download'); link.href = artifact.downloadPath; $('#candidate-downloads').append(link); } }
+  await candidateDownloads(job);
   show(`Offline candidate ${job.status}. No Xbox write or public publication occurred.`); tab('run');
 }
 action('#prepare-candidate', async () => { const operations = JSON.parse($('#operations').value); await candidate({operations, ...(draft ? {expectedDraftRevision: draft.revision} : {})}); });
