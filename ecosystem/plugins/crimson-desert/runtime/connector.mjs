@@ -5665,9 +5665,15 @@ var crimson_map_reveal_exports = {};
 __export(crimson_map_reveal_exports, {
   MAP_REVEAL_REVISION: () => MAP_REVEAL_REVISION,
   createMapRevealPreview: () => createMapRevealPreview,
+  mapOutputWitness: () => mapOutputWitness,
   mapRevealProfile: () => mapRevealProfile,
   previewMapReveal: () => previewMapReveal
 });
+function mapOutputWitness(result, source) {
+  const proof = mapOutputWitnesses.get(result);
+  if (!proof || !import_buffer.Buffer.isBuffer(source) || !import_buffer.Buffer.isBuffer(result?.encoded) || hash(source) !== proof.sourceSha256 || hash(result.encoded) !== proof.outputSha256 || hash(JSON.stringify(result.report)) !== proof.reportSha256) return null;
+  return Object.freeze({ ...proof });
+}
 function metadata(raw, { compareTo } = {}) {
   const d = readDocument(raw, { captureTypes: ["FogSaveData"], listLimit: 0, hashPlaintext: false, ...compareTo ? { compareTo } : {} });
   for (const root of d.blocks) root.fields = null;
@@ -5721,16 +5727,19 @@ function createMapRevealPreview({ schemaPins = [mapRevealProfile.schemaSha256] }
     const encoded = changed ? await encodeSave(raw, decoded.header, nonce === void 0 ? {} : { nonce }) : import_buffer.Buffer.from(source), reopened = await decodeSave(encoded);
     if (!reopened.plaintext.equals(raw) || !encoded.subarray(0, 18).equals(source.subarray(0, 18)) || !encoded.subarray(74, 128).equals(source.subarray(74, 128)) || hash(source) !== sourceHash) fail12("CRIMSON_MAP_REOPEN_FAILED");
     if (!(await encodeSave(reopened.plaintext, reopened.header, { nonce: reopened.header.subarray(26, 42) })).equals(encoded)) fail12("CRIMSON_MAP_NATIVE_PARITY_FAILED");
-    return { encoded, report: { schema: MAP_REVEAL_REVISION, revision: mapRevealProfile.revision, status: changed ? "preview_ready" : "already_revealed", scope: mapRevealProfile.scope, sourceSha256: sourceHash, beforePlaintextSha256: hash(decoded.plaintext), afterPlaintextSha256: hash(raw), schemaSha256: before.schemaSha256, outputSha256: hash(encoded), encodedBytes: encoded.length, coverage: { encodedFogSegments: fog.code.count, fullyRevealedSegmentsBefore: alreadyRevealed, segmentsToReveal: changed, fullyRevealedSegmentsAfter: fog.code.count }, decodedDiff: changed ? [{ operation: "fog.revealMap", path: fog.path, objectType: "SimpleRunLengthEncodingSaveData", field: "_codeList", bytes: fog.code.count, changedBytes: changed, beforeSha256: hash(original), afterSha256: hash(raw.subarray(fog.code.start, fog.code.end)), fillValue: 255 }] : [], source: mapRevealProfile.source, validation: { nativeNoOpByteParity: true, fullTypedReparse: true, intendedFogArrayOnly: true, bytesOutsideFogRangeUnchanged: true, rleJumpingAndLengthsUnchanged: true, knowledgeUnchanged: true, discoveriesUnchanged: true, treasureStateUnchanged: true, questsUnchanged: true, inventoryCompanionsUnchanged: true, unknownHeaderBytesPreserved: true, hmacReverified: true, encodedOutputReopened: true, nonzeroListMetadataBefore: before.audit.nonzeroListMetadata, nonzeroListMetadataAfter: after.audit.nonzeroListMetadata }, sourceSaveUnchanged: true, canSend: false, cloudRequests: 0, publicationEnabled: false, gameAcceptance: "unverified_map_recipe", nexusUnlock: false, treasureReveal: false, modifiedDataStored: false } };
+    const result = { encoded, report: { schema: MAP_REVEAL_REVISION, revision: mapRevealProfile.revision, status: changed ? "preview_ready" : "already_revealed", scope: mapRevealProfile.scope, sourceSha256: sourceHash, beforePlaintextSha256: hash(decoded.plaintext), afterPlaintextSha256: hash(raw), schemaSha256: before.schemaSha256, outputSha256: hash(encoded), encodedBytes: encoded.length, coverage: { encodedFogSegments: fog.code.count, fullyRevealedSegmentsBefore: alreadyRevealed, segmentsToReveal: changed, fullyRevealedSegmentsAfter: fog.code.count }, decodedDiff: changed ? [{ operation: "fog.revealMap", path: fog.path, objectType: "SimpleRunLengthEncodingSaveData", field: "_codeList", bytes: fog.code.count, changedBytes: changed, beforeSha256: hash(original), afterSha256: hash(raw.subarray(fog.code.start, fog.code.end)), fillValue: 255 }] : [], source: mapRevealProfile.source, validation: { nativeNoOpByteParity: true, fullTypedReparse: true, intendedFogArrayOnly: true, bytesOutsideFogRangeUnchanged: true, rleJumpingAndLengthsUnchanged: true, knowledgeUnchanged: true, discoveriesUnchanged: true, treasureStateUnchanged: true, questsUnchanged: true, inventoryCompanionsUnchanged: true, unknownHeaderBytesPreserved: true, hmacReverified: true, encodedOutputReopened: true, nonzeroListMetadataBefore: before.audit.nonzeroListMetadata, nonzeroListMetadataAfter: after.audit.nonzeroListMetadata }, sourceSaveUnchanged: true, canSend: false, cloudRequests: 0, publicationEnabled: false, gameAcceptance: "unverified_map_recipe", nexusUnlock: false, treasureReveal: false, modifiedDataStored: false } };
+    mapOutputWitnesses.set(result, Object.freeze({ kind: "native-map-byte-proof", sourceSha256: sourceHash, outputSha256: result.report.outputSha256, plaintextSha256: result.report.afterPlaintextSha256, schemaSha256: before.schemaSha256, audit: Object.freeze({ advisoryLocators: after.audit.advisoryLocators, unconsumedBytes: after.audit.unconsumedBytes, nonzeroListMetadata: after.audit.nonzeroListMetadata }), reportSha256: hash(JSON.stringify(result.report)) }));
+    return result;
   };
 }
-var fogFields, rleFields, MAP_REVEAL_REVISION, mapRevealProfile, fail12, previewMapReveal;
+var mapOutputWitnesses, fogFields, rleFields, MAP_REVEAL_REVISION, mapRevealProfile, fail12, previewMapReveal;
 var init_crimson_map_reveal = __esm({
   "src/crimson-map-reveal.mjs"() {
     init_buffer();
     init_crimson_codec();
     init_crimson_document();
     init_source_binding();
+    mapOutputWitnesses = /* @__PURE__ */ new WeakMap();
     fogFields = [{ name: "_fogRLESaveData", type: "ReflectObject", kind: 4, size: 8, aux: 8 }];
     rleFields = [{ name: "_jumpingTable", type: "uint32", kind: 3, size: 4, aux: 4096 }, { name: "_codeList", type: "uint8", kind: 3, size: 1, aux: 4096 }, { name: "_lengthList", type: "uint8", kind: 3, size: 1, aux: 4096 }];
     MAP_REVEAL_REVISION = "saveglass.map-reveal-preview.v1";
@@ -5790,7 +5799,7 @@ function createMixedDraftCompiler({ schemaPins = [CRIMSON_CURRENT_SCHEMA], struc
     const { bytes: source, prepared } = structuralSourcePayload(backup, ownedMetadata, input), decoded = prepared?.decoded || await decodeSave(source), before = prepared?.document || metadata2(decoded.plaintext);
     if (decoded.version !== 2 || before.schemaSha256 !== input.schemaSha256 || before.plaintextSha256 !== input.plaintextSha256 || before.audit.advisoryLocators || before.audit.unconsumedBytes) fail13("MIXED_SOURCE_CHANGED");
     if (!await preparedSourceNativeParity(backup, ownedMetadata, input, decoded, source, encodeSave)) fail13("MIXED_NATIVE_PARITY_FAILED");
-    let working = source, plainHash = before.plaintextSha256;
+    let working = source, plainHash = before.plaintextSha256, finalMap;
     const stages = [], diff = [], nonCart = input.operations.filter((op) => !cartography.includes(op.operation));
     async function accept(domain, result, { operations = false, structural = false, expectedPlanSha256, expectedBindings } = {}) {
       const { encoded, report: report2 } = result || {}, v = report2?.validation;
@@ -5801,6 +5810,7 @@ function createMixedDraftCompiler({ schemaPins = [CRIMSON_CURRENT_SCHEMA], struc
       } else if (report2.sourceSaveUnchanged !== true || report2.cloudRequests !== 0 || report2.canSend !== false || v.nativeNoOpByteParity !== true || (domain === "unlock-nexus" ? !checkNexus(report2) : !checkMap(report2))) fail13("MIXED_STAGE_SCOPE_INVALID");
       const reopened2 = await decodeSave(encoded);
       if (report2.afterPlaintextSha256 !== hash(reopened2.plaintext)) fail13("MIXED_STAGE_CHAIN_INVALID");
+      finalMap = domain === "reveal-map" && mapOutputWitness(result, working) ? { result, source: working } : null;
       stages.push({ domain, compilerRevision: report2.revision || report2.compilerRevision || report2.schema, sourceSha256: hash(working), beforePlaintextSha256: plainHash, outputSha256: hash(encoded), afterPlaintextSha256: report2.afterPlaintextSha256, decodedDiffRecords: report2.decodedDiff.length, decodedDiffSha256: hash(JSON.stringify(canonical3(report2.decodedDiff))), validation: v, runtimeRequirements: report2.runtimeRequirements || [] });
       diff.push(...report2.decodedDiff);
       working = encoded;
@@ -5821,13 +5831,14 @@ function createMixedDraftCompiler({ schemaPins = [CRIMSON_CURRENT_SCHEMA], struc
     }
     if (mixedPlanDigest(input) !== requestedPlanSha256 || mixedPlanDigest(suppliedInput) !== requestedPlanSha256) fail13("MIXED_INTENT_CHANGED");
     if (!diff.length) fail13("MIXED_ALREADY_SATISFIED", "These changes are already present in the selected save.");
-    const reopened = await decodeSave(working), after = metadata2(reopened.plaintext);
-    if (after.schemaSha256 !== before.schemaSha256 || after.plaintextSha256 !== plainHash || after.audit.advisoryLocators || after.audit.unconsumedBytes || after.audit.nonzeroListMetadata !== before.audit.nonzeroListMetadata || !working.subarray(0, 18).equals(source.subarray(0, 18)) || !working.subarray(74, 128).equals(source.subarray(74, 128)) || hash(source) !== input.payloadSha256 || !(await encodeSave(reopened.plaintext, reopened.header, { nonce: reopened.header.subarray(26, 42) })).equals(working)) fail13("MIXED_REOPEN_FAILED");
+    const reopened = await decodeSave(working), proof = finalMap && mapOutputWitness(finalMap.result, finalMap.source);
+    const after = proof ? { schemaSha256: proof.schemaSha256, plaintextSha256: hash(reopened.plaintext), audit: proof.audit } : metadata2(reopened.plaintext);
+    if (proof && (after.plaintextSha256 !== proof.plaintextSha256 || hash(working) !== proof.outputSha256) || after.schemaSha256 !== before.schemaSha256 || after.plaintextSha256 !== plainHash || after.audit.advisoryLocators || after.audit.unconsumedBytes || after.audit.nonzeroListMetadata !== before.audit.nonzeroListMetadata || !working.subarray(0, 18).equals(source.subarray(0, 18)) || !working.subarray(74, 128).equals(source.subarray(74, 128)) || hash(source) !== input.payloadSha256 || !proof && !(await encodeSave(reopened.plaintext, reopened.header, { nonce: reopened.header.subarray(26, 42) })).equals(working)) fail13("MIXED_REOPEN_FAILED");
     const fullDigest = hash(JSON.stringify(canonical3(diff))), summary2 = () => [...new Set(diff.map((d) => d.operation))].sort().map((operation) => {
       const rows2 = diff.filter((d) => d.operation === operation);
       return { operation, records: rows2.length, recordsSha256: hash(JSON.stringify(canonical3(rows2))) };
     });
-    const report = { schema: "saveglass.mixed-draft-preview.v1", revision: "saverift.mixed-stage-union.2026-11-01.v1", source: "plugin_bundle", backupId: ownedMetadata.id, backupSha256: ownedMetadata.sha256, backupRevision: backup.revision, container: input.container, payload: "save", payloadSha256: input.payloadSha256, schemaSha256: before.schemaSha256, decoderRevision: DECODER_REVISION, catalogRevision: CATALOG_REVISION, beforePlaintextSha256: before.plaintextSha256, afterPlaintextSha256: after.plaintextSha256, encodedSha256: hash(working), encodedBytes: working.length, planSha256: requestedPlanSha256, operations: input.operations, decodedDiff: retainEncoded ? summary2() : diff, fullDecodedDiffSha256: fullDigest, fullDecodedDiffRecords: diff.length, decodedDiffDetail: retainEncoded ? "digest_bound_stage_union" : "full_stage_union", stages, runtimeRequirements: stages.flatMap((s) => s.runtimeRequirements), validation: { allOtherDecodedValuesUnchanged: true, stagewiseIntendedOnlyUnion: true, stageEncodedAndPlaintextChainVerified: true, originalNoOpByteParity: true, nativeLz4NoOpByteParity: true, hmacReverified: true, encodedOutputReopened: true, unknownHeaderBytesPreserved: true, nonzeroListMetadataPreserved: true, nonzeroListMetadataBefore: before.audit.nonzeroListMetadata, nonzeroListMetadataAfter: after.audit.nonzeroListMetadata, originalBackupUnchanged: true, finalTypedDocumentReparsed: true }, pairedLobbyUnchanged: true, originalBackupUnchanged: true, modifiedSaveStored: false, cloudRequests: 0, draftOnly: true, writesEnabled: false, publishEligible: false };
+    const report = { schema: "saveglass.mixed-draft-preview.v1", revision: "saverift.mixed-stage-union.2026-11-01.v1", source: "plugin_bundle", backupId: ownedMetadata.id, backupSha256: ownedMetadata.sha256, backupRevision: backup.revision, container: input.container, payload: "save", payloadSha256: input.payloadSha256, schemaSha256: before.schemaSha256, decoderRevision: DECODER_REVISION, catalogRevision: CATALOG_REVISION, beforePlaintextSha256: before.plaintextSha256, afterPlaintextSha256: after.plaintextSha256, encodedSha256: hash(working), encodedBytes: working.length, planSha256: requestedPlanSha256, operations: input.operations, decodedDiff: retainEncoded ? summary2() : diff, fullDecodedDiffSha256: fullDigest, fullDecodedDiffRecords: diff.length, decodedDiffDetail: retainEncoded ? "digest_bound_stage_union" : "full_stage_union", stages, runtimeRequirements: stages.flatMap((s) => s.runtimeRequirements), validation: { allOtherDecodedValuesUnchanged: true, stagewiseIntendedOnlyUnion: true, stageEncodedAndPlaintextChainVerified: true, originalNoOpByteParity: true, nativeLz4NoOpByteParity: true, hmacReverified: true, encodedOutputReopened: true, unknownHeaderBytesPreserved: true, nonzeroListMetadataPreserved: true, nonzeroListMetadataBefore: before.audit.nonzeroListMetadata, nonzeroListMetadataAfter: after.audit.nonzeroListMetadata, originalBackupUnchanged: true, finalTypedDocumentReparsed: true, finalValidation: proof ? "native-map-byte-proof" : "fresh-final-document" }, pairedLobbyUnchanged: true, originalBackupUnchanged: true, modifiedSaveStored: false, cloudRequests: 0, draftOnly: true, writesEnabled: false, publishEligible: false };
     return retainEncoded ? { report, encoded: working } : report;
   };
 }
