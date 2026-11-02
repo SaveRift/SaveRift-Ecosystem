@@ -4,6 +4,7 @@ import {Buffer} from './buffer.mjs';
 import {hash,canonicalJson} from './crypto.mjs';
 import {LIMITS,LIFECYCLE,RUNTIME_PROFILE,PluginError,fail,jsonCopy,logicalPath,validatePackage,createSaveBundle,digest} from './contracts.mjs';
 import {executionProfile} from './execution-profiles.mjs';
+import {createFormatSha256Host,FORMAT_SHA256_LIMITS} from './format-sha256-host.mjs';
 import {createExecutionLock as createPinnedLock,verifyExecutionLock} from './registry.mjs';
 
 const PAGE=65536;
@@ -44,6 +45,7 @@ export async function createPluginSession(options,host={}){
   const metrics={runner:RUNTIME_PROFILE,engine:'quickjs-2025-09-13+f1139494/wasm-0.32.0',packageDigest:pkg.packageDigest,executionLockDigest:lock.digest,inputBytes,outputBytes:0,interrupts:0,hostCalls:0,elapsedMs:0,memoryBytes:0};
   function check(){if(closed)fail('SESSION_CLOSED','The isolated session has closed.');if(signal?.aborted)fail('JOB_ABORTED','The plugin job was cancelled.');if(Date.now()>deadline)fail('CPU_LIMIT','The plugin execution deadline was exceeded.');}
   check();
+  const formatSha256=createFormatSha256Host({check});
   let memory=new WebAssembly.Memory({initial:256,maximum:limits.memoryBytes/PAGE});
   let customized=newVariant(variant,{wasmMemory:memory,...(host.wasmModule?{wasmModule:host.wasmModule}:{})});
   let QuickJS=host.instantiateModule?await host.instantiateModule(customized):await newQuickJSWASMModuleFromVariant(customized);
@@ -55,12 +57,15 @@ export async function createPluginSession(options,host={}){
   // the public factory so every context is disposed before JS_FreeRuntime.
   const contexts=new Set();let newContext=runtime.newContext.bind(runtime);
   runtime.newContext=(...args)=>{const value=newContext(...args);contexts.add(value);return value;};
-  let context=runtime.newContext();
+  let context=runtime.newContext(),arrayBufferByteLengthGetter=null,regexpExec=null,idRejectedCharacters=null,textNonAscii=null,textUnsafeEncoding=null;
+  const intrinsicHandles=[];
   function guestError(handle){let value;try{value=context.dump(handle);}catch{value=null;}const detail=value?.message||'Plugin execution failed.';
     if(signal?.aborted)return new PluginError('JOB_ABORTED','The plugin job was cancelled.');if(interrupts>limits.interrupts||Date.now()>deadline)return new PluginError('CPU_LIMIT','The plugin computation exceeded its execution budget.');if(/out of memory|allocation|stack overflow/i.test(detail))return new PluginError('MEMORY_LIMIT','The plugin exceeded its memory or stack limit.');return new PluginError(value?.code||'PLUGIN_EXECUTION_FAILED',String(detail).slice(0,512));
   }
   function unwrap(result){if(result.error){const error=guestError(result.error);result.error.dispose();throw error;}return result.value;}
   function evalGuest(code,file='saverift-host.js'){return unwrap(context.evalCode(code,file,{type:'global'}));}
+  function captureIntrinsic(code){const value=evalGuest(code,'saverift-binary-intrinsics.js');intrinsicHandles.push(value);return value;}
+  function disposeIntrinsics(){for(const value of intrinsicHandles.reverse())if(value.alive)value.dispose();intrinsicHandles.length=0;arrayBufferByteLengthGetter=regexpExec=idRejectedCharacters=textNonAscii=textUnsafeEncoding=null;}
   function addFunction(name,implementation){const fn=context.newFunction(name,(...args)=>{try{check();hostCalls++;if(hostCalls>limits.hostCalls)fail('HOST_CALL_LIMIT','The plugin exceeded its host-call budget.');return implementation(...args);}catch(error){const guest=context.newError({name:'PluginError',message:error.code||'HOST_CALL_REJECTED'}),code=context.newString(error.code||'HOST_CALL_REJECTED');context.setProp(guest,'code',code);code.dispose();return {error:guest};}});context.setProp(context.global,name,fn);fn.dispose();}
   const string=handle=>context.getString(handle);
   function json(handle){const text=string(handle);if(Buffer.byteLength(text)>limits.jsonBytes)fail('JSON_LIMIT','A plugin message exceeds the JSON limit.');return jsonCopy(JSON.parse(text),limits.jsonBytes);}
@@ -79,6 +84,48 @@ export async function createPluginSession(options,host={}){
   addFunction('__saveriftProgress',arg=>{const event=json(arg);if(typeof event.phase!=='string'||event.phase.length>80||!Number.isSafeInteger(event.completed)||event.completed<0||(event.total!==undefined&&(!Number.isSafeInteger(event.total)||event.total<event.completed)))fail('PROGRESS_INVALID','Progress must be bounded counters.');host.onProgress?.(event);return context.undefined;});
   addFunction('__saveriftCatalog',arg=>{const query=json(arg);if(!host.catalogQuery)fail('CATALOG_UNAVAILABLE','No pinned catalog is attached.');const value=jsonCopy(host.catalogQuery(query,{executionLock:lock}),limits.jsonBytes);return context.newString(JSON.stringify(value));});
   addFunction('__saveriftCancelled',()=>{check();return context.undefined;});
+  function stringLength(handle){const value=context.getProp(handle,'length');try{return context.getNumber(value);}finally{value.dispose();}}
+  function matchesFixedRegex(regex,handle){const value=unwrap(context.callFunction(regexpExec,regex,handle));try{return!context.eq(value,context.null);}finally{value.dispose();}}
+  const hashId=handle=>{
+    if(context.typeof(handle)!=='string')fail('FORMAT_HASH_SCOPE_DENIED','A format hash stream ID is required.');
+    const length=stringLength(handle);
+    if(!Number.isSafeInteger(length)||length<1||length>64||matchesFixedRegex(idRejectedCharacters,handle))fail('FORMAT_HASH_SCOPE_DENIED','This format hash stream is unavailable.');
+    return string(handle);
+  };
+  addFunction('__saveriftSha256Init',()=>context.newString(formatSha256.init()));
+  addFunction('__saveriftSha256Update',(idArg,arrayArg)=>{
+    const id=hashId(idArg),measured=context.callFunction(arrayBufferByteLengthGetter,arrayArg);
+    if(measured.error){measured.error.dispose();fail('FORMAT_HASH_BUFFER_REQUIRED','A genuine binary ArrayBuffer is required.');}
+    let length;try{length=context.getNumber(measured.value);}finally{measured.value.dispose();}
+    // QTS_GetArrayBuffer materializes/copies the complete guest buffer. Bound
+    // its intrinsic branded length first; own properties, prototype replacement
+    // and Proxy traps cannot impersonate or hide the true ArrayBuffer size.
+    if(!Number.isSafeInteger(length)||length<0||length>65536)fail('FORMAT_HASH_CHUNK_LIMIT','Format hash chunks are limited to 64 KiB.');
+    const view=context.getArrayBuffer(arrayArg);
+    try{formatSha256.update(id,view.value);return context.undefined;}finally{view.dispose();}
+  });
+  addFunction('__saveriftSha256Final',idArg=>{const out=formatSha256.final(hashId(idArg));return context.newArrayBuffer(out.buffer.slice(out.byteOffset,out.byteOffset+out.byteLength));});
+  addFunction('__saveriftSha256Abort',idArg=>{formatSha256.abort(hashId(idArg));return context.undefined;});
+  addFunction('__saveriftSha256UpdateText',(idArg,textArg)=>{
+    const id=hashId(idArg);
+    if(context.typeof(textArg)!=='string')fail('FORMAT_HASH_TEXT_REQUIRED','A primitive format-hash string is required.');
+    // Primitive String's own virtual length is intrinsic; no object coercion,
+    // user getter or prototype property is consulted. Bound before getString.
+    const length=stringLength(textArg);
+    if(!Number.isSafeInteger(length)||length>FORMAT_SHA256_LIMITS.textAsciiCodeUnits)fail('FORMAT_HASH_TEXT_CHUNK_LIMIT','The format-hash text chunk exceeds its fixed limit.');
+    const nonAscii=matchesFixedRegex(textNonAscii,textArg);
+    if(nonAscii&&length>FORMAT_SHA256_LIMITS.textBmpCodeUnits)fail('FORMAT_HASH_TEXT_CHUNK_LIMIT','Non-ASCII format-hash text is limited to 16 Ki UTF-16 units.');
+    // QTS_GetString/UTF8ToString truncates NUL, strips a leading BOM and does
+    // not round-trip lone surrogates. The SDK uses the existing binary channel
+    // for these values; reject them before any host string materialization.
+    if(nonAscii&&matchesFixedRegex(textUnsafeEncoding,textArg))fail('FORMAT_HASH_TEXT_ENCODING','Use binary format-hash input for this Unicode chunk.');
+    check();const bytes=Buffer.from(string(textArg));
+    // ASCII <=64 Ki units or surrogate-free BMP <=16 Ki units materializes
+    // at most 64 KiB UTF-8, including the transient host copy. No encoding is
+    // caller-selectable and no input bytes are returned to the guest.
+    if(bytes.length>FORMAT_SHA256_LIMITS.chunkBytes)fail('FORMAT_HASH_TEXT_CHUNK_LIMIT','The encoded format-hash text chunk exceeds 64 KiB.');
+    formatSha256.update(id,bytes);return context.undefined;
+  });
   runtime.setModuleLoader(name=>{const file=pkg.files.get(name);if(!file||!/\.(?:mjs|js)$/.test(name))throw new Error('IMPORT_DENIED');return Buffer.from(file).toString('utf8');},(base,request)=>normalizedModule(request,base));
   // The wrapper and all intrinsics execute inside QuickJS. No host objects,
   // Function constructors, URL loaders or promises are passed into the guest.
@@ -98,16 +145,21 @@ export async function createPluginSession(options,host={}){
     globalThis.__saveriftInvoke=async function(method,args){const fn=__saveriftConnector[method];if(typeof fn!=='function')throw Error('METHOD_UNAVAILABLE');const value=await fn.call(__saveriftConnector,...args,__saveriftContext);const json=JSON.stringify(value===undefined?null:value);if(json.length>__limits.jsonBytes)throw Error('JSON_LIMIT');return json;};
   `;
   try{
+    arrayBufferByteLengthGetter=captureIntrinsic('Object.getOwnPropertyDescriptor(ArrayBuffer.prototype,"byteLength").get');
+    regexpExec=captureIntrinsic('RegExp.prototype.exec');
+    idRejectedCharacters=captureIntrinsic('/[^a-f0-9:]/');
+    textNonAscii=captureIntrinsic('/[^\\x01-\\x7f]/');
+    textUnsafeEncoding=captureIntrinsic('/[\\u0000\\ud800-\\udfff\\ufeff]/');
     const bootstrapResult=evalGuest(bootstrap);bootstrapResult.dispose();
     const entry=pkg.manifest.entrypoints.runtime;
     const loaded=unwrap(context.evalCode(`import connector from './${entry}'; globalThis.__saveriftConnector=connector;`,'saverift-entry.mjs',{type:'module'}));loaded.dispose();
-  }catch(error){for(const value of contexts)if(value.alive)value.dispose();runtime.dispose();throw error;}
+  }catch(error){formatSha256.close();disposeIntrinsics();for(const value of contexts)if(value.alive)value.dispose();runtime.dispose();throw error;}
   async function settle(handle){
     let count=0;for(;;){check();const state=context.getPromiseState(handle);if(state.type==='fulfilled')return state.value;if(state.type==='rejected'){const error=guestError(state.error);state.error.dispose();throw error;}
       if(!runtime.hasPendingJob())fail('ASYNC_UNSUPPORTED','The plugin promise waits on unavailable ambient I/O.');if(++count>limits.pendingJobs)fail('PENDING_JOB_LIMIT','The plugin exceeded its pending-job budget.');const jobs=runtime.executePendingJobs(1);if(jobs.error){const error=guestError(jobs.error);jobs.error.dispose();throw error;}
     }
   }
-  function updateMetrics(){metrics.outputBytes=outputBytes;metrics.interrupts=interrupts;metrics.hostCalls=hostCalls;metrics.elapsedMs=Date.now()-started;if(memory)metrics.memoryBytes=memory.buffer.byteLength;if(runtime)metrics.contextsCreated=contexts.size;return {...metrics};}
+  function updateMetrics(){metrics.outputBytes=outputBytes;metrics.interrupts=interrupts;metrics.hostCalls=hostCalls;metrics.elapsedMs=Date.now()-started;Object.assign(metrics,formatSha256.metrics());if(memory)metrics.memoryBytes=memory.buffer.byteLength;if(runtime)metrics.contextsCreated=contexts.size;return {...metrics};}
   const allowed=new Set([...LIFECYCLE,...(pkg.manifest.methods||[])]);
   return {
     packageDigest:pkg.packageDigest,executionLock:lock,bundle,
@@ -120,7 +172,7 @@ export async function createPluginSession(options,host={}){
     },
     artifacts(){return new Map([...outputs].map(([id,bytes])=>[id,new Uint8Array(bytes)]));},
     metrics:updateMetrics,
-    close(){if(closed)return;updateMetrics();try{let pending=0;while(runtime.hasPendingJob()){check();if(++pending>limits.pendingJobs)fail('PENDING_JOB_LIMIT','The plugin exceeded its cleanup pending-job budget.');const jobs=runtime.executePendingJobs(1);if(jobs.error){const error=guestError(jobs.error);jobs.error.dispose();throw error;}}for(const value of contexts)if(value.alive)value.dispose();runtime.dispose();}catch(error){if(!lastFailure)throw new PluginError('RUNTIME_DISPOSAL_FAILED','The isolated instance failed to dispose.');metrics.disposalFailed=true;}finally{closed=true;context=null;runtime=null;memory=null;newContext=null;contexts.clear();inputs.clear();outputs.clear();}}
+    close(){if(closed)return;updateMetrics();try{let pending=0;while(runtime.hasPendingJob()){check();if(++pending>limits.pendingJobs)fail('PENDING_JOB_LIMIT','The plugin exceeded its cleanup pending-job budget.');const jobs=runtime.executePendingJobs(1);if(jobs.error){const error=guestError(jobs.error);jobs.error.dispose();throw error;}}disposeIntrinsics();for(const value of contexts)if(value.alive)value.dispose();runtime.dispose();}catch(error){if(!lastFailure)throw new PluginError('RUNTIME_DISPOSAL_FAILED','The isolated instance failed to dispose.');metrics.disposalFailed=true;}finally{formatSha256.close();disposeIntrinsics();closed=true;context=null;runtime=null;memory=null;newContext=null;contexts.clear();inputs.clear();outputs.clear();}}
   };
 }
 export async function runPlugin(options,host){

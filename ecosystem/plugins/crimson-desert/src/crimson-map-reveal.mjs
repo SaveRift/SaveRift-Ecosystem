@@ -19,7 +19,7 @@ const fail=code=>{throw new CodecError('The map-reveal preview stopped at its co
 function metadata(raw,{compareTo}={}){
  // Strict traversal still visits every root, list, scalar and array. Release
  // UI projections immediately; this operation needs only schema/audit/diff.
- const d=readDocument(raw,{...(compareTo?{compareTo}:{}),onScalar:()=>{}});
+ const d=readDocument(raw,{captureTypes:['FogSaveData'],listLimit:0,hashPlaintext:false,...(compareTo?{compareTo}:{})});
  for(const root of d.blocks)root.fields=null;return d;
 }
 function locateFog(raw,schema){

@@ -7,11 +7,11 @@ import {validatePackage} from '../sdk/contracts.mjs';
 import {createPluginSession, runPlugin} from '../sdk/runner.mjs';
 import {createSaveBundle, LIMITS as SDK_LIMITS} from '../sdk/contracts.mjs';
 import {canonicalJson} from '../sdk/crypto.mjs';
-import {queryCatalog} from '../sdk/data.mjs';
 import {operationDigest, compileOperationLog} from '../sdk/draft.mjs';
 import {validateExecutionPackages} from '../sdk/registry.mjs';
 import {sha256, fail} from './storage.mjs';
-import {inputs, candidateFiles, requiredChecksPassed} from './executor-shared.mjs';
+import {inputs, candidateFiles, requiredChecksPassed, executionHost} from './executor-shared.mjs';
+import {referenceDataFor} from './reference-data.mjs';
 
 const SCHEMA = 'saverift.isolated-job-checkpoint.v1';
 export const PHASE_CHECKPOINT_LIMITS = Object.freeze({bytes: 8 * 1024 * 1024, controlBytes: 2 * 1024 * 1024, phases: 132, jobWallMs: 60000});
@@ -44,12 +44,12 @@ function boundedCheckpoint(state) {
 
 /** Advance at most one fresh isolated engine; no completed engine is replayed. */
 export function createPhaseExecutor(host = {}) {
-  return async function step({kind, package: pkg, extensions = [], executionLock, dataPackages = [], catalog, catalogs = catalog ? [catalog] : [], fixtures, input = {}, signal, jobStartedAt}, checkpoint = null) {
+  return async function step({kind, package: pkg, extensions = [], executionLock, dataPackages = [], referenceData, catalog, catalogs = catalog ? [catalog] : [], fixtures, input = {}, signal, jobStartedAt}, checkpoint = null) {
     validateExecutionPackages(executionLock, [pkg, ...extensions.map(e => e.package), ...dataPackages]);
     if (!fixtures.length) return {done: true, result: {status: 'not_run', reason: 'Select an explicitly authorized fixture to run lifecycle/no-op tests.'}};
     if (!['inspect', 'tests', 'candidate'].includes(kind)) fail('JOB_KIND_INVALID', 'The isolated continuation kind is unsupported.');
-    const token = host.executionProfileFor?.(validatePackage(pkg)), profile = executionProfile(token, validatePackage(pkg).packageDigest);
-    const selected = inputs(fixtures), operations = kind === 'tests' ? [] : input.operations;
+    const primary = validatePackage(pkg), token = host.executionProfileFor?.(primary), profile = executionProfile(token, primary.packageDigest), managed = referenceDataFor(primary.packageDigest, referenceData, executionLock);
+    const selected = inputs(fixtures, managed.artifacts), managedIds = new Set(managed.artifacts.map(value => value.id)), operations = kind === 'tests' ? [] : input.operations;
     const binding = digest({profile, kind, bundle: selected.bundle.bundleDigest, executionLock: executionLock.digest, operations: operations || null, query: input.query || null, catalogs});
     const state = checkpoint ? copy(checkpoint) : {schema: SCHEMA, binding, startedAt: jobStartedAt ?? Date.now(), phase: 'inspection', checks: [], phases: [], runs: []};
     if (state.schema !== SCHEMA || state.binding !== binding || !integer(state.startedAt) || state.startedAt > Date.now() || !['inspection', 'compile', 'validation', 'reopen'].includes(state.phase) || !Array.isArray(state.checks) || !Array.isArray(state.phases) || !Array.isArray(state.runs) || state.phases.length > PHASE_CHECKPOINT_LIMITS.phases || state.runs.length > 129) fail('JOB_CHECKPOINT_INVALID', 'This continuation belongs to another immutable input or is malformed.');
@@ -75,11 +75,7 @@ export function createPhaseExecutor(host = {}) {
       for (const key of Object.keys(consumed)) {const value = key === 'outputArtifacts' ? count : metrics[key]; if (!integer(value)) fail('RUNNER_METRICS_INVALID', 'The runner resource report is invalid.'); consumed[key] += value; if (consumed[key] > SDK_LIMITS[key]) fail('JOB_RESOURCE_LIMIT', 'The shared isolated job budget was exceeded.');}
       state.phases.push(row); budget();
     }
-    const pinnedHost = catalogs.length ? {...host, catalogQuery: query => {
-      const matches = query.catalogId ? catalogs.filter(value => value.catalogId === query.catalogId) : catalogs;
-      if (matches.length !== 1) fail('CATALOG_SELECTION_REQUIRED', 'Select one exact pinned reference-data catalog.');
-      return queryCatalog(matches[0], query);
-    }} : host;
+    const pinnedHost = executionHost(host, catalogs, managed.resources);
     const pending = () => ({done: false, checkpoint: boundedCheckpoint(state), progress: {phase: state.phase, completedEngines: state.phases.length, elapsedMs: Date.now() - state.startedAt}});
     let engineUsed = false;
     if (state.phase === 'inspection') {
@@ -124,7 +120,7 @@ export function createPhaseExecutor(host = {}) {
     try { planned = await compilation(); } catch (error) {if (error === PHASE_YIELD) return pending(); throw error;}
     const candidate = planned.result, outputs = planned.artifacts;
     if (candidate.inputBundleDigest !== selected.bundle.bundleDigest || candidate.executionLockDigest !== executionLock.digest || candidate.operationDigest !== operationDigest(operations)) fail('CANDIDATE_BINDING_INVALID', 'Candidate source, dependency lock or operation binding changed.');
-    const descriptors = candidateFiles(selected.bundle, candidate, outputs, selected.artifacts, pkg), finalArtifacts = new Map([...selected.artifacts, ...outputs]);
+    const descriptors = candidateFiles(selected.bundle, candidate, outputs, selected.artifacts, pkg, managedIds), finalArtifacts = new Map([...selected.artifacts, ...outputs]);
     if (state.phase === 'compile') state.phase = 'validation';
     if (state.phase === 'validation') {
       const newlySelected = [...outputs].filter(([id]) => !selected.artifacts.has(id)).map(([id, bytes]) => candidate.outputs.find(item => item.id === id) || {id, logicalPath: `reports/${id}.json`, role: 'validation-report', byteLength: bytes.length, sha256: sha256(bytes)});
@@ -142,7 +138,7 @@ export function createPhaseExecutor(host = {}) {
       state.phase = 'reopen'; return pending();
     }
     if (state.phase !== 'reopen') fail('JOB_CHECKPOINT_INVALID', 'The continuation phase is invalid.');
-    const supporting = selected.bundle.artifacts.filter(item => (pkg.manifest.workbench?.inputOnlyRoles || []).includes(item.role) && !descriptors.some(descriptor => descriptor.id === item.id));
+    const supporting = selected.bundle.artifacts.filter(item => (managedIds.has(item.id) || (pkg.manifest.workbench?.inputOnlyRoles || []).includes(item.role)) && !descriptors.some(descriptor => descriptor.id === item.id));
     const finalBundle = createSaveBundle([...descriptors, ...supporting], {id: 'candidate'});
     let reopened = await createPluginSession({package: pkg, executionLock, bundle: finalBundle, artifacts: finalArtifacts, signal, executionProfile: token, limits: budget()}, pinnedHost), reopenedQuery;
     try {

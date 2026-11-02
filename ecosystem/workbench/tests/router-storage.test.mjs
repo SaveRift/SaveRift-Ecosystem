@@ -44,7 +44,8 @@ test('directory store persists source privately and serializes conditional write
     const reopened = await createDirectoryStore(directory); assert.equal((await reopened.get('test/object')).value.hello, 'persisted');
     const results = await Promise.allSettled([store.put('test/object', {hello: 'a'}, {ifMatch: row.etag}), reopened.put('test/object', {hello: 'b'}, {ifMatch: row.etag})]);
     assert.equal(results.filter(r => r.status === 'fulfilled').length, 1);
-    assert.equal((await stat(directory)).mode & 0o777, 0o700);
+    // Windows exposes synthesized POSIX mode bits; chmod is checked on Unix.
+    if(process.platform!=='win32')assert.equal((await stat(directory)).mode & 0o777, 0o700);
   } finally { await rm(directory, {recursive: true, force: true}); }
 });
 

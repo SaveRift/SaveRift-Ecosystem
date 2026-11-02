@@ -1,19 +1,19 @@
 // MPL-2.0. Metadata-driven relocation shared by isolated offline controls.
 // No route, cloud authorization, item construction or publication policy here.
 import {Buffer} from '../../../sdk/buffer.mjs';
-import {createHash} from '../../../sdk/crypto.mjs';
+import {createScalarDigest} from './scalar-digest.mjs';
 import {CodecError} from './crimson-codec.mjs';
 import {readDocument} from './crimson-document.mjs';
 const MAX_ID=0xffffffffffffffffn;
 const fail=code=>{throw new CodecError('The offline structural layout check stopped.',code);};
-export function traceStructuralDocument(raw,{skipStart=-1,skipEnd=-1,captureRelocation=true,captureTypes,listLimit}={}){
- const locators=[],objects=[],identities=[],digest=createHash('sha256');let scalarCount=0;
- const document=readDocument(raw,{captureTypes,listLimit,onLocator:captureRelocation?e=>locators.push({pointerOffset:e.pointerOffset,advertisedPayloadOffset:e.advertisedPayloadOffset}):undefined,onObject:captureRelocation?e=>{if(e.inline)objects.push({inline:true,start:e.start,trailerOffset:e.trailerOffset});}:undefined,onScalar:e=>{
+export function traceStructuralDocument(raw,{skipStart=-1,skipEnd=-1,captureRelocation=true,captureTypes,listLimit,hashPlaintext=true}={}){
+ const locators=[],objects=[],identities=[],digest=createScalarDigest();
+ const document=readDocument(raw,{captureTypes,listLimit,hashPlaintext,onLocator:captureRelocation?e=>locators.push({pointerOffset:e.pointerOffset,advertisedPayloadOffset:e.advertisedPayloadOffset}):undefined,onObject:captureRelocation?e=>{if(e.inline)objects.push({inline:true,start:e.start,trailerOffset:e.trailerOffset});}:undefined,onScalar:e=>{
   if(captureRelocation&&/\._(?:itemNo|mercenaryNo)$/.test(e.path)&&e.bytes===8&&typeof e.value==='string'&&/^[1-9]\d{0,19}$/.test(e.value)&&BigInt(e.value)<=MAX_ID)identities.push({offset:e.offset,value:e.value});
   if(e.offset>=skipStart&&e.offset<skipEnd)return;
-  digest.update(JSON.stringify([e.path,e.type,e.bytes,e.value])+'\n');scalarCount++;
+  digest.update(e);
  }});
- return {document,locators,objects,identities,projection:{captureTypes,listLimit},scalarDigest:digest.digest('hex'),scalarCount};
+ const result=digest.digest();return {document,locators,objects,identities,projection:{captureTypes,listLimit,hashPlaintext},scalarDigest:result.sha256,scalarCount:result.count};
 }
 export function allocateStructuralItemId(trace){
  const raw=trace.document.plaintext;

@@ -114,10 +114,26 @@ parity remain separate verification gates; this probe does not establish them.
 
 `buffer.mjs` exports the browser Buffer implementation. `crypto.mjs` supplies
 SHA-256, incremental SHA-256 and HMAC-SHA256 plus a deliberately narrow
-`formatCrypto` adapter. Format HMAC keys are public format knowledge and stay in
-the guest; these helpers cannot sign Xbox requests. `text-encoding.mjs` provides
-UTF-8 encoding and fatal decoding for the extracted parser. Bundle these helpers
-and all executable dependencies into a release, not remote runtime imports.
+`formatCrypto` adapter. In the isolated runner, fixed SHA-256 math may use a
+bounded host primitive; HMAC construction, parsing and format decisions remain
+in QuickJS. Format HMAC keys are public format knowledge. The primitive has no
+account keys, account signer, ambient I/O or caller-selected algorithm/encoding,
+and cannot sign Xbox requests.
+
+Each fresh engine permits at most eight active hash streams and 128 MiB of
+hashed input. Binary chunks and ASCII text contain at most 64 KiB; non-ASCII BMP
+text is limited to 16 Ki UTF-16 units. Primitive type, intrinsic length and fixed
+character checks run before host materialization. NUL, BOM and surrogate chunks
+use the existing binary path, preserving exact UTF-8 and separate-update
+semantics. Every init/update/final/abort callback consumes the existing shared
+4,096-call job budget and checks cancellation/deadlines before and after work.
+This does not increase the default 10-second phase / 60-second job bounds; the
+separate [reviewed artifact profile](../workbench/RESUMABLE_JOBS.md) remains
+limited to 30 seconds / 90 seconds and requires a trusted exact-digest pin.
+
+`text-encoding.mjs` provides UTF-8 encoding and fatal decoding for the extracted
+parser. Bundle these helpers and all executable dependencies into a release,
+not remote runtime imports.
 
 Dependencies are exact-pinned in the adjacent lockfile. QuickJS/Emscripten,
 Noble hashes, Buffer, and their transitive notices must accompany distributed

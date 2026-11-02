@@ -2,6 +2,7 @@
 import {canonical, validatePackage} from '../sdk/contracts.mjs';
 import {createExecutionLock, validateExecutionPackages} from '../sdk/registry.mjs';
 import {fail} from './storage.mjs';
+import {referenceDataFor} from './reference-data.mjs';
 
 // Source editors keep a manifest.json file for authoring. The immutable package
 // represents the manifest separately, exactly like canonical release builders.
@@ -27,14 +28,16 @@ export function catalogPackage(snapshot) {
   return {...pkg, packageDigest: validatePackage(pkg).packageDigest};
 }
 
-export function composeExecution(primary, extensions = []) {
+export function composeExecution(primary, extensions = [], referenceData) {
   if (primary.manifest.kind !== 'game') fail('CONNECTOR_KIND_INVALID', 'Choose a game connector as the primary artifact.');
   if (extensions.some(artifact => artifact.manifest.kind !== 'extension')) fail('EXTENSION_KIND_INVALID', 'Dependencies must be built extension packages.');
   const artifacts = [primary, ...extensions], packages = artifacts.map(a => ({manifest: a.manifest, files: a.files, packageDigest: a.digest}));
-  const catalogs = artifacts.filter(a => a.catalog?.snapshot).map(a => a.catalog.snapshot), dataPackages = catalogs.map(catalogPackage);
+  const catalogs = artifacts.filter(a => a.catalog?.snapshot).map(a => a.catalog.snapshot), catalogPackages = catalogs.map(catalogPackage);
   if (new Set(catalogs.map(c => c.catalogId)).size !== catalogs.length) fail('CATALOG_ID_CONFLICT', 'Selected packages have conflicting reference-data IDs. Rename or select one explicit data source.');
   const pin = artifact => ({id: artifact.manifest.id, version: artifact.manifest.version, digest: artifact.digest});
+  const baseExecutionLock = createExecutionLock({connector: pin(primary), extensions: extensions.map(pin), dataPacks: catalogPackages.map(pkg => ({id: pkg.manifest.id, version: pkg.manifest.version, digest: pkg.packageDigest}))});
+  const managed = referenceDataFor(primary.digest, referenceData, undefined, baseExecutionLock.digest), dataPackages = [...catalogPackages, ...managed.packages];
   const executionLock = createExecutionLock({connector: pin(primary), extensions: extensions.map(pin), dataPacks: dataPackages.map(pkg => ({id: pkg.manifest.id, version: pkg.manifest.version, digest: pkg.packageDigest}))});
   validateExecutionPackages(executionLock, [...packages, ...dataPackages]);
-  return {primary, extensions, packages, dataPackages, catalogs, executionLock};
+  return {primary, extensions, packages, dataPackages, catalogs, executionLock, referenceData: managed.referenceData, referenceArtifacts: managed.artifacts};
 }

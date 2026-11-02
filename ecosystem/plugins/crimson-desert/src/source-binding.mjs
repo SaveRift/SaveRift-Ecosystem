@@ -9,7 +9,7 @@ const digest=/^[a-f0-9]{64}$/;
 // Only this module's deeply frozen, byte-verified projections may skip repeating
 // a base64 decode and digest. Caller-provided/cloned objects always take the full
 // verification path. The set belongs to one isolated engine, not an account cache.
-const verifiedSources=new WeakSet(),sourceContexts=new WeakMap(),sourceBytes=new WeakMap(),preparedSources=new WeakMap();
+const verifiedSources=new WeakSet(),sourceContexts=new WeakMap(),sourceBytes=new WeakMap(),preparedSources=new WeakMap(),nativeParityWitnesses=new WeakMap();
 export function verifyBackup(source){
  if(verifiedSources.has(source))return true;
  if(source?.schema!=='saverift.crimson-artifact-source.v1'||source.source!=='plugin_bundle'||!Array.isArray(source.containers)||source.containers.length>128)return false;
@@ -62,18 +62,43 @@ export function sourceFromBundle(bundle,ctx,{lazy=false}={}){
 export function bindPreparedSource(source,metadata,{context,container,payload,payloadSha256,decoded,document,projection}){
  assertSourceBinding(source,metadata);
  const blob=source.containers.find(c=>c.index.fileName===container)?.blobs.find(b=>b.name===payload);
- if(!verifiedSources.has(source)||sourceContexts.get(source)!==context||!blob||blob.sha256!==payloadSha256||document?.plaintext!==decoded?.plaintext||!digest.test(document?.plaintextSha256||'')||!digest.test(document?.schemaSha256||''))throw new ProbeError('Prepared format source is not this verified snapshot.',409,'CRIMSON_PREPARED_SOURCE_INVALID');
+ if(!verifiedSources.has(source)||sourceContexts.get(source)!==context||!blob||blob.sha256!==payloadSha256||document?.plaintext!==decoded?.plaintext||!Buffer.isBuffer(decoded?.plaintext)||!Buffer.isBuffer(decoded?.header)||decoded.header.length!==128||!digest.test(document?.plaintextSha256||'')||!digest.test(document?.schemaSha256||''))throw new ProbeError('Prepared format source is not this verified snapshot.',409,'CRIMSON_PREPARED_SOURCE_INVALID');
  // The byte buffer remains private to this engine's connector/compiler. It was
  // copied and hashed during projection construction; the compiler never writes
  // into it. Re-decoding its frozen base64 representation would add no evidence.
  const encoded=sourceBytes.get(source)?.get(container+'/'+payload);
  if(!encoded||encoded.length!==blob.size)throw new ProbeError('Prepared format bytes are unavailable.',409,'CRIMSON_PREPARED_SOURCE_INVALID');
- preparedSources.set(source,Object.freeze({context,lockDigest:context.executionLock?.digest,revision:source.revision,container,payload,payloadSha256,encoded,decoded,document,projection}));
+ preparedSources.set(source,Object.freeze({context,executionLock:context.executionLock,lockBinding:JSON.stringify(context.executionLock??null),lockDigest:context.executionLock?.digest,metadata,revision:source.revision,container,payload,payloadSha256,encoded,decoded,document,projection,plaintextSha256:document.plaintextSha256,schemaSha256:document.schemaSha256,headerSha256:hash(decoded.header),version:decoded.version,flags:decoded.flags}));
 }
 export function preparedSource(source,metadata,input){
  const snapshot=preparedSources.get(source);
  if(!snapshot)return null;
  assertSourceBinding(source,metadata,input);
- if(!verifiedSources.has(source)||snapshot.context!==sourceContexts.get(source)||snapshot.lockDigest!==snapshot.context.executionLock?.digest||snapshot.revision!==source.revision||snapshot.container!==input.container||snapshot.payload!==input.payload||snapshot.payloadSha256!==input.payloadSha256||snapshot.document.plaintextSha256!==input.plaintextSha256||snapshot.document.schemaSha256!==input.schemaSha256)throw new ProbeError('Prepared format source belongs to a different snapshot.',409,'CRIMSON_PREPARED_SOURCE_CHANGED');
+ if(!verifiedSources.has(source)||snapshot.context!==sourceContexts.get(source)||snapshot.executionLock!==snapshot.context.executionLock||snapshot.lockBinding!==JSON.stringify(snapshot.context.executionLock??null)||snapshot.lockDigest!==snapshot.context.executionLock?.digest||snapshot.revision!==source.revision||snapshot.container!==input.container||snapshot.payload!==input.payload||snapshot.payloadSha256!==input.payloadSha256||snapshot.document.plaintextSha256!==snapshot.plaintextSha256||snapshot.document.schemaSha256!==snapshot.schemaSha256||snapshot.plaintextSha256!==input.plaintextSha256||snapshot.schemaSha256!==input.schemaSha256)throw new ProbeError('Prepared format source belongs to a different snapshot.',409,'CRIMSON_PREPARED_SOURCE_CHANGED');
  return snapshot;
+}
+
+// Reuse only a native no-op proof of this engine's exact original snapshot.
+// Callers still perform their own scope checks and independently reopen output.
+// No serialized flag, digest alone, cloned projection or other encoder can
+// create a cache hit. The encoder dependency is internal compiled code only.
+export async function preparedSourceNativeParity(source,metadata,input,decoded,encoded,encoder){
+ if(typeof encoder!=='function')throw TypeError('A native format encoder is required.');
+ const snapshot=preparedSource(source,metadata,input);
+ const changed=()=>{throw new ProbeError('The original format bytes changed before native verification.',409,'CRIMSON_PREPARED_SOURCE_CHANGED');};
+ function integrity(){
+  if(!snapshot)assertSourceBinding(source,metadata,input);
+  if(!Buffer.isBuffer(encoded)||encoded.length<128||!Buffer.isBuffer(decoded?.plaintext)||!Buffer.isBuffer(decoded?.header)||decoded.header.length!==128)changed();
+  const encodedSha256=hash(encoded),plaintextSha256=hash(decoded.plaintext),headerSha256=hash(decoded.header),version=decoded.version,flags=decoded.flags;
+  if(encodedSha256!==input.payloadSha256||plaintextSha256!==input.plaintextSha256||!decoded.header.equals(encoded.subarray(0,128))||version!==decoded.header.readUInt16LE(4)||flags!==decoded.header.readUInt16LE(6))changed();
+  if(snapshot&&(preparedSource(source,metadata,input)!==snapshot||encodedSha256!==snapshot.payloadSha256||plaintextSha256!==snapshot.plaintextSha256||headerSha256!==snapshot.headerSha256||version!==snapshot.version||flags!==snapshot.flags))changed();
+  return {encodedSha256,plaintextSha256,headerSha256,version,flags};
+ }
+ const before=integrity(),cacheable=snapshot&&snapshot.metadata===metadata&&snapshot.decoded===decoded&&snapshot.encoded===encoded&&snapshot.document.plaintext===decoded.plaintext,witness=cacheable&&nativeParityWitnesses.get(snapshot);
+ if(witness&&witness.encoder===encoder&&Object.keys(before).every(key=>before[key]===witness[key]))return true;
+ const result=await encoder(decoded.plaintext,decoded.header,{nonce:decoded.header.subarray(0x1a,0x2a)});
+ const after=integrity();if(Object.keys(before).some(key=>before[key]!==after[key]))changed();
+ if(!Buffer.isBuffer(result)||!result.equals(encoded))return false;
+ if(cacheable)nativeParityWitnesses.set(snapshot,Object.freeze({...after,encoder}));
+ return true;
 }

@@ -12,8 +12,8 @@ import {hash} from './source-binding.mjs';
 import {catalogItemAdditionDefinition,catalogItemAdditionProfile,CATALOG_ITEM_SCHEMA} from './catalog-item-profile.mjs';
 export {normalItemAdditionDefinition,normalItemAdditionSupported,normalItemAdditionProfile} from './normal-item-profile.mjs';
 const MAX=8*1024*1024,MAX_ID=0xffffffffffffffffn;
-const INVENTORY_PROJECTION={captureTypes:['InventorySaveData'],listLimit:250};
-const KNOWLEDGE_PROJECTION={captureTypes:['KnowledgeSaveData'],listLimit:0};
+const INVENTORY_PROJECTION={captureTypes:['InventorySaveData'],listLimit:250,hashPlaintext:false};
+const KNOWLEDGE_PROJECTION={captureTypes:['KnowledgeSaveData'],listLimit:0,hashPlaintext:false};
 const fail=(code,message='This item addition stopped at its compatibility check.')=>{throw new CodecError(message,code);};
 const u16=n=>{const b=Buffer.alloc(2);b.writeUInt16LE(n);return b;};
 const u32=n=>{const b=Buffer.alloc(4);b.writeUInt32LE(n);return b;};
@@ -37,7 +37,7 @@ function freshItem(types,{start,itemNo,slot,key,quantity,definition}){
 }
 function freshKnowledge(type,start,key,time){const b=Buffer.alloc(43);b.writeUInt16LE(1);b[2]=15;b.writeUInt16LE(type.index,3);b.fill(255,6,14);b.writeUInt32LE(start+18,14);b.writeUInt32LE(key,22);b.writeUInt32LE(1,26);b.writeBigUInt64LE(BigInt(time),30);b[38]=1;b.writeUInt32LE(21,39);return b;}
 function knowledge(raw){
- const rows=new Map(),document=prune(readDocument(raw,{...KNOWLEDGE_PROJECTION,onScalar:e=>{const m=/\.KnowledgeSaveData\._list\[(\d+)\]\.(_key|_level|_learnedFieldTime|_isNewMark)$/.exec(e.path);if(m){const row=rows.get(+m[1])||{index:+m[1],fields:{}};row.fields[m[2]]={value:e.value,type:e.type,bytes:e.bytes,offset:e.offset};rows.set(row.index,row);}}}));
+ const rows=new Map(),document=prune(readDocument(raw,{...KNOWLEDGE_PROJECTION,scalarFields:['_key','_level','_learnedFieldTime','_isNewMark'],onScalar:e=>{const m=/\.KnowledgeSaveData\._list\[(\d+)\]\.(_key|_level|_learnedFieldTime|_isNewMark)$/.exec(e.path);if(m){const row=rows.get(+m[1])||{index:+m[1],fields:{}};row.fields[m[2]]={value:e.value,type:e.type,bytes:e.bytes,offset:e.offset};rows.set(row.index,row);}}}));
  const roots=document.blocks.filter(b=>b.type==='KnowledgeSaveData'),list=roots.length===1?field(roots[0],'_list'):null;
  if(!list?.present||list.kind!==6||!Number.isSafeInteger(list.count)||list.count<1||list.count>10000||rows.size!==list.count)fail('CRIMSON_ITEM_KNOWLEDGE_INCOMPLETE');
  const byKey=new Map();for(let i=0;i<list.count;i++){const row=rows.get(i),key=row?.fields._key;if(!key||key.bytes!==4||key.type!=='KnowledgeKey'||!Number.isSafeInteger(key.value)||key.value<=0||byKey.has(key.value))fail('CRIMSON_ITEM_KNOWLEDGE_AMBIGUOUS');row.key=key.value;byKey.set(row.key,row);}
@@ -93,9 +93,14 @@ function createItemAddition({schemaPins,definitionFor,profile,inventoryProjectio
    plans.push({inventoryKey,rows,originalCount:items.length,slots,before:oldCapacity,after:newCapacity,additionalSlots:count,automaticExpansion:newCapacity!==oldCapacity,ceiling:inventoryKey===2?250:null,slotIndexCeiling:65535});
   }
   let next=allocateStructuralItemId(trace),workingRaw=raw,preservationProof=true;const inserted=[];
-  trace.locators.length=0;trace.objects.length=0;trace.identities.length=0;
+  let firstPlan=true;
   for(const plan of plans){
-   const working=traceStructuralDocument(workingRaw,inventoryProjection);prune(working.document);const list=field(bag(working.document,plan.inventoryKey),'_itemList');let at=list.end,slot=0;const records=[],batch=[];
+   // A copied, byte-identical first working buffer has the same complete
+   // strict trace and scalar proof. Capacity patches and later insertions
+   // always receive a fresh walk before their locators can be used.
+   const working=firstPlan&&workingRaw.equals(decoded.plaintext)?trace:traceStructuralDocument(workingRaw,inventoryProjection);firstPlan=false;
+   if(working!==trace){trace.locators.length=0;trace.objects.length=0;trace.identities.length=0;}
+   prune(working.document);const list=field(bag(working.document,plan.inventoryKey),'_itemList');let at=list.end,slot=0;const records=[],batch=[];
    for(const {input,definition,total,maxStack,required:countRequired}of plan.rows){let left=total;
     for(let n=0;n<countRequired;n++){while(plan.slots.has(slot))slot++;if(slot>65535||plan.inventoryKey===2&&slot>=plan.after)fail('CRIMSON_ITEM_CAPACITY_LIMIT');for(let tries=0;;tries++){if(next>MAX_ID||tries>4096)fail('CRIMSON_ITEM_ID_EXHAUSTED');const b=Buffer.alloc(8);b.writeBigUInt64LE(next);if(!workingRaw.includes(b))break;next++;}const count=left>maxStack?maxStack:left,record=freshItem(types,{start:at,itemNo:next,slot,key:input.definitionKey,quantity:count,definition}),row={definitionKey:input.definitionKey,inventoryKey:plan.inventoryKey,instanceId:String(next),slot,quantity:String(count)};records.push(record);batch.push(row);plan.slots.add(slot);next++;at+=record.length;left-=count;}
    }
@@ -105,7 +110,7 @@ function createItemAddition({schemaPins,definitionFor,profile,inventoryProjectio
   }
   const discovery=applyDiscovery(workingRaw,discoveryDefinition,types);decodedDiff.push(...discovery.decodedDiff);const encoded=await encodeSave(discovery.raw,decoded.header,nonce===undefined?{}:{nonce}),reopened=await decodeSave(encoded);
   preservationProof=preservationProof&&discovery.reverseStructuralByteParity;if(!preservationProof)fail('CRIMSON_ITEM_UNRELATED_BYTES_CHANGED');
-  const finalAudit=readDocument(reopened.plaintext,{captureTypes:[],listLimit:0}).audit;if(finalAudit.nonzeroListMetadata!==before.audit.nonzeroListMetadata||finalAudit.advisoryLocators||finalAudit.unconsumedBytes)fail('CRIMSON_ITEM_REOPEN_FAILED');
+  const finalAudit=readDocument(reopened.plaintext,{captureTypes:[],listLimit:0,hashPlaintext:false}).audit;if(finalAudit.nonzeroListMetadata!==before.audit.nonzeroListMetadata||finalAudit.advisoryLocators||finalAudit.unconsumedBytes)fail('CRIMSON_ITEM_REOPEN_FAILED');
   if(!(await encodeSave(reopened.plaintext,reopened.header,{nonce:reopened.header.subarray(0x1a,0x2a)})).equals(encoded))fail('CRIMSON_ITEM_NATIVE_PARITY_FAILED');
   if(!reopened.plaintext.equals(discovery.raw)||!encoded.subarray(0,0x12).equals(source.subarray(0,0x12))||!encoded.subarray(0x4a,128).equals(source.subarray(0x4a,128))||hash(source)!==sourceHash)fail('CRIMSON_ITEM_REOPEN_FAILED');
   const perInventory=plans.map(({inventoryKey,before,after,additionalSlots,automaticExpansion,ceiling,slotIndexCeiling})=>({inventoryKey,before,after,additionalSlots,automaticExpansion,ceiling,slotIndexCeiling})),bag2=perInventory.find(p=>p.inventoryKey===2),capacity=bag2?{before:bag2.before,after:bag2.after,additionalSlots:bag2.additionalSlots,automaticExpansion:bag2.automaticExpansion,ceiling:250}:{before:null,after:null,additionalSlots:0,automaticExpansion:false,ceiling:250};
@@ -115,7 +120,7 @@ function createItemAddition({schemaPins,definitionFor,profile,inventoryProjectio
  Object.defineProperty(build,'many',{value:buildMany});return build;
 }
 export function createNormalItemAddition({schemaPins=[NORMAL_ITEM_SCHEMA]}={}){return createItemAddition({schemaPins,definitionFor:normalItemAdditionDefinition,profile:normalItemAdditionProfile,inventoryProjection:INVENTORY_PROJECTION,reportSchema:'saveglass.normal-item-addition.v1'});}
-export function createCatalogItemAddition({schemaPins=[CATALOG_ITEM_SCHEMA]}={}){return createItemAddition({schemaPins,definitionFor:catalogItemAdditionDefinition,profile:catalogItemAdditionProfile,inventoryProjection:{captureTypes:['InventorySaveData'],listLimit:1024},reportSchema:'saveglass.catalog-item-addition.v1',allowOwned:true});}
+export function createCatalogItemAddition({schemaPins=[CATALOG_ITEM_SCHEMA]}={}){return createItemAddition({schemaPins,definitionFor:catalogItemAdditionDefinition,profile:catalogItemAdditionProfile,inventoryProjection:{captureTypes:['InventorySaveData'],listLimit:1024,hashPlaintext:false},reportSchema:'saveglass.catalog-item-addition.v1',allowOwned:true});}
 export const buildNormalItemAddition=createNormalItemAddition();
 export const buildNormalItemAdditions=buildNormalItemAddition.many;
 export const buildCatalogItemAddition=createCatalogItemAddition();

@@ -4,21 +4,21 @@ import {validatePackage} from '../sdk/contracts.mjs';
 import {createPluginSession, runPlugin} from '../sdk/runner.mjs';
 import {createSaveBundle, LIMITS as SDK_LIMITS} from '../sdk/contracts.mjs';
 import {sha256, fail} from './storage.mjs';
-import {queryCatalog} from '../sdk/data.mjs';
 import {operationDigest, compileOperationLog} from '../sdk/draft.mjs';
 import {validateExecutionPackages} from '../sdk/registry.mjs';
 
-import {inputs, candidateFiles, requiredChecksPassed} from './executor-shared.mjs';
+import {inputs, candidateFiles, requiredChecksPassed, executionHost} from './executor-shared.mjs';
+import {referenceDataFor} from './reference-data.mjs';
 import {createPhaseExecutor} from './phase-executor.mjs';
 
 // This adapter does not load plugin code into Node/Worker globals. Every method
 // runs in the SDK's separate QuickJS Wasm heap with a closed package loader.
 export function createIsolatedExecutor(host = {}) {
-  const executeJob = async function executeJob({kind, package: pkg, extensions = [], executionLock, dataPackages = [], catalog, catalogs = catalog ? [catalog] : [], fixtures, input, signal}) {
+  const executeJob = async function executeJob({kind, package: pkg, extensions = [], executionLock, dataPackages = [], referenceData, catalog, catalogs = catalog ? [catalog] : [], fixtures, input, signal}) {
     validateExecutionPackages(executionLock, [pkg, ...extensions.map(e => e.package), ...dataPackages]);
     if (!fixtures.length) return {status: 'not_run', reason: 'Select an explicitly authorized fixture to run lifecycle/no-op tests.'};
-    const token = host.executionProfileFor?.(validatePackage(pkg)), profile = executionProfile(token, validatePackage(pkg).packageDigest);
-    const selected = inputs(fixtures), checks = [], phases = [];
+    const primary = validatePackage(pkg), token = host.executionProfileFor?.(primary), profile = executionProfile(token, primary.packageDigest), managed = referenceDataFor(primary.packageDigest, referenceData, executionLock);
+    const selected = inputs(fixtures, managed.artifacts), managedIds = new Set(managed.artifacts.map(value => value.id)), checks = [], phases = [];
     const budget = {startedAt: Date.now(), wallMs: profile.maxJobWallMs, interrupts: SDK_LIMITS.interrupts, hostCalls: SDK_LIMITS.hostCalls, outputBytes: SDK_LIMITS.outputBytes, outputArtifacts: SDK_LIMITS.outputArtifacts};
     function limitsForPhase(primary = true) {
       const remainingMs = budget.wallMs - (Date.now() - budget.startedAt);
@@ -32,11 +32,7 @@ export function createIsolatedExecutor(host = {}) {
       if (budget.interrupts < 0 || budget.hostCalls < 0 || budget.outputBytes < 0 || budget.outputArtifacts < 0) fail('JOB_RESOURCE_LIMIT', 'The offline job exceeded its shared instruction or artifact budget.');
       if (Date.now() - budget.startedAt > budget.wallMs) fail('JOB_TIME_LIMIT', 'The offline job exceeded its total wall-clock limit.');
     }
-    const pinnedHost = catalogs.length ? {...host, catalogQuery: query => {
-      const matching = query.catalogId ? catalogs.filter(c => c.catalogId === query.catalogId) : catalogs;
-      if (matching.length !== 1) fail('CATALOG_SELECTION_REQUIRED', 'Select one exact pinned reference-data catalog.');
-      return queryCatalog(matching[0], query);
-    }} : host;
+    const pinnedHost = executionHost(host, catalogs, managed.resources);
     let description, originalQuery, defaultQuery;
     let inspection = await createPluginSession({package: pkg, executionLock, ...selected, signal, executionProfile: token, limits: limitsForPhase()}, pinnedHost);
     try {
@@ -66,7 +62,7 @@ export function createIsolatedExecutor(host = {}) {
     const planned = await compileOperationLog({bundle: selected.bundle, operations, executionLock, connector: {package: pkg}, extensions, document: originalQuery, run, signal});
     const candidate = planned.result, outputs = planned.artifacts;
     if (candidate.inputBundleDigest !== selected.bundle.bundleDigest || candidate.executionLockDigest !== executionLock.digest || candidate.operationDigest !== operationDigest(operations)) fail('CANDIDATE_BINDING_INVALID', 'Candidate source, dependency lock or operation binding changed.');
-    const descriptors = candidateFiles(selected.bundle, candidate, outputs, selected.artifacts, pkg);
+    const descriptors = candidateFiles(selected.bundle, candidate, outputs, selected.artifacts, pkg, managedIds);
     const finalArtifacts = new Map([...selected.artifacts, ...outputs]);
     const newlySelected = [...outputs].filter(([id]) => !selected.artifacts.has(id)).map(([id, bytes]) => candidate.outputs.find(a => a.id === id) || {id, logicalPath: `reports/${id}.json`, role: 'validation-report', byteLength: bytes.length, sha256: sha256(bytes)});
     const accessBundle = createSaveBundle([...selected.bundle.artifacts, ...newlySelected], {id: 'validation-access'});
@@ -83,7 +79,7 @@ export function createIsolatedExecutor(host = {}) {
       }
       checks.push({name: 'no-op-byte-parity', status: 'passed'});
     }
-    const supporting = selected.bundle.artifacts.filter(a => (pkg.manifest.workbench?.inputOnlyRoles || []).includes(a.role) && !descriptors.some(d => d.id === a.id));
+    const supporting = selected.bundle.artifacts.filter(a => (managedIds.has(a.id) || (pkg.manifest.workbench?.inputOnlyRoles || []).includes(a.role)) && !descriptors.some(d => d.id === a.id));
     const finalBundle = createSaveBundle([...descriptors, ...supporting], {id: 'candidate'});
     let reopened = await createPluginSession({package: pkg, executionLock, bundle: finalBundle, artifacts: finalArtifacts, signal, executionProfile: token, limits: limitsForPhase()}, pinnedHost);
     let reopenedQuery;

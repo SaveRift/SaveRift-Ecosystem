@@ -45,5 +45,7 @@ test('the optimized public hash/HMAC run inside the unchanged Wasm resource boun
   const result=await runPlugin({package:pkg,bundle,artifacts:new Map([[artifact.id,bytes]]),executionLock:createExecutionLock(pkg),method:'detect',args:[bundle]});
   assert.equal(result.result.sha256,digest(bytes));assert.equal(result.result.hmac,createHmac('sha256',new Uint8Array([1,2,3])).update(bytes).digest('hex'));
   assert.deepEqual(result.result.ambient,['undefined','undefined','undefined']);
-  assert.ok(result.metrics.memoryBytes<=LIMITS.memoryBytes);assert.ok(result.metrics.interrupts<=LIMITS.interrupts);assert.equal(result.metrics.hostCalls,1);
+  assert.ok(result.metrics.memoryBytes<=LIMITS.memoryBytes);assert.ok(result.metrics.interrupts<=LIMITS.interrupts);
+  // Selected read + fixed SHA callbacks, all charged to the existing budget.
+  assert.equal(result.metrics.hostCalls,44);assert.equal(result.metrics.cryptoBytes,bytes.length*2+160);assert.equal(result.metrics.cryptoLiveStreams,0);
 });

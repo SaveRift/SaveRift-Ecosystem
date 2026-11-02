@@ -1,9 +1,10 @@
 # Prepare a release for review
 
-Public GitHub owner/repo names and the first export are unconfirmed. Do not
-change the private application repository's visibility or push its history.
-The proposed SDK, Crimson and registry repository names are planning labels,
-not approved destinations.
+The canonical ecosystem repository is
+[`SaveRift/SaveRift-Ecosystem`](https://github.com/SaveRift/SaveRift-Ecosystem).
+It is private; source on a review branch is not a public release. Keep the
+release audience explicit. Do not change the private application repository's
+visibility or copy its history into the ecosystem repository.
 
 Prepare source-only candidates from an explicit file allowlist. The local
 audit tool never contacts GitHub or Xbox:
@@ -44,10 +45,12 @@ missing-fixture/format limits, independent semantic evidence, compatibility
 matrix and exact registry metadata. Data/art/template permission is separate
 from code licensing; absent rights remain a blocker even if tests pass.
 
-Only after owner confirmation of destinations/content may maintainers create
-clean repositories and a draft prerelease. Publication and registry promotion
-are separate approved steps. Verify real immutable-release settings before
-claiming immutability. Attestations prove provenance, not game acceptance.
+After review of the exact source, artifacts, contents and intended audience,
+maintainers can prepare a draft prerelease in the approved ecosystem
+repository. Keep its current private audience unless the owner explicitly
+approves a change. Publication and registry promotion are separate approved
+steps. Verify real immutable-release settings before claiming immutability.
+Attestations prove provenance, not game acceptance.
 Use protected trusted release jobs; PR checks receive no production secrets,
 player fixtures or write privileges. Never use privileged untrusted checkout
 through `pull_request_target`.

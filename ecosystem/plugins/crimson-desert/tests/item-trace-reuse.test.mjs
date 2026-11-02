@@ -1,0 +1,59 @@
+// SPDX-License-Identifier: Apache-2.0
+// Invented catalog, schema and saves exercise both unchanged and patched traces.
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {createHash} from 'node:crypto';
+import {Buffer} from '../../../sdk/buffer.mjs';
+import {hash} from '../../../sdk/crypto.mjs';
+import {configureDataProviders} from '../src/data-provider.mjs';
+import {encodeSave,decodeSave} from '../src/crimson-codec.mjs';
+import {readDocument,value,elements} from '../src/crimson-document.mjs';
+import {u16,u32,u64} from './synthetic-parc.mjs';
+
+const entries=[[4242,2,'50',0,100,5,false,[],0,0],[4243,3,'50',0,100,5,false,[],0,0],[4244,2,'50',0,100,5,false,[],0,0]],data={entries,entriesSha256:hash(JSON.stringify(entries)),unavailable:[],balanceDefinitions:[],columns:[],source:{},runtimeRequirements:{}};
+const catalog={manifest:{revision:'synthetic.v1',effectiveSha256:'0'.repeat(64)},items:[{key:4242,name:'Synthetic stack',internalName:'Synthetic_Stack',category:'Test',referenceMaxStack:'50'}]};
+configureDataProviders([['crimson-construction-items.json',data],['crimson-items.json',catalog]].map(([id,data])=>{const bytes=Buffer.from(JSON.stringify(data));return{id,bytes,sha256:hash(bytes)};}),{synthetic:true});
+const {createCatalogItemAddition}=await import('../src/crimson-item-addition.mjs');
+const str=s=>Buffer.concat([u32(Buffer.byteLength(s)),Buffer.from(s)]);
+const fields=[['_saveVersion','uint32',0,4],['_itemNo','ItemNo',0,8],['_itemKey','ItemKey',0,4],['_slotNo','TItemSlotNo',0,2],['_stackCount','TStackCount',0,8],['_enchantLevel','uint16',0,2],['_endurance','uint16',0,2],['_maxSocketCount','uint8',0,1],['_validSocketCount','uint8',0,1],['_transferredItemKey','ItemKey',0,4],['_maxChargeUseableCount','uint32',0,4],['_chargedUseableCount','uint64',0,8],['_isNewMark','bool',0,1],['_socketSaveDataList','ReflectObject',6,0]];
+function fixture({count=1,quantity='5',secondBag=false,ownedKey=101}={}){
+ const types=[['InventorySaveData',[['_inventorylist','ReflectObject',6,0]]],['InventoryElementSaveData',[['_inventoryKey','InventoryKey',0,2],['_varyExpandSlotCount','TInventorySlotNo',0,2],['_itemList','ReflectObject',6,0]]],['ItemSaveData',fields],['ItemSocketSaveData',[['_invented','uint32',0,4]]],['KnowledgeSaveData',[['_list','ReflectObject',6,0]]],['KnowledgeElementSaveData',[['_key','KnowledgeKey',0,4],['_level','TLevel',0,4],['_learnedFieldTime','uint64',0,8],['_isNewMark','bool',0,1]]]];
+ const schema=Buffer.concat([u32(1),u16(types.length),...types.flatMap(([name,defs])=>[str(name),u16(defs.length),...defs.map(([name,type,kind,size])=>Buffer.concat([str(name),str(type),u16(kind),u16(size),u32(0)]))])]),prefix=Buffer.alloc(14);prefix.writeUInt16LE(65535);prefix.writeUInt16LE(4,2);
+ const base=14+schema.length+12+40,chunks=[];let pos=base;
+ const emit=b=>{chunks.push(b);pos+=b.length;};
+ function object(index,mask,build){emit(u16(mask.length));emit(Buffer.from(mask));emit(u16(index));emit(Buffer.from([0]));emit(Buffer.alloc(8,255));emit(u32(pos+4));const start=pos;emit(u32(17));build();emit(u32(pos-start));}
+ function list(count,build){emit(Buffer.from([0]));emit(u32(count));emit(Buffer.from([0,9,0,0,0,0,0,0,0,0,0,0,0]));for(let i=0;i<count;i++)build(i);}
+ emit(u16(1));emit(Buffer.from([1]));emit(u32(17));list(secondBag?2:1,b=>object(1,[7],()=>{emit(u16(b?3:2));emit(u16(0));list(b?0:count,i=>object(2,[31,0],()=>{emit(u32(1));emit(u64(100+i));emit(u32(ownedKey));emit(u16(i));emit(u64(quantity));emit(Buffer.from([1]));}));}));
+ const firstBytes=pos-base,secondStart=pos;emit(u16(1));emit(Buffer.from([1]));emit(u32(17));list(1,()=>object(5,[15],()=>{emit(u32(9));emit(u32(1));emit(u64(123));emit(Buffer.from([1]));}));
+ const block=Buffer.concat(chunks),raw=Buffer.concat([prefix,schema,u32(0),u32(2),u32(pos),u32(0),u32(0),u32(0),u32(base),u32(firstBytes),u32(4),u32(0),u32(0),u32(secondStart),u32(pos-secondStart),block]);
+ return raw;
+}
+async function add(options,inputs){
+ const raw=fixture(options),document=readDocument(raw),header=Buffer.alloc(128);header.write('SAVE');header.writeUInt16LE(2,4);header.writeUInt16LE(128,6);header[0x70]=37;
+ const encoded=await encodeSave(raw,header,{nonce:Buffer.alloc(16,7)}),sourceCopy=Buffer.from(encoded),compiler=createCatalogItemAddition({schemaPins:[document.schemaSha256]}),result=await compiler.many(encoded,inputs,{nonce:Buffer.alloc(16,8)}),after=readDocument((await decodeSave(result.encoded)).plaintext),bags=elements(after.blocks.find(b=>b.type==='InventorySaveData'),'_inventorylist');
+ assert.equal(encoded.equals(sourceCopy),true);assert.equal(result.report.validation.reverseStructuralByteParity,true);assert.equal(result.report.validation.allOtherOriginalScalarValuesUnchanged,true);assert.equal(result.report.validation.nonzeroListMetadataBefore,result.report.validation.nonzeroListMetadataAfter);assert.equal(result.report.validation.nativeOutputNoOpByteParity,true);
+ for(const bag of bags)for(const item of elements(bag,'_itemList').filter(i=>value(i,'_itemKey')===101))assert.equal(value(item,'_stackCount'),options.quantity||'5');
+ return {result,bags};
+}
+test('unchanged first working inventory reuses its complete original scalar and locator proof',async()=>{
+ const {result,bags}=await add({},[{definitionKey:4242,quantity:'2'}]);assert.equal(elements(bags[0],'_itemList').length,2);assert.equal(result.report.capacity.automaticExpansion,false);assert.equal(value(elements(bags[0],'_itemList')[1],'_stackCount'),'2');
+});
+
+test('combined scalar and item compiler binds fused scalar locators and preserves the independent tuple digest',async()=>{
+ const {sourceFromBundle}=await import('../src/source-binding.mjs'),{createStructuralDraftCompiler}=await import('../src/structural-draft.mjs'),{STRUCTURAL_PLAN_SCHEMA}=await import('../src/structural-publication-profile.mjs'),{createCrimsonDraftCompiler}=await import('../src/crimson-draft.mjs'),{DECODER_REVISION}=await import('../src/crimson-document.mjs'),{CATALOG_REVISION}=await import('../src/crimson-domain.mjs');
+ const raw=fixture({ownedKey:4242}),document=readDocument(raw),header=Buffer.alloc(128);header.write('SAVE');header.writeUInt16LE(2,4);header.writeUInt16LE(128,6);header[0x70]=37;
+ const encoded=await encodeSave(raw,header,{nonce:Buffer.alloc(16,7)}),lobby=Buffer.from('invented immutable pair'),files=new Map([['main',encoded],['sidecar',lobby]]),bundle={id:'combined-synthetic',bundleDigest:hash('combined-synthetic'),artifacts:[...files].map(([id,bytes])=>({id,logicalPath:'slot100,savedgame/'+(id==='main'?'save':'lobby'),role:id==='main'?'main':'sidecar',byteLength:bytes.length,sha256:hash(bytes)}))},bound=sourceFromBundle(bundle,{readArtifact:id=>files.get(id)}),plan={schema:STRUCTURAL_PLAN_SCHEMA,container:'slot100,savedgame',payload:'save',backupSha256:bundle.bundleDigest,backupRevision:bundle.bundleDigest,payloadSha256:hash(encoded),plaintextSha256:document.plaintextSha256,schemaSha256:document.schemaSha256,decoderRevision:DECODER_REVISION,catalogRevision:CATALOG_REVISION,operations:[{operation:'inventory.setQuantity',inventoryKey:2,definitionKey:4242,instanceId:'100',slot:0,expectedValue:'5',desiredValue:'6'},{operation:'inventory.addItem',definitionKey:4244,quantity:'2'}]};
+ const scalarDraft=createCrimsonDraftCompiler({schemaPins:[{schemaSha256:document.schemaSha256,requiresHousing:false}]}),scalarCompiler=(b,m,p,options)=>scalarDraft(b,m,p,{...options,retainEncoded:true}),options={schemaPins:[document.schemaSha256],itemCompiler:createCatalogItemAddition({schemaPins:[document.schemaSha256]}).many,scalarCompiler},compile=createStructuralDraftCompiler(options),result=await compile(bound.source,bound.metadata,plan,{nonce:Buffer.alloc(16,8),retainEncoded:true}),after=readDocument((await decodeSave(result.encoded)).plaintext),items=elements(elements(after.blocks[0],'_inventorylist')[0],'_itemList'),original=items.find(i=>value(i,'_itemNo')==='100'),added=items.find(i=>value(i,'_itemKey')===4244);
+ assert.equal(value(original,'_stackCount'),'6');assert.equal(value(added,'_stackCount'),'2');
+ const offset=result.report.operations.find(o=>o.operation==='inventory.setQuantity').offset,target=[];readDocument(raw,{captureTypes:[],onScalar:e=>{if(e.offset===offset)target.push(e.path);}});assert.equal(target.length,1);
+ function tupleDigest(bytes,range){const h=createHash('sha256');let count=0;readDocument(bytes,{captureTypes:[],onScalar:e=>{if(e.path===target[0]||range&&e.offset>=range.wrapperStart&&e.offset<range.end)return;h.update(JSON.stringify([e.path,e.type,e.bytes,e.value])+'\n','utf8');count++;}});return{sha256:h.digest('hex'),count};}
+ const beforeDigest=tupleDigest(raw),afterDigest=tupleDigest(after.plaintext,added);assert.deepEqual(afterDigest,beforeDigest);assert.equal(result.report.validation.originalScalarDigest,beforeDigest.sha256);assert.equal(result.report.validation.originalScalarCount,beforeDigest.count);
+ const invalid=createStructuralDraftCompiler({...options,scalarCompiler:async(...args)=>{const r=await scalarCompiler(...args);r.report.operations[0].fieldBytes++;return r;}});
+ await assert.rejects(invalid(bound.source,bound.metadata,plan,{nonce:Buffer.alloc(16,8),retainEncoded:true}),{code:'STRUCTURAL_SCALAR_BINDING_FAILED'});
+});
+test('capacity patches receive a fresh strict trace before insertion',async()=>{
+ const {result,bags}=await add({count:50},[{definitionKey:4242,quantity:'1'}]);assert.equal(result.report.capacity.before,50);assert.equal(result.report.capacity.after,51);assert.equal(result.report.capacity.automaticExpansion,true);assert.equal(value(bags[0],'_varyExpandSlotCount'),1);assert.equal(elements(bags[0],'_itemList').length,51);
+});
+test('changed scalar input and a later bag insertion retain their own current strict proofs',async()=>{
+ const {result,bags}=await add({quantity:'6',secondBag:true},[{definitionKey:4242,quantity:'1'},{definitionKey:4243,quantity:'3'}]);assert.equal(result.report.inserted.length,2);assert.equal(elements(bags[0],'_itemList').length,2);assert.equal(elements(bags[1],'_itemList').length,1);assert.equal(value(elements(bags[1],'_itemList')[0],'_stackCount'),'3');
+});
