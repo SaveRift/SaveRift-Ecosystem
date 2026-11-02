@@ -1,7 +1,7 @@
 {
   "schema": "saverift.package-build.v1",
-  "packageDigest": "3c11ef8f7c7613d54c3f4caa78a977be1682b50732dacee458b4213c1043fdba",
-  "byteLength": 1091630,
+  "packageDigest": "98e1b085e1ce952d714863634e1888bbc2ff8cbca3b37cac5c653b9e8b9a4583",
+  "byteLength": 1091078,
   "files": [
     {
       "path": "data/provider-requirements.json",
@@ -75,8 +75,8 @@
     },
     {
       "path": "NOTICE",
-      "byteLength": 1567,
-      "sha256": "c998603c1e7f55d9e0854e1e55c4069b43fa8b090330485138d5894f6938fdb6"
+      "byteLength": 1543,
+      "sha256": "e5927b711271bebb5a0bb0dd4add00fa7175cc49a10dee518934bb6daceb9234"
     },
     {
       "path": "README.md",
@@ -85,8 +85,8 @@
     },
     {
       "path": "runtime/connector.mjs",
-      "byteLength": 447775,
-      "sha256": "584f0981d9d9765f5639125379832f2332582d7e0dbe3b932ead21a4f6176501"
+      "byteLength": 447247,
+      "sha256": "16a8d4b86e118d77c7f1ae3aaa989cfb3428f74feca504eeaec7c3e77ad180f1"
     },
     {
       "path": "ui/dist/entry.js",
@@ -105,20 +105,20 @@
     }
   ],
   "inputs": [
-    "..\\..\\..\\..\\saverift-preview\\ecosystem\\sdk\\node_modules\\@noble\\hashes\\esm\\_md.js",
-    "..\\..\\..\\..\\saverift-preview\\ecosystem\\sdk\\node_modules\\@noble\\hashes\\esm\\_u64.js",
-    "..\\..\\..\\..\\saverift-preview\\ecosystem\\sdk\\node_modules\\@noble\\hashes\\esm\\crypto.js",
-    "..\\..\\..\\..\\saverift-preview\\ecosystem\\sdk\\node_modules\\@noble\\hashes\\esm\\hmac.js",
-    "..\\..\\..\\..\\saverift-preview\\ecosystem\\sdk\\node_modules\\@noble\\hashes\\esm\\sha2.js",
-    "..\\..\\..\\..\\saverift-preview\\ecosystem\\sdk\\node_modules\\@noble\\hashes\\esm\\sha256.js",
-    "..\\..\\..\\..\\saverift-preview\\ecosystem\\sdk\\node_modules\\@noble\\hashes\\esm\\utils.js",
-    "..\\..\\..\\..\\saverift-preview\\ecosystem\\sdk\\node_modules\\base64-js\\index.js",
-    "..\\..\\..\\..\\saverift-preview\\ecosystem\\sdk\\node_modules\\buffer\\index.js",
-    "..\\..\\..\\..\\saverift-preview\\ecosystem\\sdk\\node_modules\\ieee754\\index.js",
     "..\\..\\sdk\\buffer.mjs",
     "..\\..\\sdk\\crypto.mjs",
     "..\\..\\sdk\\format-binary.mjs",
     "..\\..\\sdk\\lz4-block.mjs",
+    "..\\..\\sdk\\node_modules\\@noble\\hashes\\esm\\_md.js",
+    "..\\..\\sdk\\node_modules\\@noble\\hashes\\esm\\_u64.js",
+    "..\\..\\sdk\\node_modules\\@noble\\hashes\\esm\\crypto.js",
+    "..\\..\\sdk\\node_modules\\@noble\\hashes\\esm\\hmac.js",
+    "..\\..\\sdk\\node_modules\\@noble\\hashes\\esm\\sha2.js",
+    "..\\..\\sdk\\node_modules\\@noble\\hashes\\esm\\sha256.js",
+    "..\\..\\sdk\\node_modules\\@noble\\hashes\\esm\\utils.js",
+    "..\\..\\sdk\\node_modules\\base64-js\\index.js",
+    "..\\..\\sdk\\node_modules\\buffer\\index.js",
+    "..\\..\\sdk\\node_modules\\ieee754\\index.js",
     "..\\..\\sdk\\schema.mjs",
     "..\\..\\sdk\\text-encoding.mjs",
     "connector.mjs",

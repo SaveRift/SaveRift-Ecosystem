@@ -31,9 +31,9 @@ var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__ge
   mod
 ));
 
-// ../../../../saverift-preview/ecosystem/sdk/node_modules/base64-js/index.js
+// ../../sdk/node_modules/base64-js/index.js
 var require_base64_js = __commonJS({
-  "../../../../saverift-preview/ecosystem/sdk/node_modules/base64-js/index.js"(exports) {
+  "../../sdk/node_modules/base64-js/index.js"(exports) {
     "use strict";
     exports.byteLength = byteLength;
     exports.toByteArray = toByteArray;
@@ -132,9 +132,9 @@ var require_base64_js = __commonJS({
   }
 });
 
-// ../../../../saverift-preview/ecosystem/sdk/node_modules/ieee754/index.js
+// ../../sdk/node_modules/ieee754/index.js
 var require_ieee754 = __commonJS({
-  "../../../../saverift-preview/ecosystem/sdk/node_modules/ieee754/index.js"(exports) {
+  "../../sdk/node_modules/ieee754/index.js"(exports) {
     /*! ieee754. BSD-3-Clause License. Feross Aboukhadijeh <https://feross.org/opensource> */
     exports.read = function(buffer, offset, isLE, mLen, nBytes) {
       var e, m;
@@ -216,9 +216,9 @@ var require_ieee754 = __commonJS({
   }
 });
 
-// ../../../../saverift-preview/ecosystem/sdk/node_modules/buffer/index.js
+// ../../sdk/node_modules/buffer/index.js
 var require_buffer = __commonJS({
-  "../../../../saverift-preview/ecosystem/sdk/node_modules/buffer/index.js"(exports) {
+  "../../sdk/node_modules/buffer/index.js"(exports) {
     "use strict";
     /*!
      * The buffer module from node.js, for the browser.
@@ -1822,7 +1822,7 @@ var init_buffer = __esm({
   }
 });
 
-// ../../../../saverift-preview/ecosystem/sdk/node_modules/@noble/hashes/esm/utils.js
+// ../../sdk/node_modules/@noble/hashes/esm/utils.js
 function isBytes(a) {
   return a instanceof Uint8Array || ArrayBuffer.isView(a) && a.constructor.name === "Uint8Array";
 }
@@ -1887,7 +1887,7 @@ function createHasher(hashCons) {
 }
 var Hash, wrapConstructor;
 var init_utils = __esm({
-  "../../../../saverift-preview/ecosystem/sdk/node_modules/@noble/hashes/esm/utils.js"() {
+  "../../sdk/node_modules/@noble/hashes/esm/utils.js"() {
     /*! noble-hashes - MIT License (c) 2022 Paul Miller (paulmillr.com) */
     Hash = class {
     };
@@ -1895,7 +1895,7 @@ var init_utils = __esm({
   }
 });
 
-// ../../../../saverift-preview/ecosystem/sdk/node_modules/@noble/hashes/esm/_md.js
+// ../../sdk/node_modules/@noble/hashes/esm/_md.js
 function setBigUint64(view, byteOffset, value2, isLE) {
   if (typeof view.setBigUint64 === "function")
     return view.setBigUint64(byteOffset, value2, isLE);
@@ -1916,7 +1916,7 @@ function Maj(a, b, c) {
 }
 var HashMD, SHA256_IV;
 var init_md = __esm({
-  "../../../../saverift-preview/ecosystem/sdk/node_modules/@noble/hashes/esm/_md.js"() {
+  "../../sdk/node_modules/@noble/hashes/esm/_md.js"() {
     init_utils();
     HashMD = class extends Hash {
       constructor(blockLen, outputLen, padOffset, isLE) {
@@ -2021,10 +2021,10 @@ var init_md = __esm({
   }
 });
 
-// ../../../../saverift-preview/ecosystem/sdk/node_modules/@noble/hashes/esm/sha2.js
+// ../../sdk/node_modules/@noble/hashes/esm/sha2.js
 var SHA256_K, SHA256_W, SHA256;
 var init_sha2 = __esm({
-  "../../../../saverift-preview/ecosystem/sdk/node_modules/@noble/hashes/esm/sha2.js"() {
+  "../../sdk/node_modules/@noble/hashes/esm/sha2.js"() {
     init_md();
     init_utils();
     SHA256_K = /* @__PURE__ */ Uint32Array.from([
@@ -2167,19 +2167,19 @@ var init_sha2 = __esm({
   }
 });
 
-// ../../../../saverift-preview/ecosystem/sdk/node_modules/@noble/hashes/esm/sha256.js
+// ../../sdk/node_modules/@noble/hashes/esm/sha256.js
 var SHA2562;
 var init_sha256 = __esm({
-  "../../../../saverift-preview/ecosystem/sdk/node_modules/@noble/hashes/esm/sha256.js"() {
+  "../../sdk/node_modules/@noble/hashes/esm/sha256.js"() {
     init_sha2();
     SHA2562 = SHA256;
   }
 });
 
-// ../../../../saverift-preview/ecosystem/sdk/node_modules/@noble/hashes/esm/hmac.js
+// ../../sdk/node_modules/@noble/hashes/esm/hmac.js
 var HMAC, hmac;
 var init_hmac = __esm({
-  "../../../../saverift-preview/ecosystem/sdk/node_modules/@noble/hashes/esm/hmac.js"() {
+  "../../sdk/node_modules/@noble/hashes/esm/hmac.js"() {
     init_utils();
     HMAC = class extends Hash {
       constructor(hash2, _key) {
