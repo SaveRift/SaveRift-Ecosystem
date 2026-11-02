@@ -18,6 +18,7 @@ const feature = value => typeof value === 'string' && value.length >= 3 && value
 const publicText = (value, max, multiline = false) => typeof value === 'string' && value.trim() && value.length <= max && !(multiline ? /[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f]/ : /[\u0000-\u001f\u007f]/).test(value) && !/(?:Bearer\s+[a-z0-9._-]+|(?:password|access_token|refresh_token|session_token|client_secret)\s*[:=]|-----BEGIN [^-]*PRIVATE KEY-----)/i.test(value);
 const repoFor = project => project.repository && {...project.repository, allowedRoots: project.packageRoots, packageRoots: project.packageRoots, branchPrefix: project.branchPrefix};
 const digestProject = project => project.projectDigest || accessDigest(project);
+const sourceBaseRef = project => project.baseRef || project.repository.defaultBranch;
 const safeError = error => ({code: /^[A-Z0-9_]{1,100}$/.test(error?.code || '') ? error.code : 'GITHUB_UNAVAILABLE'});
 const currentIssue = (issue, project) => issue && Number.isSafeInteger(issue.number) && issue.number > 0 && issue.state === 'open' && Array.isArray(issue.labels) && issue.labels.includes(project.issueLabel);
 const publicIssue = issue => ({id: issue.id, number: issue.number, title: String(issue.title || '').slice(0, 500), state: issue.state, labels: issue.labels || [], assignees: (issue.assignees || []).map(a => ({id: a.id, login: a.login})), htmlUrl: issue.htmlUrl, updatedAt: issue.updatedAt});
@@ -92,7 +93,7 @@ export function createCollaborationService({store, access, git = null, now = Dat
     else {
       const ctx = context(actor, project, null);
       try {
-        const [repo, head, issueList, prList] = await Promise.all([git.getRepository(ctx), git.readHead({...ctx, branch: project.repository.defaultBranch}), git.listIssues({...ctx, issueLabel: project.issueLabel}), git.listDraftPRs(ctx)]);
+        const [repo, head, issueList, prList] = await Promise.all([git.getRepository(ctx), git.readHead({...ctx, branch: sourceBaseRef(project)}), git.listIssues({...ctx, issueLabel: project.issueLabel}), git.listDraftPRs(ctx)]);
         if (String(repo.id) !== String(project.repository.id) || repo.owner.toLowerCase() !== project.repository.owner.toLowerCase() || repo.name.toLowerCase() !== project.repository.name.toLowerCase() || repo.defaultBranch !== project.repository.defaultBranch || !sha(head.sha) || !sha(head.treeSha)) fail('GITHUB_REPOSITORY_MAPPING_STALE', 'The canonical repository or head no longer matches the approved project.', 409);
         const issues = issueList.issues.filter(issue => currentIssue(issue, project)).map(publicIssue);
         const publicContributors = await projectPublicCoordination(ctx, project, workItems, issues);
@@ -246,7 +247,7 @@ export function createCollaborationService({store, access, git = null, now = Dat
     // exported; never follow a stored URL or grant fixture access.
     return {project, grant, key, row, record};
   }
-  function binding(record) {return {schema: 'saverift.source-binding.v1', branchWorkspaceId: record.id, gameId: record.gameId, repositoryId: String(record.repository.id), repository: copy(record.repository), packageId: record.packageId, packageRoots: copy(record.packageRoots), projectDigest: record.projectDigest, branch: record.branch, baseCommit: record.baseCommit, gitHead: record.gitHead, treeSha: record.treeSha, sourceRevision: record.revision, sourceDigest: sourceDigest(record.files), dependencyLockDigests: locksFor(record.files), issueNumber: record.issueNumber};}
+  function binding(record) {return {schema: 'saverift.source-binding.v1', branchWorkspaceId: record.id, gameId: record.gameId, repositoryId: String(record.repository.id), repository: copy(record.repository), packageId: record.packageId, packageRoots: copy(record.packageRoots), projectDigest: record.projectDigest, branch: record.branch, baseRef: record.baseRef || sourceBaseRef(projectFor(record.gameId)), baseCommit: record.baseCommit, gitHead: record.gitHead, treeSha: record.treeSha, sourceRevision: record.revision, sourceDigest: sourceDigest(record.files), dependencyLockDigests: locksFor(record.files), issueNumber: record.issueNumber};}
   async function readBranchWorkspace(actor, input) {const {record} = await load(actor, input); return {workspace: publicBranchWorkspace(record), files: copy(record.files), sourceDigest: sourceDigest(record.files), sourceBinding: binding(record)};}
   async function statusBranchWorkspace(actor, input) {const {record} = await load(actor, input); return {workspace: publicBranchWorkspace(record), sourceBinding: binding(record)};}
   async function previewChanges(actor, input) {const {record} = await load(actor, input); return {workspace: publicBranchWorkspace(record), diff: diffSourceFiles(record.baseFiles, record.files), contributionDiff: diffSourceFiles(record.originFiles, record.files), sourceBinding: binding(record)};}
@@ -265,7 +266,7 @@ export function createCollaborationService({store, access, git = null, now = Dat
       return {workspace: publicBranchWorkspace(existing.value), sourceBinding: binding(existing.value), reused: true};
     }
     if (Object.keys(ledger.intents).length >= maxBranchWorkspaces) fail('BRANCH_WORKSPACE_QUOTA', 'This developer has reached the per-game branch-workspace limit. Continue an existing feature or request maintainer help.', 429);
-    const head = await git.readHead({...ctx, branch: project.repository.defaultBranch});
+    const head = await git.readHead({...ctx, branch: sourceBaseRef(project)});
     if (head.sha !== input.expectedGitHead) fail('GITHUB_HEAD_CHANGED', 'The upstream base changed. Refresh existing work before branching.', 409);
     const source = await readPackageSource(ctx, head.sha, project);
     if (source.commitSha !== head.sha || source.treeSha !== head.treeSha) fail('GITHUB_SOURCE_BINDING_INVALID', 'The returned source tree does not match the pinned base.', 409);
@@ -278,11 +279,11 @@ export function createCollaborationService({store, access, git = null, now = Dat
     await save(ledgerKey, {...ledger, intents: {...ledger.intents, [intentKey]: id}}, ledgerRow);
     // Persist intent before the external write. An uncertain outcome is kept
     // for reconciliation, not automatically retried or deleted.
-    let record = {schema: BRANCH_WORKSPACE_SCHEMA, id, owner: developerKey(actor), gameId: project.id, projectDigest: digestProject(project), packageId: project.packageId, packageRoots: copy(project.packageRoots), repository: copy(project.repository), issueNumber: issue.number, featureKey: input.featureKey, branch, baseCommit: head.sha, gitHead: head.sha, treeSha: head.treeSha, lastSynchronizedCommit: head.sha, revision: 1, files, baseFiles: copy(files), originFiles: copy(files), excludedSourceEntries: source.excluded, dirty: false, syncState: 'creating_branch', operation: {id: uid('operation'), kind: 'branch_create', state: 'pending', expectedHead: head.sha}, createdAt: stamp(), updatedAt: stamp()};
+    let record = {schema: BRANCH_WORKSPACE_SCHEMA, id, owner: developerKey(actor), gameId: project.id, projectDigest: digestProject(project), packageId: project.packageId, packageRoots: copy(project.packageRoots), repository: copy(project.repository), issueNumber: issue.number, featureKey: input.featureKey, branch, baseRef: sourceBaseRef(project), baseCommit: head.sha, gitHead: head.sha, treeSha: head.treeSha, lastSynchronizedCommit: head.sha, revision: 1, files, baseFiles: copy(files), originFiles: copy(files), excludedSourceEntries: source.excluded, dirty: false, syncState: 'creating_branch', operation: {id: uid('operation'), kind: 'branch_create', state: 'pending', expectedHead: head.sha}, createdAt: stamp(), updatedAt: stamp()};
     record.evidenceState = invalidEvidence(record);
     const key = workspaceKey(actor, project.id, id); let row = await save(key, record, null);
     try {
-      const result = await git.createBranch({...ctx, branch, expectedBaseSha: head.sha, base: project.repository.defaultBranch});
+      const result = await git.createBranch({...ctx, branch, expectedBaseSha: head.sha, base: sourceBaseRef(project)});
       if (result.headSha !== head.sha || result.branch !== branch || result.created !== true) fail('GITHUB_MUTATION_OUTCOME_UNKNOWN', 'The created branch could not be verified.', 502);
       await assertCurrent(actor, grant);
       record = {...record, revision: 2, operation: null, syncState: 'current', updatedAt: stamp()}; row = await save(key, record, row);
@@ -307,6 +308,12 @@ export function createCollaborationService({store, access, git = null, now = Dat
     await assertCurrent(actor, state.grant);
     if (head.sha !== state.record.gitHead) fail('GITHUB_HEAD_CHANGED', 'Another contributor changed this branch. Update from upstream to compare all three versions.', 409);
     return {ctx, head};
+  }
+  async function verifyBranchHead(actor, input) {
+    const state = await load(actor, input, {write: true, action: 'git.read'});
+    expected(state.record, input);
+    const {head} = await checkedHead(actor, state);
+    return {workspace: publicBranchWorkspace(state.record), sourceBinding: binding(state.record), head: {sha: head.sha, treeSha: head.treeSha}};
   }
   async function prepareReview(actor, input, kind) {
     const state = await load(actor, input, {write: true, action: kind === 'pull_request' ? 'pr.create' : 'git.write'}); expected(state.record, input);
@@ -366,7 +373,7 @@ export function createCollaborationService({store, access, git = null, now = Dat
       await assertCurrent(actor, state.grant);
       const title = `Update ${state.project.displayName}: ${state.record.featureKey}`;
       const body = `Related to #${state.record.issueNumber}\n\nSource commit: \`${state.record.gitHead}\`\nSource digest: \`${sourceDigest(state.record.files)}\`\n\nPublic package paths:\n${reviewState.diff.map(change => '- `' + change.path + '`').join('\n')}\n\nSubmitted through SaveRift. Maintainer review, registry promotion, game verification and Xbox publication remain separate gates. No private fixtures or hosted logs are included.`;
-      const pr = await git.openDraftPR({...ctx, branch: state.record.branch, base: state.project.repository.defaultBranch, expectedHead: state.record.gitHead, issueNumber: issue.number, title, body});
+      const pr = await git.openDraftPR({...ctx, branch: state.record.branch, base: sourceBaseRef(state.project), expectedHead: state.record.gitHead, issueNumber: issue.number, title, body});
       if (pr.draft !== true || pr.headSha !== state.record.gitHead) fail('GITHUB_MUTATION_OUTCOME_UNKNOWN', 'The draft PR result does not match the reviewed source head.', 502);
       await assertCurrent(actor, state.grant);
       row = await save(state.key, {...row.value, revision: row.value.revision + 1, operation: null, pr: publicPR(pr), updatedAt: stamp()}, row);
@@ -377,7 +384,7 @@ export function createCollaborationService({store, access, git = null, now = Dat
   async function updateFromUpstream(actor, input, {reconcile = false} = {}) {
     const state = await load(actor, input, {write: true, action: 'source:update'}); expected(state.record, input, {allowOperation: reconcile});
     if (state.record.operation?.state === 'pending') fail('BRANCH_WORKSPACE_BUSY', 'The original Git request is still active. Wait for its outcome before reconciliation.', 409);
-    const ctx = context(actor, state.project, state.grant), [head, upstream] = await Promise.all([git.readHead({...ctx, branch: state.record.branch}), git.readHead({...ctx, branch: state.project.repository.defaultBranch})]);
+    const ctx = context(actor, state.project, state.grant), [head, upstream] = await Promise.all([git.readHead({...ctx, branch: state.record.branch}), git.readHead({...ctx, branch: sourceBaseRef(state.project)})]);
     const source = await readPackageSource(ctx, head.sha, state.project);
     if (source.commitSha !== head.sha || source.treeSha !== head.treeSha) fail('GITHUB_SOURCE_BINDING_INVALID', 'The remote source no longer matches the branch head.', 409);
     const files = validateSourceFiles(source.files, state.project), merge = threeWaySourceMerge(state.record.baseFiles, state.record.files, files);
@@ -410,10 +417,10 @@ export function createCollaborationService({store, access, git = null, now = Dat
     work_claim: (a, i) => changeWork(a, i, 'claim'), work_join: (a, i) => changeWork(a, i, 'join'), work_release: (a, i) => changeWork(a, i, 'release'),
     work_publish_prepare: prepareWorkPublication, work_publish: publishWork, work_publish_reconcile: reconcileWorkPublication,
     issue_propose: proposeWork, issue_submit: submitProposal,
-    branch_workspace_create: prepareBranchWorkspace, branch_workspace_status: statusBranchWorkspace, branch_workspace_read: readBranchWorkspace, branch_workspace_export: readBranchWorkspace,
+    branch_workspace_create: prepareBranchWorkspace, branch_workspace_status: statusBranchWorkspace, branch_workspace_read: readBranchWorkspace, branch_workspace_export: readBranchWorkspace, branch_workspace_verify: verifyBranchHead,
     branch_workspace_patch: patchBranchWorkspace, branch_workspace_diff: previewChanges,
     checkpoint_prepare: (a, i) => prepareReview(a, i, 'checkpoint'), checkpoint_commit: checkpoint,
     workspace_update_upstream: updateFromUpstream, branch_workspace_reconcile: (a, i) => updateFromUpstream(a, i, {reconcile: true}), pr_prepare: (a, i) => prepareReview(a, i, 'pull_request'), pr_open: openPullRequest
   };
-  return Object.freeze({dispatch, discoverProject, reconcileProject: discoverProject, verifyDiscovery, claimWork: routes.work_claim, joinWork: routes.work_join, releaseWork: routes.work_release, prepareWorkPublication, publishWork, reconcileWorkPublication, proposeWork, submitProposal, prepareBranchWorkspace, readBranchWorkspace, statusBranchWorkspace, patchBranchWorkspace, previewChanges, prepareCheckpoint: routes.checkpoint_prepare, checkpoint, updateFromUpstream, reconcileBranchWorkspace: routes.branch_workspace_reconcile, preparePullRequest: routes.pr_prepare, openPullRequest});
+  return Object.freeze({dispatch, discoverProject, reconcileProject: discoverProject, verifyDiscovery, claimWork: routes.work_claim, joinWork: routes.work_join, releaseWork: routes.work_release, prepareWorkPublication, publishWork, reconcileWorkPublication, proposeWork, submitProposal, prepareBranchWorkspace, readBranchWorkspace, statusBranchWorkspace, patchBranchWorkspace, verifyBranchHead, previewChanges, prepareCheckpoint: routes.checkpoint_prepare, checkpoint, updateFromUpstream, reconcileBranchWorkspace: routes.branch_workspace_reconcile, preparePullRequest: routes.pr_prepare, openPullRequest});
 }

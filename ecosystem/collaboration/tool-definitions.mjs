@@ -16,6 +16,7 @@ export const COLLABORATION_ACTION_ARGUMENTS = Object.freeze({
   issue_submit: {...target, discoveryId: 'string', proposalId: 'string', expectedRevision: 'integer'},
   branch_workspace_create: {...work, expectedGitHead: 'sha40'},
   branch_workspace_status: workspace, branch_workspace_read: workspace, branch_workspace_diff: workspace,
+  branch_workspace_verify: mutate,
   branch_workspace_patch: {...mutate, changes: 'sourceChanges'},
   branch_workspace_export: workspace,
   checkpoint_prepare: mutate,
