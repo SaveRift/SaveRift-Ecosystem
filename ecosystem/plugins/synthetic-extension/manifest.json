@@ -1,0 +1,17 @@
+{
+  "manifestVersion": "0.1",
+  "id": "example.level-tools",
+  "kind": "extension",
+  "version": "0.1.0-dev.1",
+  "displayName": "Progression Workshop",
+  "author": "SaveRift example contributors",
+  "license": "Apache-2.0",
+  "hostApi": ">=0.1.0 <0.2.0",
+  "entrypoints": {"runtime": "runtime.mjs", "runtimeProfile": "isolated-js-v1", "ui": "ui/index.html"},
+  "methods": ["expand", "describe"],
+  "dependencies": {"example.synthetic.document": "0.1.0"},
+  "operations": [{"id": "example.level-tools.setLevel", "apiVersion": "0.1.0", "inputSchema": "schemas/set-level.json", "writeDomains": [{"path": "progression", "mode": "ordered"}]}],
+  "views": [{"id": "example.level-tools.graph", "title": "Progression Workshop", "kind": "custom", "entrypoint": "ui/index.html"}],
+  "permissions": ["query.selected", "draft.stage", "ui.register-views"],
+  "ui": {"script": "ui/dist/entry.js", "css": "ui/dist/style.css", "body": "ui/index.html"}
+}

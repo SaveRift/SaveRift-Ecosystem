@@ -1,0 +1,9 @@
+{
+  "name":"@saverift/game-crimson-desert",
+  "version":"0.1.0-dev.1",
+  "private":true,
+  "type":"module",
+  "license":"MPL-2.0 AND BSD-2-Clause AND BSD-3-Clause AND MIT AND Apache-2.0",
+  "scripts":{"build":"node scripts/build.mjs","test":"node --test tests/*.test.mjs"},
+  "devDependencies":{"esbuild":"0.25.12"}
+}

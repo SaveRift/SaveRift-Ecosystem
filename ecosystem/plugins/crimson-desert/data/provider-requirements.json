@@ -1,0 +1,159 @@
+{
+  "schema": "saverift.crimson-data-provider-requirements.v1",
+  "dataFiles": [
+    {
+      "id": "crimson-abyss-nexus.json",
+      "sha256": "e2331d560af5b0e1a77f5eabb981c853536343c2a3b847372c3efede0cabf789",
+      "byteLength": 41889,
+      "distribution": "restricted_pending_review",
+      "included": false
+    },
+    {
+      "id": "crimson-adventure-display.json",
+      "sha256": null,
+      "byteLength": null,
+      "distribution": "restricted_pending_review",
+      "included": false
+    },
+    {
+      "id": "crimson-artwork.json",
+      "sha256": "a828fa2066735b3f729b553f6ac9b3a015205f091f2eb6ccf61a9747d4da3165",
+      "byteLength": 15624,
+      "distribution": "restricted_pending_review",
+      "included": false
+    },
+    {
+      "id": "crimson-community-provenance.json",
+      "sha256": "5dce4679d4d617ffb02abf1f947d7c17f5400fc4732a32be52b210db2a8cf310",
+      "byteLength": 94810,
+      "distribution": "restricted_pending_review",
+      "included": false
+    },
+    {
+      "id": "crimson-companion-additions.json",
+      "sha256": "d98ce8a8259983ba65512d7f1ffad1e1882b499eee7c40a4c0e8c20ac786f901",
+      "byteLength": 239949,
+      "distribution": "restricted_pending_review",
+      "included": false
+    },
+    {
+      "id": "crimson-companion-artwork.json",
+      "sha256": "6733088c23cdc4bbe737886afb5c139e3a42100829656367bc0a035e315790a8",
+      "byteLength": 160736,
+      "distribution": "restricted_pending_review",
+      "included": false
+    },
+    {
+      "id": "crimson-companion-control.json",
+      "sha256": "62c79a5441347db7f5baeafd56156d2f3d104047865f1fd3791c7b8a8af0700e",
+      "byteLength": 20431,
+      "distribution": "restricted_pending_review",
+      "included": false
+    },
+    {
+      "id": "crimson-companion-templates.json",
+      "sha256": "6841edd2d57b0a3774dd3ad04d1f66a3f84f3b163d06b2e53a184d6bdcb5052b",
+      "byteLength": 633746,
+      "distribution": "restricted_pending_review",
+      "included": false
+    },
+    {
+      "id": "crimson-construction-items.json",
+      "sha256": "4b233547ec8bb85099b3100243766f9fe5cae3504a9248cb46629885d4cc9218",
+      "byteLength": 273582,
+      "distribution": "restricted_pending_review",
+      "included": false
+    },
+    {
+      "id": "crimson-content-artwork.json",
+      "sha256": "c39dda5169d93b7f9d1b9bbaa277c2539f62ad322ea7ba422b057bc8ae331262",
+      "byteLength": 61285,
+      "distribution": "restricted_pending_review",
+      "included": false
+    },
+    {
+      "id": "crimson-enrichment.json",
+      "sha256": "23893c3d3656969b55ab20fd87d48aa7f4808cb70944f39eb95aeea7076cead6",
+      "byteLength": 403508,
+      "distribution": "restricted_pending_review",
+      "included": false
+    },
+    {
+      "id": "crimson-gear-control.json",
+      "sha256": "0afd08f7a6ee45e25b7e291f0ca836d8fdf88505a85551f5dc35d7e5c1569fca",
+      "byteLength": 7113,
+      "distribution": "restricted_pending_review",
+      "included": false
+    },
+    {
+      "id": "crimson-inventory-placement.json",
+      "sha256": "e6a4f5dfd25f2c39831c7c42bd38b4e2de39fd21f483dab302e1de11b23de5b4",
+      "byteLength": 369939,
+      "distribution": "restricted_pending_review",
+      "included": false
+    },
+    {
+      "id": "crimson-item-artwork-index.json",
+      "sha256": "529a93e33019674472ba96842845774321a54ec1b263d7ce3eb2b4757f16781b",
+      "byteLength": 519073,
+      "distribution": "restricted_pending_review",
+      "included": false
+    },
+    {
+      "id": "crimson-items.json",
+      "sha256": "913556582646bc29f3001c815da7a1c2f7b8163ee063f4cc56346fd7d389d237",
+      "byteLength": 866827,
+      "distribution": "restricted_pending_review",
+      "included": false
+    },
+    {
+      "id": "crimson-nexus-discoveries.json",
+      "sha256": "59b9004defe22fb2f2ecc333a0a1c7fbb909c3355b3e51d547e67b1dd69a20a0",
+      "byteLength": 40281,
+      "distribution": "restricted_pending_review",
+      "included": false
+    },
+    {
+      "id": "crimson-normal-items.json",
+      "sha256": "314f0f3c93065c5162a28857383f566fd45ead964d71d6d0112e2ed0035359b4",
+      "byteLength": 147923,
+      "distribution": "restricted_pending_review",
+      "included": false
+    },
+    {
+      "id": "crimson-pack-artwork.json",
+      "sha256": "fef28afa8522c82da828082a710eac73d7986a21c07b2943ebac70aa67e65b9a",
+      "byteLength": 13775,
+      "distribution": "restricted_pending_review",
+      "included": false
+    },
+    {
+      "id": "crimson-pack-presentation.json",
+      "sha256": "901423924a047b050b45d8ffaa15cd3ec8458997822934614f9a192c77b78bee",
+      "byteLength": 6785,
+      "distribution": "restricted_pending_review",
+      "included": false
+    },
+    {
+      "id": "crimson-packs.json",
+      "sha256": "8cefc48a59e9b1cc79a804957693ba15b60fe56a4845b75b6a915c7a8dc1ba9b",
+      "byteLength": 45662,
+      "distribution": "restricted_pending_review",
+      "included": false
+    },
+    {
+      "id": "crimson-preset-reference-pins.json",
+      "sha256": null,
+      "byteLength": null,
+      "distribution": "restricted_pending_review",
+      "included": false
+    },
+    {
+      "id": "crimson-save-presets.json",
+      "sha256": "482196768c8cb642c208e0fa15b09fa143afceceab0ea60071aa480dafe1865f",
+      "byteLength": 1297947,
+      "distribution": "restricted_pending_review",
+      "included": false
+    }
+  ]
+}

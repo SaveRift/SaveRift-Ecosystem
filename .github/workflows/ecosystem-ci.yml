@@ -1,0 +1,27 @@
+name: Public ecosystem checks
+on:
+  pull_request:
+    paths: ['ecosystem/**', 'scripts/ecosystem-release-audit.mjs', 'tests/ecosystem-release-audit.test.mjs', '.github/workflows/ecosystem-ci.yml']
+  push:
+    paths: ['ecosystem/**', 'scripts/ecosystem-release-audit.mjs', 'tests/ecosystem-release-audit.test.mjs', '.github/workflows/ecosystem-ci.yml']
+permissions:
+  contents: read
+jobs:
+  public-source:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      # Immutable action revisions; review pin updates before merging.
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: '22'
+      - run: npm ci --prefix ecosystem --ignore-scripts
+      - run: npm ci --prefix ecosystem/sdk --ignore-scripts
+      - run: npm ci --prefix ecosystem/workbench --ignore-scripts
+      - run: npm ci --prefix ecosystem/plugins/crimson-desert --ignore-scripts
+      - run: npm run build:plugins --prefix ecosystem
+      - run: npm test --prefix ecosystem
+      - run: node --test tests/ecosystem-release-audit.test.mjs

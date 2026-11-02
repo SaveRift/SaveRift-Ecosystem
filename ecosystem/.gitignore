@@ -1,0 +1,9 @@
+node_modules/
+.runtime/
+.saverift-workbench/
+.env
+.env.*
+!.env.example
+*.har
+*.save
+!plugins/synthetic-game/fixture.save

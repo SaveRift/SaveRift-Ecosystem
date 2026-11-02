@@ -1,0 +1,20 @@
+SaveRift open ecosystem source preview
+
+Original SDK, UI bridge, local workbench and synthetic examples are made
+available under Apache License 2.0. This does not relicense game assets,
+reference databases, donor saves or third-party files.
+
+The Crimson Desert package preserves its per-file MPL-2.0, BSD-2-Clause and
+other upstream notices. See that package's license/provenance files. Public
+data and art redistribution remains separately reviewed; absent provider
+data must remain visibly absent rather than silently replaced with private
+service dependencies.
+
+Dependency license declarations are recorded in each package lock. Include
+the applicable full dependency notices with built distributions. A package
+lock declaration is not a complete notice/rights audit.
+
+SaveRift is independent and is not endorsed by Microsoft, Pearl Abyss or
+upstream tool authors. Microsoft account linking and Xbox transport are not
+included in this public reference toolchain. No live writes are authorized
+by a local build, conformance result, extension or MCP request.

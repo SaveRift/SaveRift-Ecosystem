@@ -1,0 +1,157 @@
+{
+  "schema": "saverift.package-build.v1",
+  "packageDigest": "8fd6680c1f65ec9c3564acf082f2000836fd5f8848d1c3a00a293c8cad1a7a20",
+  "byteLength": 1055327,
+  "files": [
+    {
+      "path": "data/provider-requirements.json",
+      "byteLength": 5305,
+      "sha256": "3e781001ba7bdab2f47e6c0c90cab05ff98eb2d362528d461b81230b26e8bda4"
+    },
+    {
+      "path": "DEVELOPER_API.md",
+      "byteLength": 4593,
+      "sha256": "ed0addf9433f9bfc0626b519167beb1f61562c404d56a7c16ffdcc60ff8c006a"
+    },
+    {
+      "path": "licenses/base64-js-MIT.txt",
+      "byteLength": 1081,
+      "sha256": "5b37224c080cdcc97c871ada971c224e9926370fe74f11b539aa1cf9f3b1aca1"
+    },
+    {
+      "path": "licenses/Buffer-MIT.txt",
+      "byteLength": 1106,
+      "sha256": "06bafa45fdad2579ba0e43b0c9b2c6290287c99c4203c300254a462b38a307f6"
+    },
+    {
+      "path": "licenses/crimson-rs-MIT.txt",
+      "byteLength": 1066,
+      "sha256": "3d58b2663f1456d7707b20a03c82e4a57baaafb2c62c15d0f919adb7670fe3e6"
+    },
+    {
+      "path": "licenses/ieee754-BSD-3-Clause.txt",
+      "byteLength": 1465,
+      "sha256": "18d45466ba3253deae04667e267a91ea8de8548f18c1125264d1c9db28194cc1"
+    },
+    {
+      "path": "licenses/LZ4-BSD-2-Clause.txt",
+      "byteLength": 1380,
+      "sha256": "898dcec5ea7c995198cb5cdc252524e95027e5f700f4a5df2c2b03b31a8e79f2"
+    },
+    {
+      "path": "licenses/MPL-2.0.txt",
+      "byteLength": 15588,
+      "sha256": "a3d8c93952258fb736a705f3a14091a9edee6fdb497fe5a7dcf1138b998e5788"
+    },
+    {
+      "path": "licenses/Noble-Hashes-MIT.txt",
+      "byteLength": 1109,
+      "sha256": "4f221aee6e072336700c408c68ab3b96a3fc09f6aebe6f48f1bd99e5ef13faec"
+    },
+    {
+      "path": "licenses/Phosphor-MIT.txt",
+      "byteLength": 1071,
+      "sha256": "6918b72504641180600cbbd4a86b0dfa9dfccf788775694325b71b9a029f6eb4"
+    },
+    {
+      "path": "licenses/React-MIT.txt",
+      "byteLength": 1088,
+      "sha256": "da6d3703ed11cbe42bd212c725957c98da23cbff1998c05fa4b3d976d1a58e93"
+    },
+    {
+      "path": "licenses/ReactDOM-MIT.txt",
+      "byteLength": 1088,
+      "sha256": "da6d3703ed11cbe42bd212c725957c98da23cbff1998c05fa4b3d976d1a58e93"
+    },
+    {
+      "path": "licenses/Workshop-SOURCE-NOTICE.txt",
+      "byteLength": 2085,
+      "sha256": "473388ad16f5e0b1fe98d6f7ecc8f849993d00b7c06cc008de5f2d242b864476"
+    },
+    {
+      "path": "licenses/Workshop-UPSTREAM-CREDITS.txt",
+      "byteLength": 1738,
+      "sha256": "ce66950ec82c624aee7296c859319340e3a49b1495e0b1fbac3ce42d053acc6d"
+    },
+    {
+      "path": "NOTICE",
+      "byteLength": 1543,
+      "sha256": "e5927b711271bebb5a0bb0dd4add00fa7175cc49a10dee518934bb6daceb9234"
+    },
+    {
+      "path": "README.md",
+      "byteLength": 2518,
+      "sha256": "a755a6dd0c517fafbdcc492b9ce17d973bad7b513065e47fc814f03d503b470c"
+    },
+    {
+      "path": "runtime/connector.mjs",
+      "byteLength": 415153,
+      "sha256": "9a4360d74c69631c222eaba6c4d2c28486eed2541e603dcd93592a119e52e505"
+    },
+    {
+      "path": "ui/dist/entry.js",
+      "byteLength": 503106,
+      "sha256": "02bf8ada55bce1ae6b614e0663a0d879ce12771b5cc3f363a73f3f5daf7e3030"
+    },
+    {
+      "path": "ui/dist/style.css",
+      "byteLength": 93197,
+      "sha256": "d1e40f140ffb1a20223dd52320d92918d1f7751b8fd2bc1a8dadef0b1cce36c9"
+    },
+    {
+      "path": "ui/index.html",
+      "byteLength": 47,
+      "sha256": "b6094e2f577a44e93425c793e0280d103fdec63da4b6564501f6bc4143d70ed0"
+    }
+  ],
+  "inputs": [
+    "../../sdk/buffer.mjs",
+    "../../sdk/crypto.mjs",
+    "../../sdk/node_modules/@noble/hashes/esm/_md.js",
+    "../../sdk/node_modules/@noble/hashes/esm/_u64.js",
+    "../../sdk/node_modules/@noble/hashes/esm/crypto.js",
+    "../../sdk/node_modules/@noble/hashes/esm/hmac.js",
+    "../../sdk/node_modules/@noble/hashes/esm/sha2.js",
+    "../../sdk/node_modules/@noble/hashes/esm/sha256.js",
+    "../../sdk/node_modules/@noble/hashes/esm/utils.js",
+    "../../sdk/node_modules/base64-js/index.js",
+    "../../sdk/node_modules/buffer/index.js",
+    "../../sdk/node_modules/ieee754/index.js",
+    "../../sdk/schema.mjs",
+    "../../sdk/text-encoding.mjs",
+    "connector.mjs",
+    "manifest.json",
+    "src/catalog-item-profile.mjs",
+    "src/catalog/crimson-adventure.mjs",
+    "src/catalog/crimson-artwork-resolver.mjs",
+    "src/catalog/crimson-enrichment.mjs",
+    "src/catalog/crimson-packs.mjs",
+    "src/companion-addition-profile.mjs",
+    "src/crimson-abyss-nexus.mjs",
+    "src/crimson-codec.mjs",
+    "src/crimson-companion-addition.mjs",
+    "src/crimson-document.mjs",
+    "src/crimson-domain.mjs",
+    "src/crimson-draft.mjs",
+    "src/crimson-item-addition.mjs",
+    "src/crimson-map-reveal.mjs",
+    "src/crimson-nexus-discoveries.mjs",
+    "src/crimson-packs.mjs",
+    "src/crimson-policy.mjs",
+    "src/crimson-structural-layout.mjs",
+    "src/data-provider.mjs",
+    "src/document-api.mjs",
+    "src/inventory-capacity.mjs",
+    "src/inventory-placement.mjs",
+    "src/inventory-quantity-profile.mjs",
+    "src/lz4-standard.mjs",
+    "src/mixed-draft.mjs",
+    "src/normal-item-profile.mjs",
+    "src/preset-library.mjs",
+    "src/preset-pair.mjs",
+    "src/source-binding.mjs",
+    "src/structural-draft.mjs",
+    "src/structural-publication-profile.mjs",
+    "src/uploaded-save.mjs"
+  ]
+}
