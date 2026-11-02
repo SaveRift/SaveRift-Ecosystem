@@ -1,0 +1,408 @@
+{
+  "manifestVersion": "0.1",
+  "id": "saverift.crimson-desert",
+  "kind": "game",
+  "version": "0.1.0-dev.1",
+  "displayName": "Crimson Desert",
+  "license": "MPL-2.0 AND BSD-2-Clause AND BSD-3-Clause AND MIT AND Apache-2.0",
+  "hostApi": ">=0.1.0 <0.2.0",
+  "entrypoints": {
+    "runtime": "runtime/connector.mjs",
+    "runtimeProfile": "isolated-js-v1",
+    "ui": "ui/index.html"
+  },
+  "uiMode": "custom",
+  "gameTargets": [
+    {
+      "platform": "xbox",
+      "identityRef": "1754076455",
+      "saveFamilies": [
+        "crimson-save-parc"
+      ]
+    }
+  ],
+  "extensionApis": {
+    "crimson.document": "0.1.0"
+  },
+  "permissions": [
+    "bundle.read-selected",
+    "draft.transform-selected",
+    "ui.register-views",
+    "ui.request-file-import",
+    "ui.request-download"
+  ],
+  "operations": [
+    {
+      "id": "crimson.inventory.setQuantity",
+      "apiVersion": "0.1.0",
+      "inputSchema": {
+        "type": "object",
+        "required": [
+          "inventoryKey",
+          "definitionKey",
+          "instanceId",
+          "slot",
+          "expectedValue",
+          "desiredValue"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "inventoryKey": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 65535
+          },
+          "definitionKey": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 4294967295
+          },
+          "instanceId": {
+            "type": "string",
+            "pattern": "^[1-9][0-9]{0,19}$"
+          },
+          "slot": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 65535
+          },
+          "expectedValue": {
+            "type": "string",
+            "pattern": "^(0|[1-9][0-9]{0,19})$"
+          },
+          "desiredValue": {
+            "type": "string",
+            "pattern": "^(0|[1-9][0-9]{0,19})$"
+          }
+        }
+      },
+      "writeDomains": [
+        {
+          "path": "inventory",
+          "mode": "ordered"
+        }
+      ]
+    },
+    {
+      "id": "crimson.inventory.setCopper",
+      "apiVersion": "0.1.0",
+      "inputSchema": {
+        "type": "object",
+        "required": [
+          "inventoryKey",
+          "definitionKey",
+          "instanceId",
+          "slot",
+          "expectedValue",
+          "desiredValue"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "inventoryKey": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 65535
+          },
+          "definitionKey": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 4294967295
+          },
+          "instanceId": {
+            "type": "string",
+            "pattern": "^[1-9][0-9]{0,19}$"
+          },
+          "slot": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 65535
+          },
+          "expectedValue": {
+            "type": "string",
+            "pattern": "^(0|[1-9][0-9]{0,19})$"
+          },
+          "desiredValue": {
+            "type": "string",
+            "pattern": "^(0|[1-9][0-9]{0,19})$"
+          }
+        }
+      },
+      "writeDomains": [
+        {
+          "path": "inventory",
+          "mode": "ordered"
+        }
+      ]
+    },
+    {
+      "id": "crimson.inventory.setExpansionValue",
+      "apiVersion": "0.1.0",
+      "inputSchema": {
+        "type": "object",
+        "required": [
+          "inventoryKey",
+          "expectedValue",
+          "desiredValue"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "inventoryKey": {
+            "const": 2
+          },
+          "expectedValue": {
+            "type": "string",
+            "pattern": "^(0|[1-9][0-9]{0,19})$"
+          },
+          "desiredValue": {
+            "type": "string",
+            "pattern": "^(0|[1-9][0-9]{0,19})$"
+          }
+        }
+      },
+      "writeDomains": [
+        {
+          "path": "inventory",
+          "mode": "ordered"
+        }
+      ]
+    },
+    {
+      "id": "crimson.inventory.addItem",
+      "apiVersion": "0.1.0",
+      "inputSchema": {
+        "type": "object",
+        "required": [
+          "definitionKey",
+          "quantity"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "definitionKey": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 4294967295
+          },
+          "quantity": {
+            "type": "string",
+            "pattern": "^[1-9][0-9]{0,19}$"
+          }
+        }
+      },
+      "writeDomains": [
+        {
+          "path": "inventory",
+          "mode": "ordered"
+        }
+      ]
+    },
+    {
+      "id": "crimson.companions.add",
+      "apiVersion": "0.1.0",
+      "inputSchema": {
+        "type": "object",
+        "required": [
+          "characterKey"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "characterKey": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 4294967295
+          }
+        }
+      },
+      "writeDomains": [
+        {
+          "path": "companions",
+          "mode": "ordered"
+        }
+      ]
+    },
+    {
+      "id": "crimson.cartography.reveal-map",
+      "apiVersion": "0.1.0",
+      "inputSchema": {
+        "type": "object",
+        "required": [],
+        "additionalProperties": false,
+        "properties": {}
+      },
+      "writeDomains": [
+        {
+          "path": "cartography",
+          "mode": "ordered"
+        }
+      ]
+    },
+    {
+      "id": "crimson.cartography.unlock-nexus",
+      "apiVersion": "0.1.0",
+      "inputSchema": {
+        "type": "object",
+        "required": [],
+        "additionalProperties": false,
+        "properties": {}
+      },
+      "writeDomains": [
+        {
+          "path": "cartography",
+          "mode": "ordered"
+        }
+      ]
+    },
+    {
+      "id": "crimson.preset.replaceAdventure",
+      "apiVersion": "0.1.0",
+      "inputSchema": {
+        "type": "object",
+        "required": [
+          "presetId",
+          "saveArtifactId",
+          "lobbyArtifactId"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "presetId": {
+            "type": "string",
+            "maxLength": 100
+          },
+          "saveArtifactId": {
+            "type": "string",
+            "maxLength": 128
+          },
+          "lobbyArtifactId": {
+            "type": "string",
+            "maxLength": 128
+          }
+        }
+      },
+      "writeDomains": [
+        {
+          "path": "preset",
+          "mode": "ordered"
+        }
+      ]
+    },
+    {
+      "id": "crimson.document.patchFixedWidth",
+      "apiVersion": "0.1.0",
+      "inputSchema": {
+        "type": "object",
+        "required": [
+          "plaintextSha256",
+          "schemaSha256",
+          "patches"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "plaintextSha256": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          },
+          "schemaSha256": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          },
+          "patches": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 16,
+            "items": {
+              "type": "object",
+              "required": [
+                "path",
+                "offset",
+                "expectedHex",
+                "replacementHex"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "path": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 512
+                },
+                "offset": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 8388608
+                },
+                "expectedHex": {
+                  "type": "string",
+                  "pattern": "^(?:[a-f0-9]{2}){1,4096}$"
+                },
+                "replacementHex": {
+                  "type": "string",
+                  "pattern": "^(?:[a-f0-9]{2}){1,4096}$"
+                }
+              }
+            }
+          }
+        }
+      },
+      "writeDomains": [
+        {
+          "path": "document",
+          "mode": "ordered"
+        }
+      ],
+      "experimental": true,
+      "entitlementEffects": "unreviewed",
+      "requiresIndependentHostInspector": true
+    }
+  ],
+  "entitlementPolicy": "host-enforced-no-bypass",
+  "dataDistribution": "external-provider-required-pending-rights-review",
+  "migrationState": "offline-shadow-control-live-canary-pending",
+  "workbench": {
+    "defaultQuery": {
+      "method": "crimson.inspect"
+    },
+    "inputOnlyRoles": [
+      "reference-data",
+      "preset-source"
+    ]
+  },
+  "ui": {
+    "script": "ui/dist/entry.js",
+    "css": "ui/dist/style.css",
+    "body": "ui/index.html"
+  },
+  "views": [
+    {
+      "id": "crimson.explorer",
+      "title": "Your adventure, your way.",
+      "kind": "custom",
+      "entrypoint": "ui/index.html"
+    },
+    {
+      "id": "crimson.presets",
+      "title": "Another way into Pywel.",
+      "kind": "custom",
+      "entrypoint": "ui/index.html"
+    },
+    {
+      "id": "crimson.import",
+      "title": "Bring your save along.",
+      "kind": "custom",
+      "entrypoint": "ui/index.html",
+      "advancedOnly": true
+    }
+  ],
+  "extensionApiDefinitions": {
+    "crimson.document": {
+      "apiVersion": "0.1.0",
+      "queries": [
+        "crimson.document",
+        "crimson.document.schema",
+        "crimson.document.fields",
+        "crimson.document.bytes"
+      ],
+      "operation": "crimson.document.patchFixedWidth",
+      "scope": "selected immutable typed PARC document",
+      "stability": "experimental typed locator API; save schema is not stable",
+      "publication": "independent trusted host validation required"
+    }
+  }
+}

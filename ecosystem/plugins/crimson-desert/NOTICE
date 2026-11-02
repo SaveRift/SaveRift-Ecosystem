@@ -1,0 +1,24 @@
+Crimson codec and adapted domain/operation source retain their existing MPL-2.0
+coverage. References include NattKh / Rice / RicePaddySoftware and SWISS Knife at
+96e7f78fcb00d6cb5615171a7f359f0c2de5b114, and Save Editor Workshop / Exponet1.01
+source archive8107ad0d900be25a64629f56f4ed7a0745bc1cd9b4a819349e35e5f51771a715.
+
+The strict PARC reader also researched bbfox0703/crimson-rs10b137d455408caa4fa7574f73ea062d9987cb9d
+(MIT). The portable native-compatible LZ4 compressor derives from Yann Collet's
+LZ4 standard implementation (BSD2-Clause); its full notice remains in the file
+and licenses/LZ4-BSD-2-Clause.txt.
+
+New provider/bridge/build helpers and synthetic tests marked Apache-2.0 are
+separate original work. SDK dependency licenses remain applicable. Game data,
+names, images, and donor/reference presets have separate rights. They are not
+relicensed by this notice and are not included with the executable release.
+
+Crimson Desert belongs to Pearl Abyss. SaveRift is independent and is not
+endorsed by Pearl Abyss or Microsoft. No Microsoft credentials, private cloud
+transport, private player data, or Xbox signing implementation is included.
+
+Bundled runtime helpers use @noble/hashes1.8.0, buffer6.0.3, base64-js1.5.1
+(MIT) and ieee7541.2.1 (BSD-3-Clause). The custom UI uses React/ReactDOM19.2.0
+and Phosphor Icons2.1.10 (MIT). Full notices for these actual included runtime
+and UI dependencies are retained under licenses/. They are not relicensed
+under MPL. Build-tool dependencies remain declared in the locked npm sources.

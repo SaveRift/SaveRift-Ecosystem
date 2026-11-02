@@ -1,0 +1,151 @@
+{
+  "schema": "saverift.extraction-source-map.v1",
+  "sourceCommit": "c79fdf084a642ff70a0a82dae0800a25d24a0b53",
+  "modules": [
+    {
+      "source": "server/crimson-codec.mjs",
+      "sha256": "e25753d280c6d3739e805151964d395a01c3818e5bd9d81ec516eec167633697",
+      "target": "src/crimson-codec.mjs"
+    },
+    {
+      "source": "server/crimson-document.mjs",
+      "sha256": "d2c505d3ff063d880461dfb086fce458838133258d9dd96e78f0b76802367445",
+      "target": "src/crimson-document.mjs"
+    },
+    {
+      "source": "server/crimson-domain.mjs",
+      "sha256": "b4f118f4bfc754e1b16a9944a06baf0c8f7a8b6724dd7b0f6403ec506cdb390e",
+      "target": "src/crimson-domain.mjs"
+    },
+    {
+      "source": "server/crimson-policy.mjs",
+      "sha256": "7456afd71b82b7e14d81b9972e63d2ceee3a228e9ba9f038594f197332da1c0a",
+      "target": "src/crimson-policy.mjs"
+    },
+    {
+      "source": "server/lz4-standard.mjs",
+      "sha256": "55dc4af50d7fd5c0d17920a0ab77de0fc958e10c172bfb3ea443be9bba4df62b",
+      "target": "src/lz4-standard.mjs"
+    },
+    {
+      "source": "server/catalog-item-profile.mjs",
+      "sha256": "b5d807bda7156ddfb1daa747abadcca5aae1f5eb9eabbaa57b3ffc3d4a6c0f3f",
+      "target": "src/catalog-item-profile.mjs"
+    },
+    {
+      "source": "server/companion-addition-profile.mjs",
+      "sha256": "ac19acb26799350b07574c77b639d7eda3f2403e3708790314dbee3eb20b83b3",
+      "target": "src/companion-addition-profile.mjs"
+    },
+    {
+      "source": "server/normal-item-profile.mjs",
+      "sha256": "7c4fd8c49419ca7a33a963f3e68880e99152e4a44ceea08b0af8e44997d6b17e",
+      "target": "src/normal-item-profile.mjs"
+    },
+    {
+      "source": "server/inventory-capacity.mjs",
+      "sha256": "055a058ca2c8d89a0988097166c81e6b104af6afdf215d63c7fdf798f7f57069",
+      "target": "src/inventory-capacity.mjs"
+    },
+    {
+      "source": "server/inventory-placement.mjs",
+      "sha256": "aa70c2e88596f0b08aff0f77f552dd34ec421716de5a0eb4d7d7c82ca903bba8",
+      "target": "src/inventory-placement.mjs"
+    },
+    {
+      "source": "server/inventory-quantity-profile.mjs",
+      "sha256": "824550fcecb328894fc6946cba89b1129be4192e05a9aaf4b307f4eb786c86a5",
+      "target": "src/inventory-quantity-profile.mjs"
+    },
+    {
+      "source": "server/structural-publication-profile.mjs",
+      "sha256": "58121644a26eeeffaf99a004b43579d4eba8fbf2add531754c3fc64f0eaf0b10",
+      "target": "src/structural-publication-profile.mjs"
+    },
+    {
+      "source": "server/crimson-structural-layout.mjs",
+      "sha256": "f77e43ac87e41ff5c9c2ad1c8c36ae0981bf690291763fd044380210278a788a",
+      "target": "src/crimson-structural-layout.mjs"
+    },
+    {
+      "source": "server/crimson-item-addition.mjs",
+      "sha256": "f39e6cd89011d13ef3809b07bcbebb82880afddf29967b1503bc7cdba2596bd5",
+      "target": "src/crimson-item-addition.mjs"
+    },
+    {
+      "source": "server/crimson-companion-addition.mjs",
+      "sha256": "fe24c4320e446db35106ede91a857c0f7f6ca06cd9895126715f22d93ce2896c",
+      "target": "src/crimson-companion-addition.mjs"
+    },
+    {
+      "source": "server/crimson-map-reveal.mjs",
+      "sha256": "806324dee1c0702275d997e362fe4692054f11e696f8dffff1fc2c9ea81f5fce",
+      "target": "src/crimson-map-reveal.mjs"
+    },
+    {
+      "source": "server/crimson-abyss-nexus.mjs",
+      "sha256": "52f8b831b0bb2a004a87736fd593588c6df1098d8fcffc9e3834c0ee00cb1153",
+      "target": "src/crimson-abyss-nexus.mjs"
+    },
+    {
+      "source": "server/crimson-nexus-discoveries.mjs",
+      "sha256": "f3a76192fa37663aac4597cd75d0996ad97d9bc9515537448a7e0e34c0209063",
+      "target": "src/crimson-nexus-discoveries.mjs"
+    },
+    {
+      "source": "server/crimson-draft.mjs",
+      "sha256": "f0360e6d8c8d745ad129d6717edbd7e40833c59e5921960cfbf49c03efb5c9ce",
+      "target": "src/crimson-draft.mjs"
+    },
+    {
+      "source": "server/structural-draft.mjs",
+      "sha256": "67be9145e5834655c0038334d512f53122ca64b763392c9146f03774c56a3076",
+      "target": "src/structural-draft.mjs"
+    },
+    {
+      "source": "server/mixed-draft.mjs",
+      "sha256": "eb2d67d8df97c77f4a23104ee843a5f883cce41de9f510d1ec776f0585426583",
+      "target": "src/mixed-draft.mjs"
+    },
+    {
+      "source": "server/cartography-draft.mjs",
+      "sha256": "cf0a450b5f1f715da8693b2a5769303241b0cb5ff56310fd2e1b3602d22942fd",
+      "target": "src/cartography-draft.mjs"
+    },
+    {
+      "source": "server/crimson-packs.mjs",
+      "sha256": "59d8205b67193fc4d6ff8f0a1da08f482abafb40565bc06e0f43b69ce90fa56c",
+      "target": "src/crimson-packs.mjs"
+    },
+    {
+      "source": "server/preset-library.mjs",
+      "sha256": "570bef5184884382cd5f6da43f1ac476e9d28ee7b84a411857ac10b6fd7575f8",
+      "target": "src/preset-library.mjs"
+    },
+    {
+      "source": "server/uploaded-save.mjs",
+      "sha256": "961fcfc35d2900e971667e2d2bbd0ab931e77ffa18c9582e057b56ae416be261",
+      "target": "src/uploaded-save.mjs"
+    },
+    {
+      "source": "server/catalog/crimson-adventure.mjs",
+      "sha256": "1ff693cff66ac5b401a649babd9452a974eeb03887242860bf2554d8f73c7ea1",
+      "target": "src/catalog/crimson-adventure.mjs"
+    },
+    {
+      "source": "server/catalog/crimson-artwork-resolver.mjs",
+      "sha256": "35be375d7626d2a6fcec5e20a13ececa1910dc65751ea4aa55a2f82cad566ac6",
+      "target": "src/catalog/crimson-artwork-resolver.mjs"
+    },
+    {
+      "source": "server/catalog/crimson-enrichment.mjs",
+      "sha256": "527a82704a323aa5328eef9d1eb9a6015607784a29d09c1096ca8d39b7106ddb",
+      "target": "src/catalog/crimson-enrichment.mjs"
+    },
+    {
+      "source": "server/catalog/crimson-packs.mjs",
+      "sha256": "fe96344df3af9a8f9ffb52f956b82c9ac571ec8bb64eadc58b1250cfe8a33556",
+      "target": "src/catalog/crimson-packs.mjs"
+    }
+  ]
+}

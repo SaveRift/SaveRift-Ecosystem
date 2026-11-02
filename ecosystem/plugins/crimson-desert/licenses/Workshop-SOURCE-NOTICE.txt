@@ -1,0 +1,48 @@
+Crimson Desert browser save editor — source and license notice
+
+Upstream: SWISS Knife / Crimson Desert Save Editor
+Rice / RicePaddySoftware (NattKh) and contributors
+Copyright (c) 2026 RicePaddySoftware
+https://github.com/NattKh/CRIMSON-DESERT-SAVE-EDITOR-AND-GAME-MODS
+
+Reused MPL-covered source and modifications to that covered code are made
+available under Mozilla Public License 2.0. A copy is provided alongside this
+notice at /credits/crimson-save-editor-LICENSE.txt. Recipients retain the
+rights granted by that license. Original upstream credits are preserved at
+/credits/upstream-CREDITS.txt.
+
+This derivative uses the upstream PARC serializer and save-format foundation.
+Its browser integration and current editing extensions were generated with
+OpenAI Codex under the project owner’s direction and tested by the owner.
+It is not an official release or endorsement by the upstream authors.
+
+The files below are the readable source served by this version. Open each
+path on this website to read or save it. The index includes current editor
+modules as well as the upstream serializer and item-limit reference.
+Listing a file here does not relicense third-party game data or artwork.
+Game assets belong to Pearl Abyss and are not licensed by MPL-2.0.
+
+/python/editor/abyss_gear_compatibility.py
+/python/editor/browser_codec.py
+/python/editor/browser_companions.py
+/python/editor/browser_equipment.py
+/python/editor/browser_inventory.py
+/python/editor/catalog_equipment.py
+/python/editor/companion_reader.py
+/python/editor/donor_equipment_inserter.py
+/python/editor/equipment_editor.py
+/python/editor/equipment_loadout.py
+/python/editor/inventory_editor.py
+/python/editor/inventory_inserter.py
+/python/editor/inventory_reader.py
+/python/editor/item_catalog.py
+/python/editor/item_discovery.py
+/python/editor/knowledge_inserter.py
+/python/editor/knowledge_reader.py
+/python/editor/safe_edit_engine.py
+/python/editor/save_container.py
+/python/editor/socket_caps.py
+/save-codec.mjs
+/save-parser.worker.mjs
+/python/upstream/item_limits.json
+/python/upstream/parc_serializer.py

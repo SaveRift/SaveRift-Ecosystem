@@ -1,0 +1,20 @@
+{
+ "manifestVersion":"0.1",
+ "id":"example.synthetic-game",
+ "kind":"game",
+ "version":"0.1.0",
+ "displayName":"Synthetic Frontier",
+ "license":"Apache-2.0",
+ "hostApi":">=0.1.0 <0.2.0",
+ "entrypoints":{"runtime":"runtime/connector.mjs","runtimeProfile":"isolated-js-v1"},
+ "uiMode":"hybrid",
+ "gameTargets":[{"platform":"synthetic","identityRef":"synthetic.frontier","saveFamilies":["rift-synthetic-1"]}],
+ "extensionApis":{"example.synthetic.document":"0.1.0"},
+ "permissions":["bundle.read-selected","draft.transform-selected","ui.register-views"],
+ "operations":[
+  {"id":"example.synthetic.setProgression","apiVersion":"0.1.0","writeDomains":[{"path":"progression","mode":"ordered"}],"inputSchema":{"type":"object","required":["level","xp","skillPoints"],"additionalProperties":false,"properties":{"level":{"type":"integer","minimum":1,"maximum":1000},"xp":{"type":"integer","minimum":0,"maximum":9007199254740991},"skillPoints":{"type":"integer","minimum":0,"maximum":9007199254740991}}}},
+  {"id":"example.synthetic.setFaction","apiVersion":"0.1.0","writeDomains":[{"path":"factions","mode":"ordered"}],"inputSchema":{"type":"object","required":["id","reputation"],"additionalProperties":false,"properties":{"id":{"type":"string","minLength":1,"maxLength":100},"reputation":{"type":"integer","minimum":-1000,"maximum":1000}}}},
+  {"id":"example.synthetic.setVehicleFuel","apiVersion":"0.1.0","writeDomains":[{"path":"vehicle","mode":"ordered"}],"inputSchema":{"type":"object","required":["fuel"],"additionalProperties":false,"properties":{"fuel":{"type":"number","minimum":0,"maximum":100}}}}
+ ],
+ "entitlementPolicy":"host-enforced-no-bypass"
+}

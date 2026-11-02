@@ -1,0 +1,50 @@
+{
+  "name": "@saverift/sdk",
+  "version": "0.1.0-dev.1",
+  "private": true,
+  "type": "module",
+  "description": "SaveRift public plugin contracts and bounded offline reference runner",
+  "license": "Apache-2.0",
+  "exports": {
+    ".": {
+      "types": "./contracts.d.mts",
+      "import": "./contracts.mjs"
+    },
+    "./runner": {
+      "types": "./runner.d.mts",
+      "import": "./runner.mjs"
+    },
+    "./worker-runner": "./worker-runner.mjs",
+    "./crypto": "./crypto.mjs",
+    "./buffer": "./buffer.mjs",
+    "./text-encoding": "./text-encoding.mjs",
+    "./ui-bridge": "./ui-bridge.mjs",
+    "./data": "./data.mjs",
+    "./entitlements": "./entitlements.mjs",
+    "./presets": "./presets.mjs",
+    "./registry": "./registry.mjs",
+    "./draft": "./draft.mjs",
+    "./schema": {
+      "types": "./schema.d.mts",
+      "import": "./schema.mjs"
+    },
+    "./operation-catalog": {
+      "types": "./operation-catalog.d.mts",
+      "import": "./operation-catalog.mjs"
+    }
+  },
+  "scripts": {
+    "test": "node --test test/*.test.mjs"
+  },
+  "dependencies": {
+    "@jitl/quickjs-wasmfile-release-sync": "0.32.0",
+    "@noble/hashes": "1.8.0",
+    "buffer": "6.0.3",
+    "quickjs-emscripten-core": "0.32.0"
+  },
+  "devDependencies": {
+    "esbuild": "0.28.2",
+    "workerd": "1.20261102.1"
+  },
+  "types": "./contracts.d.mts"
+}
