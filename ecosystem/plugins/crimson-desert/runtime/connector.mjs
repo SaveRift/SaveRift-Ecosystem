@@ -31,9 +31,9 @@ var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__ge
   mod
 ));
 
-// ../../sdk/node_modules/base64-js/index.js
+// ../../../../saverift-ecosystem/ecosystem/sdk/node_modules/base64-js/index.js
 var require_base64_js = __commonJS({
-  "../../sdk/node_modules/base64-js/index.js"(exports) {
+  "../../../../saverift-ecosystem/ecosystem/sdk/node_modules/base64-js/index.js"(exports) {
     "use strict";
     exports.byteLength = byteLength;
     exports.toByteArray = toByteArray;
@@ -132,9 +132,9 @@ var require_base64_js = __commonJS({
   }
 });
 
-// ../../sdk/node_modules/ieee754/index.js
+// ../../../../saverift-ecosystem/ecosystem/sdk/node_modules/ieee754/index.js
 var require_ieee754 = __commonJS({
-  "../../sdk/node_modules/ieee754/index.js"(exports) {
+  "../../../../saverift-ecosystem/ecosystem/sdk/node_modules/ieee754/index.js"(exports) {
     /*! ieee754. BSD-3-Clause License. Feross Aboukhadijeh <https://feross.org/opensource> */
     exports.read = function(buffer, offset, isLE, mLen, nBytes) {
       var e, m;
@@ -216,9 +216,9 @@ var require_ieee754 = __commonJS({
   }
 });
 
-// ../../sdk/node_modules/buffer/index.js
+// ../../../../saverift-ecosystem/ecosystem/sdk/node_modules/buffer/index.js
 var require_buffer = __commonJS({
-  "../../sdk/node_modules/buffer/index.js"(exports) {
+  "../../../../saverift-ecosystem/ecosystem/sdk/node_modules/buffer/index.js"(exports) {
     "use strict";
     /*!
      * The buffer module from node.js, for the browser.
@@ -1822,7 +1822,7 @@ var init_buffer = __esm({
   }
 });
 
-// ../../sdk/node_modules/@noble/hashes/esm/utils.js
+// ../../../../saverift-ecosystem/ecosystem/sdk/node_modules/@noble/hashes/esm/utils.js
 function isBytes(a) {
   return a instanceof Uint8Array || ArrayBuffer.isView(a) && a.constructor.name === "Uint8Array";
 }
@@ -1887,7 +1887,7 @@ function createHasher(hashCons) {
 }
 var Hash, wrapConstructor;
 var init_utils = __esm({
-  "../../sdk/node_modules/@noble/hashes/esm/utils.js"() {
+  "../../../../saverift-ecosystem/ecosystem/sdk/node_modules/@noble/hashes/esm/utils.js"() {
     /*! noble-hashes - MIT License (c) 2022 Paul Miller (paulmillr.com) */
     Hash = class {
     };
@@ -1895,7 +1895,7 @@ var init_utils = __esm({
   }
 });
 
-// ../../sdk/node_modules/@noble/hashes/esm/_md.js
+// ../../../../saverift-ecosystem/ecosystem/sdk/node_modules/@noble/hashes/esm/_md.js
 function setBigUint64(view, byteOffset, value2, isLE) {
   if (typeof view.setBigUint64 === "function")
     return view.setBigUint64(byteOffset, value2, isLE);
@@ -1916,7 +1916,7 @@ function Maj(a, b, c) {
 }
 var HashMD, SHA256_IV;
 var init_md = __esm({
-  "../../sdk/node_modules/@noble/hashes/esm/_md.js"() {
+  "../../../../saverift-ecosystem/ecosystem/sdk/node_modules/@noble/hashes/esm/_md.js"() {
     init_utils();
     HashMD = class extends Hash {
       constructor(blockLen, outputLen, padOffset, isLE) {
@@ -2021,10 +2021,10 @@ var init_md = __esm({
   }
 });
 
-// ../../sdk/node_modules/@noble/hashes/esm/sha2.js
+// ../../../../saverift-ecosystem/ecosystem/sdk/node_modules/@noble/hashes/esm/sha2.js
 var SHA256_K, SHA256_W, SHA256;
 var init_sha2 = __esm({
-  "../../sdk/node_modules/@noble/hashes/esm/sha2.js"() {
+  "../../../../saverift-ecosystem/ecosystem/sdk/node_modules/@noble/hashes/esm/sha2.js"() {
     init_md();
     init_utils();
     SHA256_K = /* @__PURE__ */ Uint32Array.from([
@@ -2167,19 +2167,19 @@ var init_sha2 = __esm({
   }
 });
 
-// ../../sdk/node_modules/@noble/hashes/esm/sha256.js
+// ../../../../saverift-ecosystem/ecosystem/sdk/node_modules/@noble/hashes/esm/sha256.js
 var SHA2562;
 var init_sha256 = __esm({
-  "../../sdk/node_modules/@noble/hashes/esm/sha256.js"() {
+  "../../../../saverift-ecosystem/ecosystem/sdk/node_modules/@noble/hashes/esm/sha256.js"() {
     init_sha2();
     SHA2562 = SHA256;
   }
 });
 
-// ../../sdk/node_modules/@noble/hashes/esm/hmac.js
+// ../../../../saverift-ecosystem/ecosystem/sdk/node_modules/@noble/hashes/esm/hmac.js
 var HMAC, hmac;
 var init_hmac = __esm({
-  "../../sdk/node_modules/@noble/hashes/esm/hmac.js"() {
+  "../../../../saverift-ecosystem/ecosystem/sdk/node_modules/@noble/hashes/esm/hmac.js"() {
     init_utils();
     HMAC = class extends Hash {
       constructor(hash2, _key) {
@@ -4739,9 +4739,9 @@ function structuralSourcePayload(backup, metadata3, input) {
   assertSourceBinding(backup, metadata3, input);
   const c = one(backup.containers, (c2) => c2.index?.fileName === input.container), blob = one(c.blobs, (b) => b.name === "save");
   if (c.blobs.length !== 2 || !c.blobs.some((b) => b.name === "lobby") || blob.sha256 !== input.payloadSha256) fail8("STRUCTURAL_SOURCE_CHANGED");
-  const bytes2 = import_buffer.Buffer.from(blob.data, "base64");
-  if (bytes2.length < 128 || bytes2.length > 8 * 1024 * 1024 || bytes2.length !== blob.size || bytes2.toString("base64") !== blob.data || hash(bytes2) !== blob.sha256) fail8("STRUCTURAL_SOURCE_CHANGED");
-  return { bytes: bytes2, blob };
+  const prepared = preparedSource(backup, metadata3, input), bytes2 = prepared?.encoded || import_buffer.Buffer.from(blob.data, "base64");
+  if (bytes2.length < 128 || bytes2.length > 8 * 1024 * 1024 || bytes2.length !== blob.size || !prepared && (bytes2.toString("base64") !== blob.data || hash(bytes2) !== blob.sha256)) fail8("STRUCTURAL_SOURCE_CHANGED");
+  return { bytes: bytes2, blob, prepared };
 }
 function semanticIndex(raw) {
   const knowledge2 = /* @__PURE__ */ new Map(), knowledgePaths = /* @__PURE__ */ new Map(), identities = /* @__PURE__ */ new Map();
@@ -4789,7 +4789,7 @@ function createStructuralDraftCompiler({ schemaPins = [CRIMSON_CURRENT_SCHEMA], 
   return async function compileStructuralDraft2(backup, metadata3, input, { nonce, retainEncoded = false } = {}) {
     assertStructuralPlan(input, { schemaPins });
     if (nonce !== void 0 && (!import_buffer.Buffer.isBuffer(nonce) || nonce.length !== 16)) fail8("STRUCTURAL_NONCE_INVALID");
-    const { bytes: source, blob } = structuralSourcePayload(backup, metadata3, input), decoded = await decodeSave(source), sourceIndex = semanticIndex(decoded.plaintext);
+    const { bytes: source, blob, prepared } = structuralSourcePayload(backup, metadata3, input), decoded = prepared?.decoded || await decodeSave(source), sourceIndex = semanticIndex(decoded.plaintext);
     let before = sourceIndex.document;
     if (decoded.version !== 2 || !schemaPins.includes(before.schemaSha256) || before.schemaSha256 !== input.schemaSha256 || before.plaintextSha256 !== input.plaintextSha256 || before.audit.advisoryLocators || before.audit.unconsumedBytes) fail8("STRUCTURAL_SOURCE_CHANGED");
     if (!(await encodeSave(decoded.plaintext, decoded.header, { nonce: decoded.header.subarray(26, 42) })).equals(source)) fail8("STRUCTURAL_NATIVE_PARITY_FAILED");
@@ -5340,7 +5340,7 @@ function createMixedDraftCompiler({ schemaPins = [CRIMSON_CURRENT_SCHEMA], struc
     assertMixedPlan(suppliedInput, { schemaPins });
     const input = structuredClone(suppliedInput), requestedPlanSha256 = mixedPlanDigest(input);
     if (nonce !== void 0 && (!import_buffer.Buffer.isBuffer(nonce) || nonce.length !== 16) || typeof retainEncoded !== "boolean") fail12("MIXED_OPTIONS_INVALID");
-    const { bytes: source } = structuralSourcePayload(backup, ownedMetadata, input), decoded = await decodeSave(source), before = metadata2(decoded.plaintext);
+    const { bytes: source, prepared } = structuralSourcePayload(backup, ownedMetadata, input), decoded = prepared?.decoded || await decodeSave(source), before = prepared?.document || metadata2(decoded.plaintext);
     if (decoded.version !== 2 || before.schemaSha256 !== input.schemaSha256 || before.plaintextSha256 !== input.plaintextSha256 || before.audit.advisoryLocators || before.audit.unconsumedBytes) fail12("MIXED_SOURCE_CHANGED");
     if (!(await encodeSave(decoded.plaintext, decoded.header, { nonce: decoded.header.subarray(26, 42) })).equals(source)) fail12("MIXED_NATIVE_PARITY_FAILED");
     let working = source, plainHash = before.plaintextSha256;

@@ -35,7 +35,10 @@ export function createMixedDraftCompiler({schemaPins=[CRIMSON_CURRENT_SCHEMA],st
  if(!Array.isArray(schemaPins)||!schemaPins.length||schemaPins.length>3||schemaPins.some(s=>!/^[a-f0-9]{64}$/.test(s))||[structuralCompiler,scalarCompiler,nexusCompiler,mapCompiler].some(fn=>typeof fn!=='function'))throw Error('Invalid internal mixed compiler configuration.');
  return async function compile(backup,ownedMetadata,suppliedInput,{nonce,retainEncoded=false}={}){
   assertMixedPlan(suppliedInput,{schemaPins});const input=structuredClone(suppliedInput),requestedPlanSha256=mixedPlanDigest(input);if(nonce!==undefined&&(!Buffer.isBuffer(nonce)||nonce.length!==16)||typeof retainEncoded!=='boolean')fail('MIXED_OPTIONS_INVALID');
-  const {bytes:source}=structuralSourcePayload(backup,ownedMetadata,input),decoded=await decodeSave(source),before=metadata(decoded.plaintext);
+  // The primary connector has already authenticated and strictly traversed its
+  // immutable original. An opaque prepared handle can reuse that exact proof;
+  // independent/cloned sources still decode and traverse before composition.
+  const {bytes:source,prepared}=structuralSourcePayload(backup,ownedMetadata,input),decoded=prepared?.decoded||await decodeSave(source),before=prepared?.document||metadata(decoded.plaintext);
   if(decoded.version!==2||before.schemaSha256!==input.schemaSha256||before.plaintextSha256!==input.plaintextSha256||before.audit.advisoryLocators||before.audit.unconsumedBytes)fail('MIXED_SOURCE_CHANGED');
   if(!(await encodeSave(decoded.plaintext,decoded.header,{nonce:decoded.header.subarray(0x1a,0x2a)})).equals(source))fail('MIXED_NATIVE_PARITY_FAILED');
   let working=source,plainHash=before.plaintextSha256;const stages=[],diff=[],nonCart=input.operations.filter(op=>!cartography.includes(op.operation));

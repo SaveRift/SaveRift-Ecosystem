@@ -2,7 +2,7 @@
 // Inputs contain intent and immutable-source bindings, never bytes or offsets.
 import {Buffer} from '../../../sdk/buffer.mjs';
 import {createHash} from '../../../sdk/crypto.mjs';
-import {ProbeError,hash,verifyBackup,assertSourceBinding} from './source-binding.mjs';
+import {ProbeError,hash,verifyBackup,assertSourceBinding,preparedSource} from './source-binding.mjs';
 import {decodeSave,encodeSave,CodecError} from './crimson-codec.mjs';
 import {readDocument,field,value,elements,DECODER_REVISION} from './crimson-document.mjs';
 import {CRIMSON_CURRENT_SCHEMA,createWorkbenchDraft} from './crimson-draft.mjs';
@@ -44,7 +44,10 @@ export function structuralSourcePayload(backup,metadata,input){
  assertSourceBinding(backup,metadata,input);
  const c=one(backup.containers,c=>c.index?.fileName===input.container),blob=one(c.blobs,b=>b.name==='save');
  if(c.blobs.length!==2||!c.blobs.some(b=>b.name==='lobby')||blob.sha256!==input.payloadSha256)fail('STRUCTURAL_SOURCE_CHANGED');
- const bytes=Buffer.from(blob.data,'base64');if(bytes.length<128||bytes.length>8*1024*1024||bytes.length!==blob.size||bytes.toString('base64')!==blob.data||hash(bytes)!==blob.sha256)fail('STRUCTURAL_SOURCE_CHANGED');return {bytes,blob};
+ const prepared=preparedSource(backup,metadata,input),bytes=prepared?.encoded||Buffer.from(blob.data,'base64');
+ // Only this engine's opaque, context/digest-bound original may reuse bytes.
+ // Clones and caller-created sources retain the complete canonical/hash path.
+ if(bytes.length<128||bytes.length>8*1024*1024||bytes.length!==blob.size||!prepared&&(bytes.toString('base64')!==blob.data||hash(bytes)!==blob.sha256))fail('STRUCTURAL_SOURCE_CHANGED');return {bytes,blob,prepared};
 }
 // Full scalar events are retained only as bounded identity/knowledge metadata;
 // large knowledge lists are not expanded into UI-style object projections.
@@ -71,7 +74,7 @@ export function createStructuralDraftCompiler({schemaPins=[CRIMSON_CURRENT_SCHEM
  if(!Array.isArray(schemaPins)||!schemaPins.length||schemaPins.length>3||schemaPins.some(s=>!/^[a-f0-9]{64}$/.test(s))||[itemCompiler,companionCompiler,scalarCompiler].some(fn=>typeof fn!=='function'))throw Error('Invalid internal structural compiler configuration.');
  return async function compileStructuralDraft(backup,metadata,input,{nonce,retainEncoded=false}={}){
  assertStructuralPlan(input,{schemaPins});if(nonce!==undefined&&(!Buffer.isBuffer(nonce)||nonce.length!==16))fail('STRUCTURAL_NONCE_INVALID');
- const {bytes:source,blob}=structuralSourcePayload(backup,metadata,input),decoded=await decodeSave(source),sourceIndex=semanticIndex(decoded.plaintext);let before=sourceIndex.document;
+ const {bytes:source,blob,prepared}=structuralSourcePayload(backup,metadata,input),decoded=prepared?.decoded||await decodeSave(source),sourceIndex=semanticIndex(decoded.plaintext);let before=sourceIndex.document;
  if(decoded.version!==2||!schemaPins.includes(before.schemaSha256)||before.schemaSha256!==input.schemaSha256||before.plaintextSha256!==input.plaintextSha256||before.audit.advisoryLocators||before.audit.unconsumedBytes)fail('STRUCTURAL_SOURCE_CHANGED');
  if(!(await encodeSave(decoded.plaintext,decoded.header,{nonce:decoded.header.subarray(0x1a,0x2a)})).equals(source))fail('STRUCTURAL_NATIVE_PARITY_FAILED');
  const addItems=input.operations.filter(o=>o.operation==='inventory.addItem'),addPets=input.operations.filter(o=>o.operation==='companions.add'),scalarOps=input.operations.filter(o=>scalarNames.includes(o.operation)).map(o=>({...o}));

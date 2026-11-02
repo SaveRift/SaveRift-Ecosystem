@@ -1,7 +1,7 @@
 {
   "schema": "saverift.package-build.v1",
-  "packageDigest": "cd0d2095c4f683e4d5ff69aec73ba73db99f357cb54d062e8dc5e1509aaaa0c9",
-  "byteLength": 1074091,
+  "packageDigest": "e3024274071025584be00867681f3bf41e27bf28075334a387045bb4e55f294d",
+  "byteLength": 1074834,
   "files": [
     {
       "path": "data/provider-requirements.json",
@@ -85,8 +85,8 @@
     },
     {
       "path": "runtime/connector.mjs",
-      "byteLength": 432385,
-      "sha256": "69cd259e6fce7ebe8ab17a9f9d5bce898664a43b89e6c7e5c83c9f1b31357d44"
+      "byteLength": 433128,
+      "sha256": "452777eaf5784916e95ae565adf15f15f3c31fd3d34b5c33583a895d6329af67"
     },
     {
       "path": "ui/dist/entry.js",
@@ -105,18 +105,18 @@
     }
   ],
   "inputs": [
+    "../../../../saverift-ecosystem/ecosystem/sdk/node_modules/@noble/hashes/esm/_md.js",
+    "../../../../saverift-ecosystem/ecosystem/sdk/node_modules/@noble/hashes/esm/_u64.js",
+    "../../../../saverift-ecosystem/ecosystem/sdk/node_modules/@noble/hashes/esm/crypto.js",
+    "../../../../saverift-ecosystem/ecosystem/sdk/node_modules/@noble/hashes/esm/hmac.js",
+    "../../../../saverift-ecosystem/ecosystem/sdk/node_modules/@noble/hashes/esm/sha2.js",
+    "../../../../saverift-ecosystem/ecosystem/sdk/node_modules/@noble/hashes/esm/sha256.js",
+    "../../../../saverift-ecosystem/ecosystem/sdk/node_modules/@noble/hashes/esm/utils.js",
+    "../../../../saverift-ecosystem/ecosystem/sdk/node_modules/base64-js/index.js",
+    "../../../../saverift-ecosystem/ecosystem/sdk/node_modules/buffer/index.js",
+    "../../../../saverift-ecosystem/ecosystem/sdk/node_modules/ieee754/index.js",
     "../../sdk/buffer.mjs",
     "../../sdk/crypto.mjs",
-    "../../sdk/node_modules/@noble/hashes/esm/_md.js",
-    "../../sdk/node_modules/@noble/hashes/esm/_u64.js",
-    "../../sdk/node_modules/@noble/hashes/esm/crypto.js",
-    "../../sdk/node_modules/@noble/hashes/esm/hmac.js",
-    "../../sdk/node_modules/@noble/hashes/esm/sha2.js",
-    "../../sdk/node_modules/@noble/hashes/esm/sha256.js",
-    "../../sdk/node_modules/@noble/hashes/esm/utils.js",
-    "../../sdk/node_modules/base64-js/index.js",
-    "../../sdk/node_modules/buffer/index.js",
-    "../../sdk/node_modules/ieee754/index.js",
     "../../sdk/schema.mjs",
     "../../sdk/text-encoding.mjs",
     "connector.mjs",

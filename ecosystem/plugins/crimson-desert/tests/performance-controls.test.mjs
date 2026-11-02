@@ -78,3 +78,23 @@ test('digest-free strict traversal preserves every field and format assertion',a
  assert.throws(()=>readDocument(changed,{...options,hashPlaintext:false}),{code:'PARC_TYPED_INVALID'});
  assert.throws(()=>readDocument(fixture.raw,{hashPlaintext:'disabled'}),{code:'PARC_TYPED_INVALID'});
 });
+
+test('structural composition reuses only its exact prepared original; cloned sources remain fully checked',async()=>{
+ const {decodeSave}=await import('../src/crimson-codec.mjs'),{readDocument}=await import('../src/crimson-document.mjs'),{bindPreparedSource,preparedSource}=await import('../src/source-binding.mjs'),{structuralSourcePayload}=await import('../src/structural-draft.mjs');
+ const header=Buffer.alloc(128);header.write('SAVE');header.writeUInt16LE(2,4);header.writeUInt16LE(128,6);header[0x70]=37;
+ const encoded=await encodeSave(quantityParcFixture().raw,header,{nonce:Buffer.alloc(16,3)}),lobby=Buffer.from('invented unchanged paired sidecar'),files=new Map([['main',encoded],['sidecar',lobby]]),bundle={id:'paired-synthetic',bundleDigest:hash('paired-synthetic'),artifacts:[...files].map(([id,bytes])=>({id,logicalPath:'slot100,savedgame/'+(id==='main'?'save':'lobby'),role:id==='main'?'main':'sidecar',byteLength:bytes.length,sha256:hash(bytes)}))},context={executionLock:{digest:hash('paired-lock')},readArtifact:id=>files.get(id)},bound=sourceFromBundle(bundle,context),decoded=await decodeSave(encoded),document=readDocument(decoded.plaintext),input={backupSha256:bundle.bundleDigest,backupRevision:bundle.bundleDigest,container:'slot100,savedgame',payload:'save',payloadSha256:hash(encoded),plaintextSha256:document.plaintextSha256,schemaSha256:document.schemaSha256};
+ bindPreparedSource(bound.source,bound.metadata,{context,container:input.container,payload:input.payload,payloadSha256:input.payloadSha256,decoded,document});
+ const prepared=preparedSource(bound.source,bound.metadata,input),trusted=structuralSourcePayload(bound.source,bound.metadata,input);assert.equal(trusted.prepared,prepared);assert.equal(trusted.bytes,prepared.encoded);assert.equal(trusted.prepared.decoded,decoded);assert.equal(trusted.prepared.document,document);
+ const copy=JSON.parse(JSON.stringify(bound.source)),untrusted=structuralSourcePayload(copy,bound.metadata,input);assert.equal(untrusted.prepared,null);assert.notEqual(untrusted.bytes,trusted.bytes);assert.equal(untrusted.bytes.equals(encoded),true);assert.equal((await decodeSave(untrusted.bytes)).plaintext.equals(decoded.plaintext),true);
+ copy.containers[0].blobs[0].data=Buffer.from('tampered paired bytes').toString('base64');assert.throws(()=>structuralSourcePayload(copy,bound.metadata,input),{code:'CRIMSON_ARTIFACT_SOURCE_INVALID'});
+ assert.throws(()=>structuralSourcePayload(bound.source,bound.metadata,{...input,plaintextSha256:hash('stale plaintext')}),{code:'CRIMSON_PREPARED_SOURCE_CHANGED'});
+ assert.equal(encoded.equals(await encodeSave(decoded.plaintext,decoded.header,{nonce:decoded.header.subarray(0x1a,0x2a)})),true);assert.equal(lobby.equals(files.get('sidecar')),true);
+});
+
+test('prepared composition never substitutes for the required matching paired source',async()=>{
+ const {decodeSave}=await import('../src/crimson-codec.mjs'),{readDocument}=await import('../src/crimson-document.mjs'),{bindPreparedSource}=await import('../src/source-binding.mjs'),{structuralSourcePayload}=await import('../src/structural-draft.mjs');
+ const header=Buffer.alloc(128);header.write('SAVE');header.writeUInt16LE(2,4);header.writeUInt16LE(128,6);
+ const encoded=await encodeSave(quantityParcFixture().raw,header,{nonce:Buffer.alloc(16,4)}),bundle={id:'unpaired',bundleDigest:hash('unpaired'),artifacts:[{id:'main',logicalPath:'slot100,savedgame/save',role:'main',byteLength:encoded.length,sha256:hash(encoded)}]},context={executionLock:{digest:hash('unpaired-lock')},readArtifact:()=>encoded},bound=sourceFromBundle(bundle,context),decoded=await decodeSave(encoded),document=readDocument(decoded.plaintext),input={backupSha256:bundle.bundleDigest,backupRevision:bundle.bundleDigest,container:'slot100,savedgame',payload:'save',payloadSha256:hash(encoded),plaintextSha256:document.plaintextSha256,schemaSha256:document.schemaSha256};
+ bindPreparedSource(bound.source,bound.metadata,{context,container:input.container,payload:input.payload,payloadSha256:input.payloadSha256,decoded,document});
+ assert.throws(()=>structuralSourcePayload(bound.source,bound.metadata,input),{code:'STRUCTURAL_SOURCE_CHANGED'});assert.throws(()=>structuralSourcePayload(JSON.parse(JSON.stringify(bound.source)),bound.metadata,input),{code:'STRUCTURAL_SOURCE_CHANGED'});
+});
