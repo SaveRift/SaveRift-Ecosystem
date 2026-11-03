@@ -13,6 +13,10 @@ import {existingStackQuantityProfile,validInventoryKey} from './inventory-quanti
 
 export const CRIMSON_DRAFT_REVISION='saveglass.crimson-existing-scalars.v3';
 export const CRIMSON_CURRENT_SCHEMA='8427f58057ea9bf6dac35bc139cba163ddb135cfe89d748a2d36b94eec88d668';
+// Reviewed descriptor reordering plus three untouched types. Only existing
+// stack quantities are supported; structural, Copper and bag-size pins stay put.
+export const CRIMSON_QUANTITY_SCHEMA='5d31e58dfb5dee0449bb59162f7a0d68ad56e67faf2aa06a5b41c38daf31e003';
+const QUANTITY_SCHEMA_PIN=Object.freeze({schemaSha256:CRIMSON_QUANTITY_SCHEMA,requiresHousing:true});
 // These are conservative product bounds, not a claim of an engine maximum.
 // The owner supplied the base-capacity rule; decreases remain unsupported.
 export const CRIMSON_BAG_CAPACITY=Object.freeze({base:50,min:50,max:250,increaseOnly:true});
@@ -135,7 +139,8 @@ export function createCrimsonDraftCompiler({schemaPins=CRIMSON_DRAFT_SCHEMAS,ass
     if(source.length>8*1024*1024||!prepared&&source.toString('base64')!==blobs[0].data)fail('CRIMSON_DRAFT_PAYLOAD_INVALID');
     const decoded=prepared?.decoded||await decodeSave(source);
     if(decoded.version!==2)fail('CRIMSON_DRAFT_WRAPPER_UNSUPPORTED');
-    const projection=prepared?.projection||{fieldListLimits:{'InventoryElementSaveData._itemList':1024}},before=prepared?.document||readDocument(decoded.plaintext,projection),pin=pins.get(before.schemaSha256);
+    const projection=prepared?.projection||{fieldListLimits:{'InventoryElementSaveData._itemList':1024}},before=prepared?.document||readDocument(decoded.plaintext,projection);
+    const pin=pins.get(before.schemaSha256)||(schemaPins===CRIMSON_DRAFT_SCHEMAS&&before.schemaSha256===CRIMSON_QUANTITY_SCHEMA&&input.operations.every(op=>op.operation==='inventory.setQuantity')?QUANTITY_SCHEMA_PIN:null);
     if(!pin||input.schemaSha256!==before.schemaSha256)fail('CRIMSON_DRAFT_SCHEMA_UNSUPPORTED','This snapshot schema is outside the reviewed offline composition pins.');
     if(input.plaintextSha256!==before.plaintextSha256)fail('CRIMSON_DRAFT_STALE','The original plaintext binding changed.');
     assertCapability({schemaSha256:before.schemaSha256,saveVersion:decoded.version,container:input.container,payload:input.payload});
