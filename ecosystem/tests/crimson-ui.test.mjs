@@ -9,24 +9,68 @@ import {build} from 'esbuild';
 import {publicOperations, legacyDrafts, isCrimsonUiOperation} from '../plugins/crimson-desert/ui/components/draft-adapter.mjs';
 import {buildCustomUi} from '../ui/build-ui.mjs';
 import {createFrameDocument} from '../ui/frame-document.mjs';
+import {buildCrimsonPackage} from '../plugins/crimson-desert/scripts/build.mjs';
+import {createOperationCatalog} from '../sdk/operation-catalog.mjs';
+import {createDraft, editDraft} from '../sdk/draft.mjs';
+import {additionPreview, stagedScalar} from '../plugins/crimson-desert/ui/components/inventory-tools.mjs';
+import {stagedCartography} from '../plugins/crimson-desert/ui/components/cartography-plan.mjs';
 
-test('all existing Crimson UI intention families map to registered canonical operations', () => {
+let catalogPromise;
+const gameCatalog = () => catalogPromise ??= buildCrimsonPackage({write: false}).then(pkg => createOperationCatalog([pkg]));
+const emptyDraft = () => createDraft({id: 'synthetic-ui', baseBundleDigest: 'a'.repeat(64), sourceRevision: 'b'.repeat(64), accountBindingDigest: 'c'.repeat(64), executionLockDigest: 'd'.repeat(64)});
+
+test('actual UI intents for all seven legacy families pass the packaged catalog and stage together', async () => {
+  const record = {inventoryKey: 8, definitionKey: 720004, instanceId: '18446744073709551614', slot: 27, quantity: '50', quantityPresent: true, displayName: 'Synthetic ore'};
+  const domains = {inventory: {records: [], bags: []}};
   const intents = [
-    {schema: 'saveglass.crimson-staged-operation.v1', operation: 'inventory.setQuantity', inventoryKey: 2, definitionKey: 101, instanceId: '18446744073709551614', slot: 4, expectedValue: '5', desiredValue: '6', displayName: 'Synthetic fish', publishEligible: false},
-    {operation: 'inventory.setCopper', inventoryKey: 2, definitionKey: 1, desiredValue: '20'},
-    {operation: 'inventory.setExpansionValue', inventoryKey: 2, desiredValue: '43'},
-    {operation: 'inventory.addItem', definitionKey: 1001, inventoryKey: 2, quantity: '1', displayName: 'Synthetic armor'},
-    {operation: 'companions.add', characterKey: 2001, quantity: '1'},
-    {operation: 'cartography.reveal-map', recipe: 'reveal-map'},
-    {operation: 'cartography.unlock-nexus', recipe: 'unlock-nexus'},
+    stagedScalar('inventory.setQuantity', record, '49'),
+    stagedScalar('inventory.setCopper', {...record, inventoryKey: 2, definitionKey: 1}, '20'),
+    stagedScalar('inventory.setExpansionValue', {inventoryKey: 2, expansionSlots: 43}, '44'),
+    additionPreview({key: 14101, name: 'Synthetic armor', internalName: 'Synthetic_Armor'}, '1', domains, [], {definitionKey: 14101, internalName: 'Synthetic_Armor', defaultInventory: 2, referenceMaxStack: '1', source: 'synthetic-placement'}),
+    // Same intent shape as CompanionPreview.stage; quantity is display metadata.
+    {schema: 'saveglass.companion-addition-intent.v1', operation: 'companions.add', characterKey: 1000315, displayName: 'Synthetic cat', classification: 'pet', quantity: '1', status: 'awaiting_combined_validation', canApply: false, publishEligible: false},
+    {...stagedCartography('reveal-map'), container: 'synthetic-main', payloadSha256: 'e'.repeat(64)},
+    stagedCartography('unlock-nexus'),
   ];
+  const original = structuredClone(intents), catalog = await gameCatalog();
+  assert.equal(intents[3].inventoryKey, 2); assert.ok(intents[3].capacityPlan);
   const operations = publicOperations(intents);
-  assert.equal(operations.length, 7); assert.ok(operations.every(operation => operation.id.startsWith('crimson.') && operation.apiVersion === '0.1.0'));
-  assert.equal(operations[0].params.instanceId, '18446744073709551614'); assert.ok(!('displayName' in operations[0].params)); assert.ok(!('publishEligible' in operations[0].params));
+  for (const operation of operations) assert.equal(catalog.find(d => d.id === operation.id && d.apiVersion === operation.apiVersion)?.validate(operation.params), true, operation.id);
+  assert.deepEqual(operations.map(o => o.params), [
+    {inventoryKey: 8, definitionKey: 720004, instanceId: '18446744073709551614', slot: 27, expectedValue: '50', desiredValue: '49'},
+    {inventoryKey: 2, definitionKey: 1, instanceId: '18446744073709551614', slot: 27, expectedValue: '50', desiredValue: '20'},
+    {inventoryKey: 2, expectedValue: '43', desiredValue: '44'},
+    {definitionKey: 14101, quantity: '1'}, {characterKey: 1000315}, {}, {},
+  ]);
+  const staged = editDraft(emptyDraft(), {type: 'stageMany', operations: operations.map((op, i) => ({...op, instanceId: 'synthetic-ui-' + i})), removeInstanceIds: []}, {expectedRevision: 0, operationCatalog: catalog, allowedOwners: ['saverift.crimson-desert']});
+  assert.equal(staged.operations.length, 7); assert.equal(staged.revision, 1);
   const recovered = legacyDrafts({operations: [...operations, {id: 'community.vehicle.boost', params: {fuel: 8}}]});
-  assert.equal(recovered.length, 7); assert.equal(recovered[0].desiredValue, '6'); assert.equal(recovered[3].schema, 'saveglass.item-addition-intent.v1'); assert.equal(recovered[4].schema, 'saveglass.companion-addition-intent.v1');
+  assert.equal(recovered.length, 7); assert.equal(recovered[0].desiredValue, '49'); assert.equal(recovered[3].schema, 'saveglass.item-addition-intent.v1'); assert.equal(recovered[4].schema, 'saveglass.companion-addition-intent.v1');
+  assert.deepEqual(publicOperations(recovered), operations); assert.deepEqual(intents, original);
   assert.equal(isCrimsonUiOperation({id: 'crimson.community.customSystem'}), false);
   assert.throws(() => publicOperations([{operation: 'cloud.write'}]), /registered Crimson/);
+});
+
+test('declared invalid values remain unchanged and the actual host catalog rejects them', async () => {
+  const catalog = await gameCatalog();
+  const valid = {operation: 'inventory.setQuantity', inventoryKey: 8, definitionKey: 720004, instanceId: '18446744073709551614', slot: 27, expectedValue: '50', desiredValue: '49'};
+  const invalid = [
+    {...valid, desiredValue: 49}, {...valid, instanceId: 123}, {...valid, slot: '27'}, {...valid, expectedValue: undefined},
+    {operation: 'inventory.setExpansionValue', inventoryKey: 8, expectedValue: '43', desiredValue: '44'},
+    {operation: 'inventory.addItem', definitionKey: '14101', quantity: '1'},
+    {operation: 'inventory.addItem', definitionKey: 14101, quantity: 1},
+    {operation: 'inventory.addItem', definitionKey: 14101, quantity: '01'},
+    {operation: 'companions.add', characterKey: '1000315'},
+  ];
+  for (const [i, intent] of invalid.entries()) {
+    const operation = publicOperations([intent])[0];
+    for (const [key, value] of Object.entries(operation.params)) assert.equal(value, intent[key]);
+    assert.throws(() => editDraft(emptyDraft(), {type: 'stage', operation: {...operation, instanceId: 'invalid-' + i}}, {expectedRevision: 0, operationCatalog: catalog}), {code: 'OPERATION_PARAMS_INVALID'});
+  }
+  for (const [operation, extra] of [['inventory.addItem', {inventoryKey: 2}], ['companions.add', {quantity: '1'}], ['cartography.reveal-map', {recipe: 'reveal-map'}], ['cartography.unlock-nexus', {container: 'synthetic-main'}]]) {
+    const params = operation === 'inventory.addItem' ? {definitionKey: 14101, quantity: '1'} : operation === 'companions.add' ? {characterKey: 1000315} : {};
+    assert.equal(catalog.find(d => d.id === 'crimson.' + operation).validate({...params, ...extra}), false, operation);
+  }
 });
 
 test('extracted polished controls render through the public bridge with synthetic data', async () => {
@@ -44,10 +88,17 @@ test('extracted polished controls render through the public bridge with syntheti
     assert.match(wrap(createElement(AddCompanionCard, {kind: 'pet', onOpen() {}})), /aria-label="Add companion"/);
     const oldMatch = globalThis.matchMedia; globalThis.matchMedia = () => ({matches: false});
     try {
-      const domains = {inventory: {bagCount: 1, recordCount: 0, records: [], bags: [{inventoryKey: 2, itemRecordCount: 0, expansionSlots: 43}]}, companions: [], catalog: {coverage: {}}, progress: {}, location: {}};
-      const html = wrap(createElement(CrimsonExplorer, {game: {name: 'Crimson Desert'}, backup: {id: 'synthetic-bundle'}, report: {payloads: [{container: 'artifact:main', name: 'save', sha256: 'a'.repeat(64), crimson: {domains}}]}}));
+      const domains = {inventory: {bagCount: 1, recordCount: 0, records: [], bags: [{inventoryKey: 2, itemRecordCount: 0, expansionSlots: 43}]}, companions: [], catalog: {coverage: {}, revision: 'synthetic', upstreamSha256: 'b'.repeat(64), source: 'https://example.invalid/catalog'}, audit: {objects: 0, omittedListMarkers: 0, nonzeroListMetadata: 0}, progress: {}, location: {}};
+      const props = {game: {name: 'Crimson Desert'}, backup: {id: 'synthetic-bundle'}, report: {payloads: [{container: 'artifact:main', name: 'save', sha256: 'a'.repeat(64), crimson: {domains}}]}};
+      const html = wrap(createElement(CrimsonExplorer, props));
       assert.match(html, /Your adventure, your way/); assert.match(html, />Upgrades</); assert.match(html, />Inventory</); assert.match(html, />Companions</); assert.match(html, />Cartography</); assert.match(html, /View Progress/);
       assert.doesNotMatch(html, /send-workbench|Save to<select|Send reviewed save/);
+      for (const structure of [undefined, {}, {typeCount: null}, {typeCount: -1}]) {
+        const advanced = wrap(createElement(CrimsonExplorer, {...props, advanced: true, report: {payloads: [{...props.report.payloads[0], crimson: {domains, structure}}]}}));
+        assert.match(advanced, /aria-label="Advanced snapshot slot"/); assert.match(advanced, />artifact:main<\/option>/); assert.doesNotMatch(advanced, /undefined types|null types|-1 types/);
+      }
+      const counted = wrap(createElement(CrimsonExplorer, {...props, advanced: true, report: {payloads: [{...props.report.payloads[0], crimson: {domains, structure: {typeCount: 4}}}]}}));
+      assert.match(counted, /artifact:main.* · 4 types/);
     } finally { globalThis.matchMedia = oldMatch; }
   } finally { await rm(out, {recursive: true, force: true}); }
 });

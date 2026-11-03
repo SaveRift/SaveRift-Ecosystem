@@ -7141,7 +7141,7 @@ var manifest_default = {
   manifestVersion: "0.1",
   id: "saverift.crimson-desert",
   kind: "game",
-  version: "0.1.0-dev.1",
+  version: "0.1.0-dev.2",
   displayName: "Crimson Desert",
   license: "MPL-2.0 AND BSD-2-Clause AND BSD-3-Clause AND MIT AND Apache-2.0",
   hostApi: ">=0.1.0 <0.2.0",
