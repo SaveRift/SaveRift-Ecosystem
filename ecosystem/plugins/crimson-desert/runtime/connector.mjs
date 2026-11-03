@@ -3924,6 +3924,7 @@ __export(crimson_draft_exports, {
   CRIMSON_CURRENT_SCHEMA: () => CRIMSON_CURRENT_SCHEMA,
   CRIMSON_DRAFT_REVISION: () => CRIMSON_DRAFT_REVISION,
   CRIMSON_DRAFT_SCHEMAS: () => CRIMSON_DRAFT_SCHEMAS,
+  CRIMSON_QUANTITY_SCHEMA: () => CRIMSON_QUANTITY_SCHEMA,
   compileCrimsonDraft: () => compileCrimsonDraft,
   createCrimsonDraftCompiler: () => createCrimsonDraftCompiler,
   createWorkbenchDraft: () => createWorkbenchDraft,
@@ -4045,7 +4046,8 @@ function createCrimsonDraftCompiler({ schemaPins = CRIMSON_DRAFT_SCHEMAS, assert
     if (source.length > 8 * 1024 * 1024 || !prepared && source.toString("base64") !== blobs[0].data) fail5("CRIMSON_DRAFT_PAYLOAD_INVALID");
     const decoded = prepared?.decoded || await decodeSave(source);
     if (decoded.version !== 2) fail5("CRIMSON_DRAFT_WRAPPER_UNSUPPORTED");
-    const projection = prepared?.projection || { fieldListLimits: { "InventoryElementSaveData._itemList": 1024 } }, before = prepared?.document || readDocument(decoded.plaintext, projection), pin = pins.get(before.schemaSha256);
+    const projection = prepared?.projection || { fieldListLimits: { "InventoryElementSaveData._itemList": 1024 } }, before = prepared?.document || readDocument(decoded.plaintext, projection);
+    const pin = pins.get(before.schemaSha256) || (schemaPins === CRIMSON_DRAFT_SCHEMAS && before.schemaSha256 === CRIMSON_QUANTITY_SCHEMA && input.operations.every((op) => op.operation === "inventory.setQuantity") ? QUANTITY_SCHEMA_PIN : null);
     if (!pin || input.schemaSha256 !== before.schemaSha256) fail5("CRIMSON_DRAFT_SCHEMA_UNSUPPORTED", "This snapshot schema is outside the reviewed offline composition pins.");
     if (input.plaintextSha256 !== before.plaintextSha256) fail5("CRIMSON_DRAFT_STALE", "The original plaintext binding changed.");
     assertCapability({ schemaSha256: before.schemaSha256, saveVersion: decoded.version, container: input.container, payload: input.payload });
@@ -4114,7 +4116,7 @@ function createCrimsonDraftCompiler({ schemaPins = CRIMSON_DRAFT_SCHEMAS, assert
     return result;
   };
 }
-var PREVIOUS_HOUSING_SCHEMA, CRIMSON_DRAFT_REVISION, CRIMSON_CURRENT_SCHEMA, CRIMSON_BAG_CAPACITY, CRIMSON_DRAFT_SCHEMAS, PLAN_KEYS, ITEM_KEYS, EXPANSION_KEYS, HASH, exact, equal2, auditIdentity, fail5, decimal2, stableJson, scalarScopeWitnesses, compileCrimsonDraft, createWorkbenchDraft;
+var PREVIOUS_HOUSING_SCHEMA, CRIMSON_DRAFT_REVISION, CRIMSON_CURRENT_SCHEMA, CRIMSON_QUANTITY_SCHEMA, QUANTITY_SCHEMA_PIN, CRIMSON_BAG_CAPACITY, CRIMSON_DRAFT_SCHEMAS, PLAN_KEYS, ITEM_KEYS, EXPANSION_KEYS, HASH, exact, equal2, auditIdentity, fail5, decimal2, stableJson, scalarScopeWitnesses, compileCrimsonDraft, createWorkbenchDraft;
 var init_crimson_draft = __esm({
   "src/crimson-draft.mjs"() {
     init_buffer();
@@ -4129,6 +4131,8 @@ var init_crimson_draft = __esm({
     PREVIOUS_HOUSING_SCHEMA = "606d393978b53c27a3e827fb6a592ce2a6c2e91f2de82dd063e5be93d0cfdedf";
     CRIMSON_DRAFT_REVISION = "saveglass.crimson-existing-scalars.v3";
     CRIMSON_CURRENT_SCHEMA = "8427f58057ea9bf6dac35bc139cba163ddb135cfe89d748a2d36b94eec88d668";
+    CRIMSON_QUANTITY_SCHEMA = "5d31e58dfb5dee0449bb59162f7a0d68ad56e67faf2aa06a5b41c38daf31e003";
+    QUANTITY_SCHEMA_PIN = Object.freeze({ schemaSha256: CRIMSON_QUANTITY_SCHEMA, requiresHousing: true });
     CRIMSON_BAG_CAPACITY = Object.freeze({ base: 50, min: 50, max: 250, increaseOnly: true });
     CRIMSON_DRAFT_SCHEMAS = Object.freeze([
       Object.freeze({ schemaSha256: FISH_QUANTITY_RULE.schemaSha256, requiresHousing: false }),
@@ -7141,7 +7145,7 @@ var manifest_default = {
   manifestVersion: "0.1",
   id: "saverift.crimson-desert",
   kind: "game",
-  version: "0.1.0-dev.2",
+  version: "0.1.0-dev.3",
   displayName: "Crimson Desert",
   license: "MPL-2.0 AND BSD-2-Clause AND BSD-3-Clause AND MIT AND Apache-2.0",
   hostApi: ">=0.1.0 <0.2.0",
