@@ -15,5 +15,7 @@ export async function createFrameDocument({bodyHtml = '<div id="root"></div>', s
   return '<!doctype html><html lang="en"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="' + htmlEscape(csp) + '"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="referrer" content="no-referrer"><meta name="saverift-host-origin" content="' + htmlEscape(hostOrigin) + '"><meta name="saverift-ui-instance" content="' + htmlEscape(instanceId) + '"><title>' + htmlEscape(title) + '</title><style>' + css + '</style></head><body>' + bodyHtml + '<script type="module">' + script + '</script></body></html>';
 }
 
-export const PLUGIN_FRAME_SANDBOX = 'allow-scripts';
+// Native submit/validation events must reach framework handlers. The enforced
+// form-action 'none' policy still blocks every native form navigation.
+export const PLUGIN_FRAME_SANDBOX = 'allow-scripts allow-forms';
 export const PLUGIN_FRAME_PERMISSIONS = "accelerometer 'none'; autoplay 'none'; camera 'none'; clipboard-read 'none'; clipboard-write 'none'; display-capture 'none'; fullscreen 'none'; geolocation 'none'; gyroscope 'none'; hid 'none'; microphone 'none'; payment 'none'; publickey-credentials-get 'none'; serial 'none'; usb 'none'; xr-spatial-tracking 'none'";

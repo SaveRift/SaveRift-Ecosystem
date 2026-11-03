@@ -4,9 +4,22 @@ Custom views are compiled applications, not a fixed inventory form. Any framewor
 canvas, graph, map, or game-specific navigation can use `sdk/ui-bridge.mjs`.
 Bundle executable dependencies ahead of time into one module and one stylesheet.
 `createFrameDocument` pins their exact hashes in CSP. The frame has only
-`allow-scripts`: its origin is opaque and cannot share the signed-in parent's DOM,
-cookies or storage. All fetch, workers, nested frames, forms and external resources
-are blocked. Approved images use data/blob artifacts resolved by the host.
+`allow-scripts allow-forms`: its origin is opaque and cannot share the signed-in
+parent's DOM, cookies or storage. Native form validation and submit events reach
+framework handlers, which can prevent the default action and stage changes through
+the bridge. The separate enforced `form-action 'none'` policy blocks native form
+navigation, including `HTMLFormElement.submit()` calls that bypass submit handlers.
+Fetch, workers, nested frames and external resources remain blocked. Approved
+images use data/blob artifacts resolved by the host.
+
+Keep `form-action 'none'` when enabling native form processing. The sandbox forms
+flag otherwise aborts the HTML submission algorithm before its `submit` event,
+preventing normal framework forms from working. This does not add a publication
+method or permit top navigation, popups, same-origin access or account credentials.
+The form-action directive concerns form navigation; the separate navigation
+revocation and package-review requirements below still apply.
+See the [HTML form submission algorithm](https://html.spec.whatwg.org/multipage/form-control-infrastructure.html#form-submission-algorithm)
+and the [CSP form-action pre-navigation check](https://www.w3.org/TR/CSP3/#directive-form-action).
 
 `resolveAsset` also has a dedicated binary response on that same private port.
 The trusted handler returns `await createUiAsset({id,mimeType,bytes,sha256})` only

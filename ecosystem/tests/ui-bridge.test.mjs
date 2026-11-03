@@ -113,11 +113,14 @@ test('child accepts a port only from its exact parent and configured host origin
   child.emit({...message, source: parent, origin: 'https://saverift.com'});
   const client = await pending; client.close(); channel.port1.close(); assert.equal(child.listeners.size, 0);
 });
-test('frame content pins executable hashes and has no same-origin or network permissions', async () => {
-  const document = await createFrameDocument({script: "document.querySelector('#root').textContent='Custom game graph';", css: 'body{background:#081113}', hostOrigin: 'https://saverift.com', instanceId: 'frame1'});
-  assert.equal(PLUGIN_FRAME_SANDBOX, 'allow-scripts');
+test('frame permits native form events while CSP independently blocks form navigation and network access', async () => {
+  const document = await createFrameDocument({bodyHtml:'<form id="editor"><input name="quantity" value="1"><button type="submit">Stage</button></form>', script: "document.querySelector('#editor').addEventListener('submit',event=>event.preventDefault());", css: 'body{background:#081113}', hostOrigin: 'https://saverift.com', instanceId: 'frame1'});
+  assert.deepEqual(PLUGIN_FRAME_SANDBOX.split(' '), ['allow-scripts','allow-forms']);
   assert.match(document, /script-src &#39;sha256-/); assert.match(document, /connect-src &#39;none&#39;/); assert.match(document, /worker-src &#39;none&#39;/); assert.match(document, /base-uri &#39;none&#39;/);
-  assert.ok(!/allow-same-origin|allow-forms|allow-popups|unsafe-eval/.test(document)); assert.match(PLUGIN_FRAME_PERMISSIONS, /camera 'none'/);
+  assert.match(document, /form-action &#39;none&#39;/);
+  assert.ok(document.indexOf('Content-Security-Policy') < document.indexOf('<form'));
+  assert.match(document, /frame-src &#39;none&#39;/);
+  assert.ok(!/allow-same-origin|allow-popups|allow-top-navigation|unsafe-eval/.test(PLUGIN_FRAME_SANDBOX+' '+document)); assert.match(PLUGIN_FRAME_PERMISSIONS, /camera 'none'/);
   await assert.rejects(createFrameDocument({script: '</script><script>bad()</script>', hostOrigin: 'https://saverift.com', instanceId: 'frame1'}));
 });
 
