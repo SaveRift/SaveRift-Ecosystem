@@ -1,13 +1,15 @@
 # SaveRift open ecosystem — source preview
 
-This unpublished developer preview contains public plugin contracts, an
+This developer source tree contains public plugin contracts, an
 isolated reference runner, a custom-interface bridge, synthetic examples and
 local developer-workbench services. It runs without Microsoft credentials.
 The hosted SaveRift account and Xbox transaction services remain separate.
 
-Public repository destinations and the first release are awaiting owner
-review. There are no published npm installation commands or public release
-URLs to substitute for this checkout.
+The canonical repository and immutable developer prereleases are public:
+[original developer preview](https://github.com/SaveRift/SaveRift-Ecosystem/releases/tag/developer-preview-2026-11-02)
+and [Crimson Desert 0.1.0-dev.3](https://github.com/SaveRift/SaveRift-Ecosystem/releases/tag/crimson-desert-0.1.0-dev.3).
+Use the locked source installs below; no npm package publication is claimed.
+Current evidence and remaining gates are tracked in [issue #5](https://github.com/SaveRift/SaveRift-Ecosystem/issues/5).
 
 ## Run from this source tree
 
@@ -41,8 +43,15 @@ implemented CLI/stdio/local-server commands and their exact limitations.
 | `plugins/crimson-desert/` | Extracted game-specific implementation and declared external data-provider requirements |
 | `registry/` | Immutable package review/submission metadata and policy |
 
-Crimson source is being migrated against the existing production regression
-control. A missing permitted catalog/art/template provider must be visibly
+The reviewed Crimson runtime/source integration, editor form/staging fixes and
+current-layout quantity fix are merged. Hosted results are artifact- and
+schema-specific: historical compatible-layout no-op/scalar/mixed checks passed;
+released dev.3 supports quantity-only edits and no-op checks on the newer
+103-type layout. These are runtime results, not game-load/recovery acceptance.
+The customer-facing editor still uses built-in components; plugin cutover and
+registry promotion remain pending. The two-human-contributor test is deferred.
+
+A missing permitted catalog/art/template provider must be visibly
 missing; it is not permission to import private modules or claim complete
 parity. The clean source preview excludes real player/donor saves and held
 game assets. Self-reopen, conformance and cloud readback are separate from game
