@@ -1,0 +1,20 @@
+{
+  "schema": "saverift.ac-shadows.cli-mcp.v1",
+  "status": "passed",
+  "cli": "actual child process",
+  "mcp": "official SDK 2.4.0 client and actual stdio server; negotiated pinned protocol 2026-07-28",
+  "workspaceId": "workspace_016affb0bdd3470c9da49e4f482a9f81",
+  "jobId": "job_224d69b472204a2f807450e83966a097",
+  "packageDigest": "495c32b2d17c941a44ae0f7d744a29fa23a22557f706d69982cc0e95ff3e36da",
+  "executionLockDigest": "d63f961aaaffdd1e7aab5ab3e279a66e6d52f220c0f77050441d94f92ea54760",
+  "listedTools": 55,
+  "projects": {
+    "status": "passed",
+    "hostedEnrollment": false,
+    "projects": [],
+    "host": null
+  },
+  "fixtureBytesInArguments": false,
+  "gameAcceptance": "not_run",
+  "hosted": "not_run"
+}

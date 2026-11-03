@@ -9,12 +9,13 @@ import {spawnSync} from 'node:child_process';
 import {gzipSync} from 'node:zlib';
 
 export const PLAN_SCHEMA='saverift.release-export-plan.v1';
-const ROOTS=['ecosystem/sdk/','ecosystem/ui/','ecosystem/workbench/','ecosystem/collaboration/','ecosystem/plugins/synthetic','ecosystem/plugins/crimson-desert/','ecosystem/registry/','ecosystem/tests/','ecosystem/scripts/','docs/ecosystem/public/'];
+const ROOTS=['ecosystem/sdk/','ecosystem/ui/','ecosystem/workbench/','ecosystem/collaboration/','ecosystem/plugins/synthetic','ecosystem/plugins/crimson-desert/','ecosystem/plugins/ac-shadows/','ecosystem/registry/','ecosystem/tests/','ecosystem/scripts/','docs/ecosystem/public/','docs/ac-shadows-review/'];
 const SUPPORT=new Set(['.gitattributes','ecosystem/package.json','ecosystem/package-lock.json','ecosystem/.gitignore','ecosystem/README.md','ecosystem/LICENSE','ecosystem/NOTICE','ecosystem/AGENTS.md','scripts/ecosystem-release-audit.mjs','tests/ecosystem-release-audit.test.mjs','.github/workflows/ecosystem-ci.yml']);
+for(const path of ['docs/ac-shadows-checkpoint.md','docs/ac-shadows-hosted-integration.md','docs/ac-shadows-validation.md','tests/ac-shadows-cli-mcp.mjs','tests/ac-shadows-fingerprints.mjs','tests/ac-shadows-independent-oracle.py','tests/ac-shadows-private-flow.mjs','tests/ac-shadows-phase-probe.mjs'])SUPPORT.add(path);
 const RIGHTS=new Set(['original','licensed-code','synthetic','import-recipe']);
 const HASH=/^[a-f0-9]{64}$/;
 const MAX_FILE=8*1024*1024,MAX_TOTAL=48*1024*1024;
-const BLOCKED_PATH=/(?:^|\/)(?:\.git|node_modules|\.env(?:\..*)?|\.runtime|\.saverift-workbench|private|backups?|captures?|logs|auth-cache|customer-data)(?:\/|$)|\.(?:har|pem|pfx|p12|key|save|sav|mp4|bin|png|webp|jpg|jpeg|avif|map|zip|tgz|gz|wasm|log|sqlite|db)$/i;
+const BLOCKED_PATH=/(?:^|\/)(?:\.git|node_modules|\.env(?:\..*)?|\.runtime|\.saverift-workbench|private|backups?|captures?|logs|auth-cache|customer-data)(?:\/|$)|\.(?:har|pem|pfx|p12|key|ac-key|save|sav|mp4|bin|png|webp|jpg|jpeg|avif|map|zip|tgz|gz|wasm|log|sqlite|db)$/i;
 const HELD_DATA=/(?:^|\/)(?:donor|artwork|assets|fixtures-private)(?:\/|$)|(?:^|\/)(?:catalog|catalogs)\/.*\.(?:json|csv|tsv|jsonl)$|(?:crimson-(?:items|enrichment|companion-templates|nexus-discoveries|save-presets|construction-items|normal-items|inventory-placement|artwork|content-artwork))\.json$/i;
 const SECRET_RULES=[
  ['private-key',/-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----/g],
@@ -117,7 +118,7 @@ export async function archiveExport(output){
 export async function discoverPlan({sourceRoot=process.cwd()}={}){
  const root=await realpath(sourceRoot),files=[];
  async function walk(path){let entries;try{entries=await readdir(resolve(root,path),{withFileTypes:true});}catch(error){if(error.code==='ENOENT')return;throw error;}for(const entry of entries){const child=path+'/'+entry.name,syntheticFixture=/^ecosystem\/plugins\/synthetic[^/]*\/(?:.*\/)?fixture\.save$/.test(child);if(entry.isSymbolicLink()||(BLOCKED_PATH.test(child)&&!syntheticFixture)||HELD_DATA.test(child))continue;if(entry.isDirectory())await walk(child);else if(entry.isFile()&&permitted(child)){const bytes=await readFile(resolve(root,child));files.push({source:child,destination:child,sha256:sha(bytes),license:'NOASSERTION',rights:'pending',origin:'pending_source_review',review:'pending'});}}}
- await walk('ecosystem');await walk('docs/ecosystem/public');
+ await walk('ecosystem');await walk('docs/ecosystem/public');await walk('docs/ac-shadows-review');
  for(const path of SUPPORT){try{const bytes=await readFile(resolve(root,path));if(!files.some(f=>f.source===path))files.push({source:path,destination:path,sha256:sha(bytes),license:'NOASSERTION',rights:'pending',origin:'pending_source_review',review:'pending'});}catch(error){if(error.code!=='ENOENT')throw error;}}
  return {schema:PLAN_SCHEMA,repositoryDestinations:null,publicReleaseApproved:false,files:files.sort((a,b)=>a.source.localeCompare(b.source))};
 }

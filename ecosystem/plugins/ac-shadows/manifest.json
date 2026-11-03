@@ -1,0 +1,24 @@
+{
+  "manifestVersion": "0.1",
+  "id": "saverift.ac-shadows",
+  "kind": "game",
+  "version": "0.1.0-dev.1",
+  "displayName": "Assassin’s Creed Shadows",
+  "license": "Apache-2.0 AND MIT AND BSD-3-Clause",
+  "hostApi": ">=0.1.0 <0.2.0",
+  "entrypoints": {"runtime": "runtime/connector.mjs", "runtimeProfile": "isolated-js-v1", "ui": "ui/index.html"},
+  "uiMode": "custom",
+  "gameTargets": [{"platform": "pc", "identityRef": "assassins-creed-shadows", "saveFamilies": ["acshadows-native-inventory-context-v1", "acshadows-native-pc-stored-progression-v54"]}],
+  "extensionApis": {"acshadows.inventory": "0.1.0"},
+  "permissions": ["bundle.read-selected", "draft.transform-selected", "ui.register-views"],
+  "operations": [
+    {"id": "acshadows.inventory.setQuantity", "apiVersion": "0.1.0", "inputSchema": {"type": "object", "required": ["recordId", "expectedQuantity", "quantity", "sourceSha256"], "additionalProperties": false, "properties": {"recordId": {"type": "string", "minLength": 1, "maxLength": 256}, "expectedQuantity": {"type": "integer", "minimum": 0, "maximum": 4294967295}, "quantity": {"type": "integer", "minimum": 1, "maximum": 999999}, "sourceSha256": {"type": "string", "format": "sha256"}}}, "writeDomains": [{"path": "inventory", "mode": "ordered"}]},
+    {"id": "acshadows.inventory.setLevel", "apiVersion": "0.1.0", "inputSchema": {"type": "object", "required": ["recordId", "expectedLevel", "level", "sourceSha256"], "additionalProperties": false, "properties": {"recordId": {"type": "string", "minLength": 1, "maxLength": 256}, "expectedLevel": {"type": "integer", "minimum": 0, "maximum": 4294967295}, "level": {"type": "integer", "minimum": 1, "maximum": 100}, "sourceSha256": {"type": "string", "format": "sha256"}}}, "writeDomains": [{"path": "inventory", "mode": "ordered"}]}
+  ],
+  "entitlementPolicy": "host-enforced-no-bypass",
+  "dataDistribution": "no-third-party-catalog-included",
+  "workbench": {"defaultQuery": {"method": "acshadows.inspect"}, "inputOnlyRoles": ["ac-key"]},
+  "ui": {"script": "ui/dist/entry.js", "css": "ui/dist/style.css", "body": "ui/index.html"},
+  "views": [{"id": "acshadows.inventory", "title": "Shadows inventory", "kind": "custom", "entrypoint": "ui/index.html"}],
+  "extensionApiDefinitions": {"acshadows.inventory": {"apiVersion": "0.1.0", "queries": ["acshadows.inspect", "acshadows.inventory.list"], "operations": ["acshadows.inventory.setQuantity", "acshadows.inventory.setLevel"], "scope": "selected validated PC inventory context; existing records only", "stability": "experimental; unsupported versions fail closed"}}
+}

@@ -6,4 +6,5 @@ node_modules/
 !.env.example
 *.har
 *.save
+*.ac-key
 !plugins/synthetic-game/fixture.save

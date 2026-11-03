@@ -33,7 +33,7 @@ async function browser({configured = false, discoveryUnavailable = false, config
     if (tab) { node.dataset.tab = tab; tabs.push(node); } if (panel) { node.dataset.panel = panel; panels.push(node); } if (id) nodes.set(id, node); const classes = /\bclass="([^"]+)"/.exec(attrs)?.[1]?.split(/\s+/) || []; for (const name of classes) if (!classNodes.has(name)) classNodes.set(name, node);
   }
   const document = {querySelector: selector => selector.startsWith('.') ? classNodes.get(selector.slice(1)) : nodes.get(selector.slice(1)), querySelectorAll: selector => selector === '[data-tab]' ? tabs : selector === '[data-panel]' ? panels : selector === '#file-list button' ? nodes.get('file-list').children : selector === '#fixture-list input' ? descendants(nodes.get('fixture-list')).filter(node=>node.tagName==='INPUT') : [], createElement: tag => new Node(tag), createTextNode: text => Object.assign(new Node('#text'), {_text: text})};
-  const calls = [], storage = new Map(); let membership = {state: 'disabled', role: 'contributor', revision: 0};
+  const calls = [], storage = new Map(), frames = []; let membership = {state: 'disabled', role: 'contributor', revision: 0};
   const project = {id: 'synthetic', displayName: 'Synthetic examples', packageId: 'example.synthetic-game', packageRoots: ['ecosystem/plugins/synthetic-game/'], capabilities: ['custom progression graph'], templateIds: ['synthetic-json'], license: 'Apache-2.0', repository: configured ? {id: '123', owner: 'example', name: 'ecosystem', url: 'https://github.com/example/ecosystem'} : null, maintainers: []};
   const discovery = {discoveryId: 'discovery-1', head: configured ? {sha: '1'.repeat(40)} : null, issues: configured ? [{number: 7, title: 'Add synthetic skills', state: 'open', url: 'https://github.com/example/ecosystem/issues/7'}] : [], workItems: [], contributors: [], draftPullRequests: [], github: {state: configured ? 'connected' : 'not_configured', canonical: configured}};
   const handlers = {
@@ -49,8 +49,8 @@ async function browser({configured = false, discoveryUnavailable = false, config
     assert.equal(url, '/api/developer/call'); const body = JSON.parse(options.body), name = body.name.replace('saverift_', ''); calls.push({name, args: body.arguments}); assert.ok(handlers[name], `Unhandled UI method ${name}`); return {ok: true, json: async () => handlers[name](body.arguments)};
   };
   const source = (await readFile(new URL('../browser.mjs', import.meta.url), 'utf8')).replace(/^import .*;\n/m, '');
-  await vm.runInNewContext(`(async () => {${source}\n})()`, {document, fetch, window, sessionStorage: {setItem: (k, v) => storage.set(k, v), getItem: k => storage.get(k)}, URL, console, setTimeout, clearTimeout, confirm: () => false, prompt: () => null});
-  return {nodes, calls, discovery, handlers, routes, popups, async openWorkspace(id) { nodes.get('workspaces').value = id; await nodes.get('workspaces').onchange(); }, async enroll() { nodes.get('developer-opt-in').checked = true; await nodes.get('developer-opt-in').onchange(); }};
+  await vm.runInNewContext(`(async () => {${source}\n})()`, {document, fetch, window, sessionStorage: {setItem: (k, v) => storage.set(k, v), getItem: k => storage.get(k)}, URL, console, setTimeout, clearTimeout, confirm: () => false, prompt: () => null, compileUiPackage: () => ({}), mountPluginFrame: async options => {frames.push(options); return {revoke(){},notifyDraft(){}};}});
+  return {nodes, calls, discovery, handlers, routes, popups, frames, async openWorkspace(id) { nodes.get('workspaces').value = id; await nodes.get('workspaces').onchange(); }, async enroll() { nodes.get('developer-opt-in').checked = true; await nodes.get('developer-opt-in').onchange(); }};
 }
 
 test('game discovery and enrollment precede hosted scaffolding; unconfigured Git stays unavailable', async () => {
@@ -68,6 +68,54 @@ test('game discovery and enrollment precede hosted scaffolding; unconfigured Git
   assert.equal(request.args.gameId, 'synthetic'); assert.equal(request.args.discoveryId, 'discovery-1');
   assert.ok(b.calls.findIndex(c => c.name === 'project_discover') < b.calls.findIndex(c => c.name === 'workspace_create'));
   assert.ok(!b.calls.some(c => /checkpoint_commit|pr_open|branch_workspace_create/.test(c.name)));
+});
+
+test('explicit local mode keeps unbound source workspaces usable without hosted enrollment', async () => {
+  const local = {id:'ws_local',name:'Local connector',gameId:null,revision:1,files:[],fixtures:[],jobs:[]};
+  const b = await browser({configure({handlers}) {
+    handlers.project_list = () => ({hostedEnrollment:false,projects:[],host:null});
+    handlers.workspace_list = () => ({workspaces:[local]});
+    handlers.workspace_status = () => ({workspace:local});
+  }});
+  assert.equal(b.nodes.get('game-project').textContent, 'Local source tools');
+  assert.equal(b.nodes.get('game-project').disabled, true);
+  assert.equal(b.nodes.get('project-portal').hidden, true);
+  assert.equal(b.nodes.get('create-workspace').disabled, false);
+  await b.openWorkspace(local.id);
+  for (const id of ['build-plugin','run-tests','open-preview','fixture-upload','save-file']) assert.equal(b.nodes.get(id).disabled, false, id);
+  assert.equal(b.nodes.get('workspace-migration').hidden, true);
+  assert.equal(b.nodes.get('create-project-branch').disabled, true);
+  assert.ok(!b.calls.some(call => /developer_enrollment|project_discover/.test(call.name)));
+});
+
+test('an empty hosted project list never silently falls back to local edit authority', async () => {
+  const b = await browser({configure({handlers}) {
+    handlers.project_list = () => ({hostedEnrollment:true,projects:[]});
+  }});
+  assert.equal(b.nodes.get('create-workspace').disabled, true);
+  assert.equal(b.nodes.get('create-project-branch').disabled, true);
+  assert.ok(!b.calls.some(call => call.name === 'developer_enrollment_set'));
+});
+
+test('custom UI review presents the exact persisted draft and never automatically prepares a candidate', async () => {
+  const operation = {instanceId:'intent_one',id:'example.inventory.setQuantity',apiVersion:'0.1.0',params:{quantity:7}};
+  const workspace = {id:'ws_local',name:'Local connector',gameId:null,revision:1,files:[],fixtures:[],jobs:[{id:'job_build',type:'build'}]};
+  const b = await browser({configure({handlers,routes}) {
+    handlers.project_list = () => ({hostedEnrollment:false,projects:[]});
+    handlers.workspace_status = () => ({workspace});
+    handlers.job_status = () => ({status:'passed',job:{result:{artifactId:'artifact_built',sourceRevision:1}}});
+    handlers.preview_open = () => ({previewId:'preview_local',views:[{artifactId:'artifact_built',id:'example.local',selected:true}]});
+    routes['/previews/preview_local'] = () => ({package:{manifest:{id:'example.local',version:'0.1.0'},files:{}}});
+    routes['/previews/preview_local/draft'] = () => ({draft:{revision:3,operations:[operation]}});
+  }});
+  await b.openWorkspace(workspace.id);
+  b.nodes.get('operations').value = '[{"id":"synthetic.level.set"}]';
+  await b.nodes.get('open-preview').click();
+  assert.equal(b.frames.length, 1);
+  await b.frames[0].onReview();
+  assert.deepEqual(JSON.parse(b.nodes.get('operations').value), [{id:operation.id,apiVersion:operation.apiVersion,params:operation.params}]);
+  assert.match(b.nodes.get('notice').textContent, /revision 3/);
+  assert.ok(!b.calls.some(call => call.name === 'candidate_prepare'));
 });
 
 test('an already claimed feature offers joining without silently creating another branch', async () => {

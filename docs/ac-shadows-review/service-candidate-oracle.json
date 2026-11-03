@@ -1,0 +1,34 @@
+{
+  "schema": "saverift.ac-shadows.independent-oracle.v1",
+  "status": "passed",
+  "oracle": "Existing AnvilToolkit decompressor plus independent Python seeded CRC32/CRC32C/Adler and exact plaintext comparison",
+  "originalSha256": "c3b551c74e69575c1a732ce178ce64180a961a97d13acfb3966b665f08fd8aca",
+  "candidateSha256": "85d94724e4876efa6f3c0d73396b9cdfe6bc14cf8a6275e38cffbb999fc391fc",
+  "originalByteLength": 901776,
+  "candidateByteLength": 7459585,
+  "contextCount": 61,
+  "unchangedContexts": 60,
+  "changedContexts": [
+    {
+      "context": 12,
+      "changedBytes": 2,
+      "beforeSha256": "9836e92f14d86489d7be4b9c432c0fdfb9b2fdef71387f94cca9f46acb426ddd",
+      "afterSha256": "dc5406c8fc303e844cff4cdcde74746467066f3f345a1c7cacca74b2ed6b2a78"
+    }
+  ],
+  "expectedFieldPatches": 2,
+  "siblings": [
+    {
+      "role": "sibling",
+      "byteLength": 901776,
+      "sha256": "c3b551c74e69575c1a732ce178ce64180a961a97d13acfb3966b665f08fd8aca",
+      "byteIdentical": true
+    }
+  ],
+  "allUnrelatedPlaintextPreserved": true,
+  "nonContextFramingPreserved": true,
+  "candidateIntegrity": "passed",
+  "sourceIntegrity": "passed",
+  "inGame": "not_run",
+  "recovery": "not_run"
+}

@@ -1,0 +1,15 @@
+SaveRift Assassin's Creed Shadows connector
+
+Original connector integration, typed operations and custom UI are Apache-2.0.
+This package is an independent developer implementation, not an Ubisoft product.
+No game binaries, player save bytes, credentials, official artwork or proprietary
+catalog are included. Package-local identity strings are not Xbox title IDs.
+
+The compiled runtime includes the public SaveRift SDK's portable hash and binary
+helpers: Noble hashes (MIT), Buffer (MIT), base64-js (MIT), and ieee754
+(BSD-3-Clause). The compiled UI includes React/React DOM (MIT). Full notices are
+in licenses/. The isolated QuickJS runner is a separate SDK dependency, not
+embedded in this connector. Its licenses accompany the full SDK distribution.
+
+The included UI is limited to query/stage/review through the public bounded
+bridge. Candidate validation and retrieval remain trusted-host operations.

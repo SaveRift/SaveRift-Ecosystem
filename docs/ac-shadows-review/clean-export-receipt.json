@@ -1,0 +1,45 @@
+{
+  "schema": "saverift.ac-shadows.clean-export-validation.v1",
+  "status": "passed",
+  "checkedAt": "2026-11-03T20:41:01.9444387Z",
+  "source": "328-file reviewed clean export; optional unchanged SDK profiling utility excluded by root",
+  "installs": {
+    "mode": "npm ci --ignore-scripts",
+    "crimsonDesert": 0,
+    "workbench": 0,
+    "ecosystem": 0,
+    "sdk": 0
+  },
+  "aggregateBuild": {
+    "exitCode": 0,
+    "log": "clean-export-build.log"
+  },
+  "publicTests": {
+    "skipped": 0,
+    "passed": 446,
+    "failed": 0,
+    "tests": 446,
+    "log": "clean-export-public-tests.log",
+    "exitCode": 0
+  },
+  "releaseTests": {
+    "tar": "GNU tar via C:/Program Files/Git/usr/bin",
+    "exitCode": 0,
+    "passed": 9,
+    "tests": 10,
+    "failed": 0,
+    "skipReason": "Windows symlink permission unavailable; Linux CI remains necessary",
+    "log": "clean-export-release-tests.log",
+    "skipped": 1
+  },
+  "canonicalPackageDigest": "a41b1d17233b8130fe6b62c972dac74e45f1db56f5bccabad4f2350ab37b033a",
+  "sourceTemplatePackageDigest": "495c32b2d17c941a44ae0f7d744a29fa23a22557f706d69982cc0e95ff3e36da",
+  "reviewedSourceFiles": 328,
+  "changedReviewedFiles": [],
+  "sourcePreserved": true,
+  "privateFixturesUsed": false,
+  "hosted": "not_run",
+  "inGame": "not_run",
+  "recovery": "not_run",
+  "publication": "not_performed"
+}

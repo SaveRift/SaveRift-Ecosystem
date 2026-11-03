@@ -1,0 +1,275 @@
+{
+  "schema": "saverift.ac-shadows.browser-receipt.v1",
+  "scope": "local-browser/native-prepared-v54-artifact",
+  "browser": "Chrome extension",
+  "url": "http://127.0.0.1:4174/",
+  "workspaceId": "workspace_016affb0bdd3470c9da49e4f482a9f81",
+  "artifactId": "artifact_e6b4aee0fa2a465c87884a05b98dfd5f",
+  "jobId": "job_fe5e88ca463341b7b901428175aa9ffe",
+  "packageDigest": "495c32b2d17c941a44ae0f7d744a29fa23a22557f706d69982cc0e95ff3e36da",
+  "executionLockDigest": "d63f961aaaffdd1e7aab5ab3e279a66e6d52f220c0f77050441d94f92ea54760",
+  "gameAcceptance": "not_run",
+  "hostedTest": "not_run",
+  "stageRevision": 2,
+  "candidateDraftRevision": 3,
+  "operations": [
+    {
+      "recordId": "progression:414885:2050677496",
+      "field": "quantity",
+      "before": 7,
+      "after": 8
+    },
+    {
+      "recordId": "progression:25389:2266199842",
+      "field": "level",
+      "before": 62,
+      "after": 60
+    }
+  ],
+  "steps": [
+    "verified exact workspace/artifact",
+    "opened packaged native-PC custom UI",
+    "edited existing item-level form",
+    "saved shared draft revision2, retained quantity edit",
+    "opened trusted host review containing exact persisted operations",
+    "prepared candidate bound to draftrevision3",
+    "downloaded both exact candidate links",
+    "verified physical download sizes and SHA-256 against descriptors",
+    "refreshed shared draft; both edits persisted"
+  ],
+  "downloadLinkTexts": [
+    "Download offline ACShadows[ManualSave02].save",
+    "Download offline original-PC.save"
+  ],
+  "keyOffered": false,
+  "downloads": [
+    {
+      "path": "<user>/Downloads/ACShadows_ManualSave02_.save",
+      "byteLength": 7459585,
+      "sha256": "749f640d0d76f32e9a72fbdee14c92507b6077cb8ee1024821697a2b5f6afdb5"
+    },
+    {
+      "path": "<user>/Downloads/original-PC (1).save",
+      "byteLength": 901776,
+      "sha256": "c3b551c74e69575c1a732ce178ce64180a961a97d13acfb3966b665f08fd8aca"
+    }
+  ],
+  "screenshots": [
+    "browser-native-draft.jpg",
+    "browser-native-preview.jpg",
+    "browser-native-candidate.jpg"
+  ],
+  "job": {
+    "id": "job_fe5e88ca463341b7b901428175aa9ffe",
+    "workspaceId": "workspace_016affb0bdd3470c9da49e4f482a9f81",
+    "evidenceEpoch": null,
+    "evidenceBindings": [
+      {
+        "workspaceId": "workspace_016affb0bdd3470c9da49e4f482a9f81",
+        "evidenceEpoch": null
+      }
+    ],
+    "gameId": null,
+    "revision": 10,
+    "type": "candidate",
+    "status": "passed",
+    "createdAt": 1793737830402,
+    "startedAt": 1793737830424,
+    "result": {
+      "status": "passed",
+      "checks": [
+        {
+          "name": "detect",
+          "status": "passed"
+        },
+        {
+          "name": "open-original",
+          "status": "passed"
+        },
+        {
+          "name": "describe-query",
+          "status": "passed"
+        },
+        {
+          "name": "candidate-validation",
+          "status": "passed"
+        },
+        {
+          "name": "independent-reopen",
+          "status": "passed"
+        }
+      ],
+      "runtime": {
+        "phases": [
+          {
+            "phase": "inspection",
+            "runner": "isolated-js-v1",
+            "engine": "quickjs-2025-09-13+f1139494/wasm-0.32.0",
+            "packageDigest": "495c32b2d17c941a44ae0f7d744a29fa23a22557f706d69982cc0e95ff3e36da",
+            "executionLockDigest": "d63f961aaaffdd1e7aab5ab3e279a66e6d52f220c0f77050441d94f92ea54760",
+            "inputBytes": 8361377,
+            "outputBytes": 0,
+            "interrupts": 6644,
+            "hostCalls": 121,
+            "elapsedMs": 4976,
+            "memoryBytes": 27918336,
+            "compressionBytes": 0,
+            "binaryBytes": 0,
+            "textBytes": 0,
+            "cryptoBytes": 7459601,
+            "cryptoPeakStreams": 1,
+            "cryptoLiveStreams": 0,
+            "contextsCreated": 1
+          },
+          {
+            "phase": "serialization",
+            "packageId": "saverift.ac-shadows",
+            "runner": "isolated-js-v1",
+            "engine": "quickjs-2025-09-13+f1139494/wasm-0.32.0",
+            "packageDigest": "495c32b2d17c941a44ae0f7d744a29fa23a22557f706d69982cc0e95ff3e36da",
+            "executionLockDigest": "d63f961aaaffdd1e7aab5ab3e279a66e6d52f220c0f77050441d94f92ea54760",
+            "inputBytes": 8361377,
+            "outputBytes": 7460133,
+            "interrupts": 11866,
+            "hostCalls": 123,
+            "elapsedMs": 8236,
+            "memoryBytes": 61734912,
+            "compressionBytes": 0,
+            "binaryBytes": 0,
+            "textBytes": 0,
+            "cryptoBytes": 7459601,
+            "cryptoPeakStreams": 1,
+            "cryptoLiveStreams": 0,
+            "contextsCreated": 1
+          },
+          {
+            "phase": "validation",
+            "runner": "isolated-js-v1",
+            "engine": "quickjs-2025-09-13+f1139494/wasm-0.32.0",
+            "packageDigest": "495c32b2d17c941a44ae0f7d744a29fa23a22557f706d69982cc0e95ff3e36da",
+            "executionLockDigest": "d63f961aaaffdd1e7aab5ab3e279a66e6d52f220c0f77050441d94f92ea54760",
+            "inputBytes": 15821510,
+            "outputBytes": 0,
+            "interrupts": 13358,
+            "hostCalls": 124,
+            "elapsedMs": 7874,
+            "memoryBytes": 51445760,
+            "compressionBytes": 0,
+            "binaryBytes": 0,
+            "textBytes": 0,
+            "cryptoBytes": 7459601,
+            "cryptoPeakStreams": 1,
+            "cryptoLiveStreams": 0,
+            "contextsCreated": 1
+          },
+          {
+            "phase": "reopen",
+            "runner": "isolated-js-v1",
+            "engine": "quickjs-2025-09-13+f1139494/wasm-0.32.0",
+            "packageDigest": "495c32b2d17c941a44ae0f7d744a29fa23a22557f706d69982cc0e95ff3e36da",
+            "executionLockDigest": "d63f961aaaffdd1e7aab5ab3e279a66e6d52f220c0f77050441d94f92ea54760",
+            "inputBytes": 8361377,
+            "outputBytes": 0,
+            "interrupts": 6644,
+            "hostCalls": 121,
+            "elapsedMs": 4958,
+            "memoryBytes": 27918336,
+            "compressionBytes": 0,
+            "binaryBytes": 0,
+            "textBytes": 0,
+            "cryptoBytes": 7459601,
+            "cryptoPeakStreams": 1,
+            "cryptoLiveStreams": 0,
+            "contextsCreated": 1
+          }
+        ],
+        "profile": {
+          "maxJobWallMs": 60000,
+          "maxPhaseMs": 10000,
+          "id": "default",
+          "maxJobInterrupts": 100000,
+          "maxJobHostCalls": 4096
+        },
+        "totals": {
+          "interrupts": 38512,
+          "hostCalls": 489,
+          "outputBytes": 7460133,
+          "outputArtifacts": 2
+        }
+      },
+      "executionLockDigest": "d63f961aaaffdd1e7aab5ab3e279a66e6d52f220c0f77050441d94f92ea54760",
+      "gameAcceptance": "unverified",
+      "entitlement": "host-review-required",
+      "summary": {
+        "before": {
+          "capabilities": {
+            "engraving": false,
+            "itemLevel": true,
+            "mastery": false,
+            "maxOperations": 16,
+            "nativeWrappedSave": true,
+            "playerLevel": false,
+            "quantity": true
+          },
+          "fieldCount": 193505,
+          "format": "native-pc-stored-progression-v54",
+          "gameAcceptance": "not_run",
+          "inventoryCount": 2174,
+          "limitations": [
+            "Prepared v54 PC save: the progression context must already use native stored blocks. Native output has not been tested in game.",
+            "Untouched Oodle progression blocks and Xbox saves require a separate verified codec.",
+            "No item additions, engraving edits, mastery or player-level changes.",
+            "Unknown character profiles and level-zero singleton records remain read-only."
+          ],
+          "objectCount": 86929,
+          "schema": "saverift.ac-shadows.inspect.v1",
+          "sourceSha256": "2669d59aba2be06f950390a4adebd182902f6fec4d7a322f44259f1b57569a3b"
+        },
+        "after": {
+          "capabilities": {
+            "engraving": false,
+            "itemLevel": true,
+            "mastery": false,
+            "maxOperations": 16,
+            "nativeWrappedSave": true,
+            "playerLevel": false,
+            "quantity": true
+          },
+          "fieldCount": 193505,
+          "format": "native-pc-stored-progression-v54",
+          "gameAcceptance": "not_run",
+          "inventoryCount": 2174,
+          "limitations": [
+            "Prepared v54 PC save: the progression context must already use native stored blocks. Native output has not been tested in game.",
+            "Untouched Oodle progression blocks and Xbox saves require a separate verified codec.",
+            "No item additions, engraving edits, mastery or player-level changes.",
+            "Unknown character profiles and level-zero singleton records remain read-only."
+          ],
+          "objectCount": 86929,
+          "schema": "saverift.ac-shadows.inspect.v1",
+          "sourceSha256": "749f640d0d76f32e9a72fbdee14c92507b6077cb8ee1024821697a2b5f6afdb5"
+        },
+        "changes": [],
+        "candidateBundleDigest": "30f5b29ae1d39ad79e94743ecc6ebd2340b5bb076764d24e3a05a55ef99f1eae",
+        "artifacts": [
+          {
+            "byteLength": 7459585,
+            "id": "output-1-749f640d0d76f32e",
+            "logicalPath": "ACShadows[ManualSave02].save",
+            "role": "main",
+            "sha256": "749f640d0d76f32e9a72fbdee14c92507b6077cb8ee1024821697a2b5f6afdb5"
+          },
+          {
+            "byteLength": 901776,
+            "id": "fixture_7e0615b29b1046f09fe17b8762656c81",
+            "logicalPath": "original-PC.save",
+            "role": "sibling",
+            "sha256": "c3b551c74e69575c1a732ce178ce64180a961a97d13acfb3966b665f08fd8aca"
+          }
+        ]
+      },
+      "candidateDownloadPath": "/api/developer/candidates/job_fe5e88ca463341b7b901428175aa9ffe"
+    },
+    "finishedAt": 1793737856980
+  }
+}
