@@ -21,16 +21,24 @@ const integer = value => Number.isSafeInteger(value) && value >= 0;
 const isHash = value => typeof value === 'string' && /^[a-f0-9]{64}$/.test(value);
 const PHASE_YIELD = Symbol('one isolated engine completed');
 
-function encodeArtifacts(map) {
-  return [...map].map(([id, bytes]) => ({id, byteLength: bytes.length, sha256: sha256(bytes), data: Buffer.from(bytes).toString('base64')}));
+async function encodeArtifacts(map, storage) {
+  const rows = [];
+  for (const [id, bytes] of map) {
+    const descriptor = {id, byteLength: bytes.length, sha256: sha256(bytes)};
+    // Trusted service callbacks keep output bytes in existing encrypted storage.
+    // Guests receive neither this callback nor a storage/object reference API.
+    rows.push(storage ? {...descriptor, ref: await storage.write(descriptor, bytes)} : {...descriptor, data: Buffer.from(bytes).toString('base64')});
+  }
+  return rows;
 }
-function decodeArtifacts(rows) {
+async function decodeArtifacts(rows, storage) {
   if (!Array.isArray(rows) || rows.length > SDK_LIMITS.outputArtifacts) fail('JOB_CHECKPOINT_INVALID', 'Invalid private artifact checkpoint.');
   const map = new Map(); let total = 0;
   for (const row of rows) {
-    if (typeof row.id !== 'string' || map.has(row.id) || !integer(row.byteLength) || !isHash(row.sha256) || typeof row.data !== 'string') fail('JOB_CHECKPOINT_INVALID', 'Invalid private artifact checkpoint.');
-    const bytes = new Uint8Array(Buffer.from(row.data, 'base64'));
-    if (bytes.length !== row.byteLength || row.data !== Buffer.from(bytes).toString('base64') || sha256(bytes) !== row.sha256) fail('JOB_CHECKPOINT_INVALID', 'Private checkpoint artifact bytes changed.');
+    if (typeof row.id !== 'string' || map.has(row.id) || !integer(row.byteLength) || row.byteLength > SDK_LIMITS.artifactBytes || !isHash(row.sha256) || (typeof row.data === 'string') === (typeof row.ref === 'string')) fail('JOB_CHECKPOINT_INVALID', 'Invalid private artifact checkpoint.');
+    if (row.ref !== undefined && (!storage || row.ref !== row.sha256)) fail('JOB_CHECKPOINT_INVALID', 'Invalid private artifact reference.');
+    const bytes = row.ref !== undefined ? await storage.read(row) : new Uint8Array(Buffer.from(row.data, 'base64'));
+    if (!(bytes instanceof Uint8Array) || bytes.length !== row.byteLength || row.data !== undefined && row.data !== Buffer.from(bytes).toString('base64') || sha256(bytes) !== row.sha256) fail('JOB_CHECKPOINT_INVALID', 'Private checkpoint artifact bytes changed.');
     total += bytes.length; if (total > SDK_LIMITS.outputBytes) fail('JOB_CHECKPOINT_INVALID', 'Private checkpoint artifacts exceed their shared budget.');
     map.set(row.id, bytes);
   }
@@ -44,7 +52,8 @@ function boundedCheckpoint(state) {
 
 /** Advance at most one fresh isolated engine; no completed engine is replayed. */
 export function createPhaseExecutor(host = {}) {
-  return async function step({kind, package: pkg, extensions = [], executionLock, dataPackages = [], referenceData, catalog, catalogs = catalog ? [catalog] : [], fixtures, input = {}, signal, jobStartedAt}, checkpoint = null) {
+  return async function step({kind, package: pkg, extensions = [], executionLock, dataPackages = [], referenceData, catalog, catalogs = catalog ? [catalog] : [], fixtures, input = {}, signal, jobStartedAt, checkpointArtifacts}, checkpoint = null) {
+    if (checkpointArtifacts !== undefined && (typeof checkpointArtifacts?.read !== 'function' || typeof checkpointArtifacts?.write !== 'function')) fail('JOB_CHECKPOINT_INVALID', 'Trusted private artifact storage is unavailable.');
     validateExecutionPackages(executionLock, [pkg, ...extensions.map(e => e.package), ...dataPackages]);
     if (!fixtures.length) return {done: true, result: {status: 'not_run', reason: 'Select an explicitly authorized fixture to run lifecycle/no-op tests.'}};
     if (!['inspect', 'tests', 'candidate'].includes(kind)) fail('JOB_KIND_INVALID', 'The isolated continuation kind is unsupported.');
@@ -103,7 +112,7 @@ export function createPhaseExecutor(host = {}) {
         const stored = state.runs[callIndex++];
         if (stored) {
           if (stored.signature !== signature || !Array.isArray(stored.artifacts)) fail('JOB_CHECKPOINT_INVALID', 'The continuation call sequence changed.');
-          return {result: copy(stored.result), artifacts: decodeArtifacts(stored.artifacts), metrics: copy(stored.metrics)};
+          return {result: copy(stored.result), artifacts: await decodeArtifacts(stored.artifacts, checkpointArtifacts), metrics: copy(stored.metrics)};
         }
         if (engineUsed) fail('JOB_PHASE_INVARIANT', 'Only one new isolated engine may run in an invocation.');
         engineUsed = true;
@@ -111,7 +120,7 @@ export function createPhaseExecutor(host = {}) {
         const value = await runPlugin({...options, artifacts: selected.artifacts, executionProfile: primary ? token : undefined, limits: budget(primary)}, pinnedHost);
         account(primary ? 'serialization' : 'extension', value.metrics, value.artifacts.size, options.package.manifest.id);
         if (!primary && value.artifacts.size) fail('EXTENSION_OUTPUT_FORBIDDEN', 'Extensions cannot serialize save artifacts.');
-        state.runs.push({signature, method: options.method, result: copy(primary ? value.result : {operations: value.result?.operations}), artifacts: encodeArtifacts(value.artifacts), metrics: copy(value.metrics)});
+        state.runs.push({signature, method: options.method, result: copy(primary ? value.result : {operations: value.result?.operations}), artifacts: await encodeArtifacts(value.artifacts, checkpointArtifacts), metrics: copy(value.metrics)});
         boundedCheckpoint(state);
         throw PHASE_YIELD;
       };

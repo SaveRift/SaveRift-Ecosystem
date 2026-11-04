@@ -6,6 +6,7 @@ import {createWorkspaceService} from '../service.mjs';
 import {createIsolatedExecutor} from '../executor.mjs';
 import {DEFAULT_SCOPES} from '../tool-definitions.mjs';
 import {createGameAccess} from '../../collaboration/enrollment.mjs';
+import {LIMITS as SDK_LIMITS} from '../../sdk/contracts.mjs';
 const alice = {id: 'resumed-owner', scopes: [...DEFAULT_SCOPES]}, bob = {id: 'independent-owner', scopes: [...DEFAULT_SCOPES]};
 const deferred = () => {let resolve; const promise = new Promise(done => resolve = done); return {promise, resolve};};
 async function harness({executeJob = createIsolatedExecutor(), enrolled = false, now, resumable = true} = {}) {
@@ -153,4 +154,111 @@ test('only a passed owner-bound resumed candidate exposes a separate download', 
   await assert.rejects(h.service().downloadCandidate(bob, job.jobId), {code: 'OBJECT_NOT_FOUND'});
   const downloaded = await h.service().downloadCandidate(alice, job.jobId);
   for (const artifact of downloaded.artifacts) {const bytes = Buffer.from(artifact.bytes, 'base64'); assert.equal(bytes.length, artifact.byteLength); assert.equal(sha256(bytes), artifact.sha256);}
+});
+
+function referencedExecutor(bytes, {beforeResult, beforeRead} = {}) {
+  let calls = 0;
+  const descriptor = {id: 'output_private_size', logicalPath: 'synthetic-size.main', role: 'main', byteLength: bytes.length, sha256: sha256(bytes)};
+  const executeJob = fakeExecutor(async ({checkpointArtifacts}, checkpoint) => {
+    calls++;
+    if (calls === 1) return pause(checkpoint);
+    if (calls === 2) {
+      const ref = await checkpointArtifacts.write(descriptor, bytes);
+      if (beforeResult) await beforeResult();
+      return {done: false, checkpoint: {phases: [{phase: 'inspection'}, {phase: 'serialization'}], artifacts: [{...descriptor, ref}]}};
+    }
+    if (beforeRead) await beforeRead();
+    const restored = await checkpointArtifacts.read(checkpoint.artifacts[0]);
+    return {done: true, result: {status: 'passed', privateArtifacts: [{...descriptor, bytes: restored}]}};
+  });
+  return executeJob;
+}
+
+test('encrypted object references persist a size-equivalent output and are removed after exact download publication', async () => {
+  const bytes = new Uint8Array(7459585).fill(19), h = await harness({executeJob: referencedExecutor(bytes)});
+  const job = await h.call('candidate_prepare', {...h.args, operations: [{id: 'synthetic.level.set', apiVersion: '0.1.0', params: {level: 8}}]}), ref = {workspaceId: h.args.workspaceId, jobId: job.jobId};
+  const progress = await h.call('job_status', ref), checkpoint = (await h.rows('jobcheckpoints'))[0];
+  assert.ok(Buffer.byteLength(JSON.stringify(checkpoint.value)) < 16384);
+  assert.equal(JSON.stringify(checkpoint.value).includes('"bytes"'), false);
+  assert.equal(JSON.stringify(progress).includes('jobartifacts'), false);
+  assert.equal((await h.rows('jobartifacts')).length, 1);
+  await assert.rejects(h.call('job_status', ref, bob), {code: 'WORKSPACE_NOT_FOUND'});
+  assert.equal((await h.call('job_status', ref)).status, 'passed');
+  const downloaded = await h.service().downloadCandidate(alice, job.jobId);
+  assert.equal(downloaded.artifacts[0].byteLength, bytes.length);
+  assert.equal(sha256(Buffer.from(downloaded.artifacts[0].bytes, 'base64')), sha256(bytes));
+  assert.equal((await h.rows('jobartifacts')).length, 0);
+  assert.equal((await h.rows('jobartifactindexes')).length, 0);
+  assert.equal((await h.rows('jobcheckpoints')).length, 0);
+});
+
+for (const mutation of ['missing', 'binding', 'bytes', 'length']) test(`a ${mutation} private output cannot resume or become a candidate`, async () => {
+  const h = await harness({executeJob: referencedExecutor(new Uint8Array(64).fill(17))}), job = await h.call('tests_run', h.args), ref = {workspaceId: h.args.workspaceId, jobId: job.jobId};
+  await h.call('job_status', ref);
+  const artifact = (await h.rows('jobartifacts'))[0];
+  if (mutation === 'missing') await h.store.delete(artifact.key);
+  else await h.store.put(artifact.key, {...artifact.value, ...(mutation === 'binding' ? {bindingDigest: '0'.repeat(64)} : mutation === 'length' ? {byteLength: SDK_LIMITS.artifactBytes + 1} : {bytes: Buffer.from('tampered').toString('base64')})}, {ifMatch: artifact.etag});
+  const failed = await h.call('job_status', ref);
+  assert.equal(failed.status, 'failed'); assert.equal(failed.job.result.code, 'JOB_CHECKPOINT_INVALID');
+  assert.equal((await h.rows('candidates')).length, 0); assert.equal((await h.rows('jobartifacts')).length, 0);
+});
+
+test('private output count, per-artifact and aggregate budgets are not raised by references', async () => {
+  for (const limit of ['artifact', 'count', 'aggregate']) {
+    const executeJob = fakeExecutor(async ({checkpointArtifacts}) => {
+      const count = limit === 'count' ? 33 : limit === 'aggregate' ? 4 : 1;
+      for (let i = 0; i < count; i++) {
+        const bytes = new Uint8Array(limit === 'artifact' ? SDK_LIMITS.artifactBytes + 1 : limit === 'aggregate' ? 7 * 1024 * 1024 : 1).fill(i);
+        await checkpointArtifacts.write({id: 'output_' + i, byteLength: bytes.length, sha256: sha256(bytes)}, bytes);
+      }
+      throw Error('Budget should reject before this point.');
+    });
+    const h = await harness({executeJob}), job = await h.call('tests_run', h.args), status = await h.call('job_status', {workspaceId: h.args.workspaceId, jobId: job.jobId});
+    assert.equal(status.status, 'failed'); assert.equal(status.job.result.code, limit === 'artifact' ? 'JOB_CHECKPOINT_INVALID' : 'JOB_CHECKPOINT_LIMIT');
+    assert.equal((await h.rows('jobartifacts')).length, 0);
+  }
+});
+
+for (const interruption of ['cancel', 'consent', 'grant', 'source']) test(`${interruption} during a private artifact phase prevents late persistence and cleans outputs`, async () => {
+  const entered = deferred(), hold = deferred();
+  const h = await harness({enrolled: interruption === 'grant', executeJob: referencedExecutor(new Uint8Array(64).fill(17), {beforeResult: async () => {entered.resolve(); await hold.promise;}})});
+  const job = await h.call('tests_run', h.args), ref = {workspaceId: h.args.workspaceId, jobId: job.jobId}, running = h.call('job_status', ref);
+  await entered.promise;
+  assert.equal((await h.rows('jobartifacts')).length, 1);
+  if (interruption === 'cancel') await h.call('job_cancel', ref);
+  if (interruption === 'consent') await h.service().trustedSetFixtureConsent(alice, h.args.workspaceId, h.args.fixtureIds[0], false);
+  if (interruption === 'grant') {const disabled = await h.access.optOut(alice, {gameId: 'synthetic', expectedRevision: 1}); await h.access.enroll(alice, {gameId: 'synthetic', expectedRevision: disabled.revision});}
+  if (interruption === 'source') {const row = (await h.rows('workspaces'))[0]; await h.store.put(row.key, {...row.value, evidenceEpoch: 'changed-source'}, {ifMatch: row.etag});}
+  hold.resolve();
+  if (interruption === 'cancel') assert.equal((await running).status, 'cancelled');
+  else await assert.rejects(running, {code: interruption === 'consent' ? 'FIXTURE_AUTHORIZATION_CHANGED' : interruption === 'grant' ? 'GAME_GRANT_REVOKED' : 'WORKSPACE_EVIDENCE_STALE'});
+  assert.equal((await h.rows('jobartifacts')).length, 0); assert.equal((await h.rows('jobcheckpoints')).length, 0); assert.equal((await h.rows('candidates')).length, 0);
+});
+
+test('cancel between descriptor reservation and payload persistence cleans the partial write', async () => {
+  const entered = deferred(), hold = deferred(), h = await harness({executeJob: referencedExecutor(new Uint8Array(64).fill(17))});
+  const put = h.store.put.bind(h.store); let held = false;
+  h.store.put = async (key, value, options) => {const row = await put(key, value, options); if (!held && key.includes('/jobartifactindexes/')) {held = true; entered.resolve(); await hold.promise;} return row;};
+  const job = await h.call('tests_run', h.args), ref = {workspaceId: h.args.workspaceId, jobId: job.jobId}, running = h.call('job_status', ref);
+  await entered.promise; await h.call('job_cancel', ref); hold.resolve();
+  assert.equal((await running).status, 'cancelled');
+  assert.equal((await h.rows('jobartifacts')).length, 0); assert.equal((await h.rows('jobartifactindexes')).length, 0);
+});
+
+test('an uncertain payload put is cleaned and cannot become a resumable result', async () => {
+  const h = await harness({executeJob: referencedExecutor(new Uint8Array(64).fill(17))}), put = h.store.put.bind(h.store); let injected = false;
+  h.store.put = async (key, value, options) => {const row = await put(key, value, options); if (!injected && key.includes('/jobartifacts/')) {injected = true; throw Object.assign(Error('synthetic uncertain storage write'), {code: 'SYNTHETIC_STORAGE_FAILURE'});} return row;};
+  const job = await h.call('tests_run', h.args), status = await h.call('job_status', {workspaceId: h.args.workspaceId, jobId: job.jobId});
+  assert.equal(status.status, 'failed'); assert.equal(status.job.result.code, 'SYNTHETIC_STORAGE_FAILURE');
+  assert.equal((await h.rows('jobartifacts')).length, 0); assert.equal((await h.rows('jobartifactindexes')).length, 0); assert.equal((await h.rows('jobcheckpoints')).length, 0);
+});
+
+test('an expired uncertain lease cleans referenced outputs without replay', async () => {
+  let clock = Date.now();
+  const h = await harness({now: () => clock, executeJob: referencedExecutor(new Uint8Array(64).fill(17))}), job = await h.call('tests_run', h.args), ref = {workspaceId: h.args.workspaceId, jobId: job.jobId};
+  await h.call('job_status', ref);
+  const row = (await h.rows('jobs')).find(value => value.value.id === job.jobId);
+  await h.store.put(row.key, {...row.value, phaseState: 'executing', phaseLease: {id: 'phase_uncertain', expiresAt: clock + 45000}}, {ifMatch: row.etag}); clock += 45001;
+  assert.equal((await h.call('job_status', ref)).job.result.code, 'JOB_PHASE_INTERRUPTED');
+  assert.equal((await h.rows('jobartifacts')).length, 0); assert.equal((await h.rows('jobartifactindexes')).length, 0);
 });

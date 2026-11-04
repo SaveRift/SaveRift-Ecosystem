@@ -12,8 +12,8 @@ Issue #11 is complete. The remaining outcomes are tracked in [issue #13](https:/
 | Stored-context game acceptance | Not run: test prepared **unedited** representation first, then one conservative existing-item edit, normal save, fresh-process relaunch and original recovery through the authorized disposable-copy workflow |
 | Native raw-Oodle proof | Separate private research complete: pinned oozextract and ooz-wasm each matched all 27 original context-12 packed blocks and the prior reference; complete typed parse; fixture-scoped Kraken type 6/reset profile |
 | Integrated raw-save route | Pending: current package still requires preparation; preserve other encoded contexts exactly and establish the accepted target write representation; do not treat decoder/reopen success as writer readiness |
-| Hosted resource envelope | Targeted preview test reproduces `JOB_CHECKPOINT_LIMIT`: 7,459,585-byte main needs at least 9,946,116 base64 characters, over the separate 8 MiB checkpoint cap; persistence correction under review, no blanket cap increase |
-| Hosted AC research project | Not admitted: requires distinct package/source/template/root/maintainer configuration and fresh browser/MCP evidence after resource gates pass |
+| Hosted resource envelope | `JOB_CHECKPOINT_LIMIT` reproduced: the 7,459,585-byte main needs at least 9,946,116 base64 characters, over the separate 8 MiB checkpoint cap. Bounded encrypted output references fix this persistence failure without increasing caps; 33 focused checks and independent review passed. Actual hosted processing limits remain unmeasured |
+| Hosted AC research project | Distinct owner-private registration verified on preview v20, with canonical/editable pins and reviewed source base; Crimson digests/grants unchanged. Fresh AC browser/MCP processing remains pending; registration is not consumer admission |
 | Console or publisher route | Unverified: requires a separate authorized origin sample/route and compatibility/acceptance evidence |
 
 The prepared main plus selected 901,776-byte sibling total 8,361,361 bytes before
@@ -22,6 +22,15 @@ per-artifact cap is separate from checkpoint, aggregate-input, storage and
 production capture/snapshot limits. The production payload repair does not
 establish AC hosted headroom. Comparison-decoder regression failures outside
 the native fixture remain recorded; no general decoder compatibility is claimed.
+
+The exact editable AC package passed a local four-phase one-edit synthetic size
+probe at that main size, with 2,160–5,383-byte reference checkpoints and peak
+Wasm memory of 36,044,800 bytes. Its large opaque context tests file size, not
+the native fixture's typed object shape. A separate large fixture with 16
+eligible records and 16 operations hit `CPU_LIMIT` during inspection, before
+any operation ran. That failure is retained; no profile/cap increase or broad
+optimization followed. It does not invalidate the distinct one-edit receipt or
+establish a supported maximum-size/maximum-operation hosted envelope.
 
 Original submission branch: `saverift/ac-shadows/11-inventory-support`.
 Original implementation base: `09c92ff35097160528a669d753724b3a36c24059`.
