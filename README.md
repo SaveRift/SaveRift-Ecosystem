@@ -12,6 +12,16 @@ GitHub App connection, merged runtime work and version-specific hosted
 no-op/scalar/mixed receipts are complete. The customer-facing editor still
 uses the separate built-in path; release publication does not perform that
 cutover or establish in-game acceptance. See [issue #5](https://github.com/SaveRift/SaveRift-Ecosystem/issues/5)
-for the remaining browser journey, package/source pin, game/recovery and
-customer-download gates. The two-human-contributor acceptance test remains
-deferred by the owner.
+for the remaining Git-source binding migration, game/recovery, customer-download
+and production-cutover gates. The released dev.3 browser journey and workbench
+package-default reconciliation are complete. The two-human-contributor
+acceptance test remains deferred by the owner.
+
+The experimental [AC Shadows prepared-PC-v54 plugin](ecosystem/plugins/ac-shadows/README.md)
+is merged in [PR #12](https://github.com/SaveRift/SaveRift-Ecosystem/pull/12).
+Its local shared-UI, draft, isolated-processing, download and independent-comparison
+milestone is complete. [Issue #13](https://github.com/SaveRift/SaveRift-Ecosystem/issues/13)
+tracks stored-context game acceptance/recovery, integrated raw input, measured
+hosted limits and a distinct hosted AC research project. Separate native Oodle
+decoding research passed; that decoder is not integrated or distributed here.
+Hosted readiness and Xbox/publisher-route compatibility remain unverified.

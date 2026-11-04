@@ -1,7 +1,30 @@
 # AC Shadows implementation checkpoint
 
-Updated 2026-11-03. Submission branch: `saverift/ac-shadows/11-inventory-support`.
-Base: `09c92ff35097160528a669d753724b3a36c24059`, the full public source snapshot.
+Updated 2026-11-03 (Eastern). **Local prepared-PC-v54 milestone: complete.**
+PR #12 merged through normal GitHub checks as
+`98a8a395a0edbb4f8dd91bb4c6b522d2fd8f901b`; reviewed head
+`3153bff49ee009e2790d87167f534b5d8aec69ef`, green CI run `41722067540`.
+Issue #11 is complete. The remaining outcomes are tracked in [issue #13](https://github.com/SaveRift/SaveRift-Ecosystem/issues/13).
+
+| Outcome | Current evidence / boundary |
+| --- | --- |
+| Prepared-PC implementation | Complete: local UI/draft/isolated processing/downloads/independent comparisons below; no milestone rebuild required |
+| Stored-context game acceptance | Not run: test prepared **unedited** representation first, then one conservative existing-item edit, normal save, fresh-process relaunch and original recovery through the authorized disposable-copy workflow |
+| Native raw-Oodle proof | Separate private research complete: pinned oozextract and ooz-wasm each matched all 27 original context-12 packed blocks and the prior reference; complete typed parse; fixture-scoped Kraken type 6/reset profile |
+| Integrated raw-save route | Pending: current package still requires preparation; preserve other encoded contexts exactly and establish the accepted target write representation; do not treat decoder/reopen success as writer readiness |
+| Hosted resource envelope | Targeted preview test reproduces `JOB_CHECKPOINT_LIMIT`: 7,459,585-byte main needs at least 9,946,116 base64 characters, over the separate 8 MiB checkpoint cap; persistence correction under review, no blanket cap increase |
+| Hosted AC research project | Not admitted: requires distinct package/source/template/root/maintainer configuration and fresh browser/MCP evidence after resource gates pass |
+| Console or publisher route | Unverified: requires a separate authorized origin sample/route and compatibility/acceptance evidence |
+
+The prepared main plus selected 901,776-byte sibling total 8,361,361 bytes before
+metadata or input-only transform material. The preparation command's 8 MiB
+per-artifact cap is separate from checkpoint, aggregate-input, storage and
+production capture/snapshot limits. The production payload repair does not
+establish AC hosted headroom. Comparison-decoder regression failures outside
+the native fixture remain recorded; no general decoder compatibility is claimed.
+
+Original submission branch: `saverift/ac-shadows/11-inventory-support`.
+Original implementation base: `09c92ff35097160528a669d753724b3a36c24059`.
 All 23 handoff checksums, including the 18 original developer-release assets,
 were verified. Work is in a separate checkout; existing Crimson work, grants,
 registry entries, production pins and release assets are unchanged.
@@ -86,11 +109,12 @@ Actual in-game load/save/reload and recovery: `not_run`. The deferred
 two-real-contributor test remains deferred. No publication, registry promotion,
 production switch or Xbox write occurred.
 
-Next: a maintainer reviews the source/diff and inactive AC registration
-proposal, then supplies an AC-specific hosted project/fixture admission and
-verified Git identity if hosted collaboration is desired. Independently test
-game acceptance/recovery before advertising playable save output. Do not
-replace these missing checks with earlier AC research results.
+Source review/merge is complete. Next: establish game acceptance of the prepared
+unedited stored representation, then one conservative edit and recovery; close
+the measured checkpoint/persistence and distinct AC hosted-admission gates in
+issue #13. Do not replace these checks with older compressed-writer results or
+the completed raw decoder research. Existing Crimson release/production work
+stays separately tracked in issue #5.
 
 ## Publication follow-up
 
@@ -102,8 +126,10 @@ The branch was fast-forwarded to current main
 The tested plugin source/runtime/UI and package digests remain unchanged.
 
 Fixture-free review evidence is checked in under `docs/ac-shadows-review/`.
-Submission uses an authenticated, DCO-signed Git contribution and draft PR;
+Submission used an authenticated, DCO-signed Git contribution and draft PR;
 the earlier absence of local Git identity is resolved by the connected account.
 Hosted game enrollment remains unavailable and is not bypassed. The final
 commit, PR URL and CI results are recorded in the external publication receipt.
+PR #12 has now merged at the exact reviewed head through normal GitHub checks;
+this is source completion, not a new developer release or hosted promotion.
 This source submission does not promote a registry or switch production.
