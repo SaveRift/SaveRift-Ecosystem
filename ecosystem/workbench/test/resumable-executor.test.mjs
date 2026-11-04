@@ -7,6 +7,7 @@ import {TEMPLATES} from '../templates.mjs';
 import {packageFromSource, composeExecution} from '../execution.mjs';
 import {validatePackage, LIMITS as SDK_LIMITS} from '../../sdk/contracts.mjs';
 import {PHASE_CHECKPOINT_LIMITS} from '../phase-executor.mjs';
+import {sha256} from '../storage.mjs';
 
 const encode = text => new TextEncoder().encode(text);
 function fixture(kind = 'candidate') {
@@ -94,4 +95,45 @@ test('each extension expansion advances independently before one connector seria
   assert.equal(result.result.summary.after.progression.level, 8);
   assert.equal(result.result.runtime.phases.filter(p => p.phase === 'extension').length, 1);
   assert.equal(result.result.runtime.phases.filter(p => p.phase === 'serialization').length, 1);
+});
+
+test('size-equivalent prepared save resumes using private output references within existing limits', async () => {
+  const files = {...TEMPLATES.find(value => value.id === 'blank').files}, manifest = JSON.parse(files['manifest.json']);
+  manifest.workbench = {inputOnlyRoles: ['input-only-transform']}; files['manifest.json'] = JSON.stringify(manifest);
+  files['runtime/index.mjs'] = `export default {
+    detect(){return {state:'supported'}},open(b){return {byteLength:b.artifacts[0].byteLength}},
+    describe(){return {domainApis:{'test.size':'0.1.0'},defaultQuery:{method:'test.size'}}},query(v){return v},
+    plan(b,p,c){const main=b.artifacts[0],out=c.writeArtifact({logicalPath:main.logicalPath,role:main.role},c.readArtifact(main.id));return {inputBundleDigest:b.bundleDigest,executionLockDigest:c.executionLock.digest,operationDigest:p.operationDigest,outputs:[out],retainedInputArtifacts:b.artifacts.slice(1).filter(a=>a.role!=='input-only-transform').map(a=>a.id),summary:{changes:[]},requirements:[],validation:{checks:[{checkId:'test.size',result:'passed',required:true}],gameAcceptance:'unverified'}}},
+    validate(){return {checks:[{checkId:'test.size',result:'passed',required:true}],gameAcceptance:'unverified'}},close(){}
+  };`;
+  const packaged = packageFromSource(files), primary = {manifest: packaged.manifest, files: packaged.files, digest: packaged.packageDigest};
+  const main = new Uint8Array(7459585).fill(19), sibling = new Uint8Array(901776).fill(29), secret = new Uint8Array(32).fill(211);
+  const stored = new Map(), checkpointArtifacts = {async write(d, bytes) {assert.equal(d.sha256, sha256(main)); stored.set(d.sha256, bytes.slice()); return d.sha256;}, async read(d) {return stored.get(d.ref)?.slice();}};
+  const args = {kind: 'tests', package: primary, executionLock: composeExecution(primary).executionLock, fixtures: [{id: 'main', name: 'size.main', role: 'main', bytes: main}, {id: 'sibling', name: 'size.sibling', role: 'sibling', bytes: sibling}, {id: 'input_only', name: 'transform.private', role: 'input-only-transform', bytes: secret}], input: {operations: []}, checkpointArtifacts};
+  let checkpoint, result, calls = 0;
+  do {
+    result = await createIsolatedExecutor().step(args, checkpoint); calls++;
+    if (!result.done) {
+      assert.ok(Buffer.byteLength(JSON.stringify(result.checkpoint)) < 16384);
+      assert.equal(JSON.stringify(result.checkpoint).includes('"data"'), false);
+      checkpoint = JSON.parse(JSON.stringify(result.checkpoint));
+    }
+  } while (!result.done && calls < 5);
+  assert.equal(calls, 4); assert.equal(result.result.status, 'passed');
+  assert.equal(result.result.runtime.profile.checkpointBytes, 8 * 1024 * 1024);
+  assert.equal(stored.size, 1); assert.equal(stored.has(sha256(secret)), false);
+  assert.ok(result.result.runtime.phases.every(phase => phase.memoryBytes <= SDK_LIMITS.memoryBytes));
+  assert.ok(result.result.checks.some(check => check.name === 'no-op-byte-parity'));
+});
+
+test('referenced outputs require trusted storage and exact actual bytes on resume', async () => {
+  const stored = new Map(), checkpointArtifacts = {async write(d, bytes) {stored.set(d.sha256, bytes.slice()); return d.sha256;}, async read(d) {return stored.get(d.ref);}};
+  const args = {...fixture(), checkpointArtifacts}, first = await createIsolatedExecutor().step(args), second = await createIsolatedExecutor().step(args, first.checkpoint);
+  const reference = second.checkpoint.runs[0].artifacts[0];
+  assert.equal(reference.ref, reference.sha256); assert.equal(reference.data, undefined);
+  await assert.rejects(createIsolatedExecutor().step({...args, checkpointArtifacts: undefined}, second.checkpoint), {code: 'JOB_CHECKPOINT_INVALID'});
+  stored.set(reference.ref, encode('tampered'));
+  await assert.rejects(createIsolatedExecutor().step(args, second.checkpoint), {code: 'JOB_CHECKPOINT_INVALID'});
+  const invalid = structuredClone(second.checkpoint); invalid.runs[0].artifacts[0].byteLength = SDK_LIMITS.artifactBytes + 1;
+  await assert.rejects(createIsolatedExecutor().step(args, invalid), {code: 'JOB_CHECKPOINT_INVALID'});
 });

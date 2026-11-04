@@ -4,7 +4,7 @@ import {Buffer} from 'node:buffer';
 import {sha256, fail} from './storage.mjs';
 import {TOOL_DEFINITIONS, toolDefinition} from './tool-definitions.mjs';
 import {PINNED_DOCS, TEMPLATES} from './templates.mjs';
-import {validatePackage} from '../sdk/contracts.mjs';
+import {validatePackage, LIMITS as SDK_LIMITS} from '../sdk/contracts.mjs';
 import {inputs as executionInputs, boundedJobSummary} from './executor-shared.mjs';
 import {createCatalogSnapshot, createCrosswalk} from '../sdk/data.mjs';
 import {compileUiPackage} from '../ui/vanilla-frame.mjs';
@@ -380,6 +380,15 @@ export function createWorkspaceService({store, executeJob, templates = TEMPLATES
       }
     }
   }
+  async function clearJobArtifacts(principal, jobId, written = []) {
+    const prefix = objectKey(principal, 'jobartifacts', jobId) + '/';
+    const indexKey = objectKey(principal, 'jobartifactindexes', jobId), index = await store.get(indexKey);
+    // Cleanup reads only bounded descriptors, never all large output objects.
+    const hashes = Array.isArray(index?.value.artifacts) ? index.value.artifacts.slice(0, SDK_LIMITS.outputArtifacts).map(entry => entry?.sha256).filter(value => typeof value === 'string' && /^[a-f0-9]{64}$/.test(value)) : [];
+    for (const name of new Set([...hashes.map(value => prefix + value), ...written])) await store.delete(name);
+    if (index && !index.value.deleted) await store.delete(indexKey, {ifMatch: index.etag});
+  }
+
   // Checkpoints are encrypted by the private store and never included in tool
   // responses. A lease is deliberately not recoverable by replay: an uncertain
   // engine may have completed, so an expired lease requires a new offline job.
@@ -391,14 +400,14 @@ export function createWorkspaceService({store, executeJob, templates = TEMPLATES
       if (row.value.phaseLease?.expiresAt > now()) return;
       try {await store.put(jobKey, {...row.value, status: 'failed', phaseState: 'interrupted', phaseLease: null, finishedAt: now(), result: {status: 'failed', code: 'JOB_PHASE_INTERRUPTED', error: 'The previous isolated phase did not finish with a verified checkpoint. Start a new offline job.'}}, {ifMatch: row.etag});}
       catch (error) {if (error.code !== 'REVISION_CONFLICT') throw error; return;}
-      await store.delete(checkpointKey); await store.delete(candidateKey); return;
+      await store.delete(checkpointKey); await store.delete(candidateKey); await clearJobArtifacts(principal, jobId); return;
     }
     if (row.value.phaseState !== 'waiting') fail('JOB_PHASE_INVALID', 'This job cannot resume from its current phase.', 409);
     const leaseId = identifier('phase');
     try {row = await store.put(jobKey, {...row.value, status: 'running', startedAt: row.value.startedAt || now(), phaseState: 'executing', phaseLease: {id: leaseId, expiresAt: now() + phaseLeaseMs}}, {ifMatch: row.etag});}
     catch (error) {if (error.code === 'REVISION_CONFLICT') return; throw error;}
     const controller = new AbortController(); controllers.set(jobId, controller);
-    let checkpointWritten, committed = false;
+    let checkpointWritten, committed = false; const artifactWrites = new Set();
     async function guard() {
       const current = await readRequired(principal, 'jobs', jobId);
       if (current.value.status !== 'running' || current.value.phaseState !== 'executing' || current.value.phaseLease?.id !== leaseId || current.value.phaseLease.expiresAt <= now()) fail('JOB_PHASE_INTERRUPTED', 'This phase is no longer authorized to persist results.', 409);
@@ -418,7 +427,57 @@ export function createWorkspaceService({store, executeJob, templates = TEMPLATES
       const stored = await store.get(checkpointKey), envelope = stored && !stored.value.deleted ? stored.value : null;
       const binding = {jobId, workspaceId: row.value.workspaceId, createdAt: row.value.createdAt, evidenceBindings: row.value.evidenceBindings, gameGrants: row.value.gameGrants, inputDigest: digest(row.value.input)};
       if (row.value.checkpointDigest ? !envelope || digest(envelope) !== row.value.checkpointDigest || canonical(envelope.binding) !== canonical(binding) : envelope) fail('JOB_CHECKPOINT_INVALID', 'The private continuation no longer matches this immutable job.', 409);
-      const advanced = await executeJob.step({kind: row.value.type, package: {manifest: artifact.manifest, files: artifact.files}, extensions: selected.extensions.map(a => ({package: {manifest: a.manifest, files: a.files}})), executionLock: selected.executionLock, dataPackages: selected.dataPackages, referenceData: selected.referenceData, catalogs: selected.catalogs, fixtures, input: row.value.input, signal: controller.signal, jobStartedAt: row.value.createdAt}, envelope?.checkpoint || null);
+      const bindingDigest = digest(binding), artifactPrefix = objectKey(principal, 'jobartifacts', jobId) + '/';
+      const indexKey = objectKey(principal, 'jobartifactindexes', jobId);
+      async function artifactIndex() {
+        const index = await store.get(indexKey);
+        if (!index || index.value.deleted) return null;
+        const value = index.value, seen = new Set(); let total = 0;
+        if (value.schema !== 'saverift.private-job-artifact-index.v1' || value.bindingDigest !== bindingDigest || !Array.isArray(value.artifacts) || value.artifacts.length > SDK_LIMITS.outputArtifacts) fail('JOB_CHECKPOINT_INVALID', 'Invalid private continuation artifact index.');
+        for (const entry of value.artifacts) {
+          if (!/^[a-f0-9]{64}$/.test(entry.sha256) || seen.has(entry.sha256) || !Number.isSafeInteger(entry.byteLength) || entry.byteLength < 0 || entry.byteLength > SDK_LIMITS.artifactBytes) fail('JOB_CHECKPOINT_INVALID', 'Invalid private continuation artifact index.');
+          seen.add(entry.sha256); total += entry.byteLength;
+        }
+        if (total > SDK_LIMITS.outputBytes) fail('JOB_CHECKPOINT_INVALID', 'Invalid private continuation artifact index.');
+        return index;
+      }
+      function artifactBytes(value, descriptor) {
+        if (!value || value.schema !== 'saverift.private-job-artifact.v1' || value.bindingDigest !== bindingDigest || !Number.isSafeInteger(descriptor.byteLength) || descriptor.byteLength < 0 || descriptor.byteLength > SDK_LIMITS.artifactBytes || value.byteLength !== descriptor.byteLength || value.sha256 !== descriptor.sha256 || !/^[a-f0-9]{64}$/.test(descriptor.sha256) || typeof value.bytes !== 'string' || value.bytes.length !== 4 * Math.ceil(descriptor.byteLength / 3)) fail('JOB_CHECKPOINT_INVALID', 'The private continuation artifact is missing or changed.');
+        const bytes = new Uint8Array(Buffer.from(value.bytes, 'base64'));
+        if (bytes.length !== descriptor.byteLength || sha256(bytes) !== descriptor.sha256 || Buffer.from(bytes).toString('base64') !== value.bytes) fail('JOB_CHECKPOINT_INVALID', 'The private continuation artifact is missing or changed.');
+        return bytes;
+      }
+      const checkpointArtifacts = {
+        async write(descriptor, bytes) {
+          await guard();
+          if (!(bytes instanceof Uint8Array) || bytes.length !== descriptor.byteLength || bytes.length > SDK_LIMITS.artifactBytes || sha256(bytes) !== descriptor.sha256) fail('JOB_CHECKPOINT_INVALID', 'Invalid private continuation artifact.');
+          const index = await artifactIndex(), entries = index?.value.artifacts || [], retained = entries.find(entry => entry.sha256 === descriptor.sha256);
+          if (retained && retained.byteLength !== bytes.length) fail('JOB_CHECKPOINT_INVALID', 'Invalid private continuation artifact.');
+          if (!retained) {
+            if (entries.length >= SDK_LIMITS.outputArtifacts || entries.reduce((total, entry) => total + entry.byteLength, bytes.length) > SDK_LIMITS.outputBytes) fail('JOB_CHECKPOINT_LIMIT', 'Private continuation artifacts exceed their existing output budget.');
+            await store.put(indexKey, {schema: 'saverift.private-job-artifact-index.v1', bindingDigest, artifacts: [...entries, {sha256: descriptor.sha256, byteLength: bytes.length}]}, index ? {ifMatch: index.etag} : {ifAbsent: true});
+          }
+          await guard();
+          const artifactKey = artifactPrefix + descriptor.sha256; artifactWrites.add(artifactKey);
+          const prior = await store.get(artifactKey);
+          if (prior && !prior.value.deleted) artifactBytes(prior.value, descriptor);
+          else {
+            await store.put(artifactKey, {schema: 'saverift.private-job-artifact.v1', bindingDigest, byteLength: bytes.length, sha256: descriptor.sha256, bytes: Buffer.from(bytes).toString('base64')}, prior ? {ifMatch: prior.etag} : {ifAbsent: true});
+          }
+          await guard();
+          return descriptor.sha256;
+        },
+        async read(descriptor) {
+          await guard();
+          if (descriptor.ref !== descriptor.sha256 || !/^[a-f0-9]{64}$/.test(descriptor.ref)) fail('JOB_CHECKPOINT_INVALID', 'Invalid private continuation artifact reference.');
+          const index = await artifactIndex();
+          if (!index?.value.artifacts.some(entry => entry.sha256 === descriptor.sha256 && entry.byteLength === descriptor.byteLength)) fail('JOB_CHECKPOINT_INVALID', 'Missing private continuation artifact index.');
+          const stored = await store.get(artifactPrefix + descriptor.ref), bytes = artifactBytes(stored?.value, descriptor);
+          await guard();
+          return bytes;
+        }
+      };
+      const advanced = await executeJob.step({kind: row.value.type, package: {manifest: artifact.manifest, files: artifact.files}, extensions: selected.extensions.map(a => ({package: {manifest: a.manifest, files: a.files}})), executionLock: selected.executionLock, dataPackages: selected.dataPackages, referenceData: selected.referenceData, catalogs: selected.catalogs, fixtures, input: row.value.input, signal: controller.signal, jobStartedAt: row.value.createdAt, checkpointArtifacts}, envelope?.checkpoint || null);
       let current = await guard();
       if (advanced?.done === false) {
         if (!advanced.checkpoint || encode(JSON.stringify(advanced.checkpoint)).length > PHASE_CHECKPOINT_LIMITS.bytes) fail('JOB_CHECKPOINT_LIMIT', 'The private continuation exceeds its hosted quota.');
@@ -447,12 +506,14 @@ export function createWorkspaceService({store, executeJob, templates = TEMPLATES
       await store.put(jobKey, {...current.value, status: result.status, phaseState: 'complete', phaseLease: null, checkpointDigest: null, result, finishedAt: now()}, {ifMatch: current.etag});
       committed = true;
       await store.delete(checkpointKey);
+      await clearJobArtifacts(principal, jobId, artifactWrites);
     } catch (error) {
       // Cleanup failure cannot turn a durably committed candidate into a
       // passed job with missing bytes. An orphan checkpoint remains private.
       if (committed) return;
       await removeOwnCheckpoint();
       await store.delete(candidateKey);
+      await clearJobArtifacts(principal, jobId, artifactWrites);
       const current = await readRequired(principal, 'jobs', jobId);
       if (current.value.status === 'running' && current.value.phaseLease?.id === leaseId) {
         await store.delete(checkpointKey);
@@ -707,7 +768,7 @@ export function createWorkspaceService({store, executeJob, templates = TEMPLATES
       const {input, gameGrants, consentProofs, phaseLease, checkpointDigest, ...job} = row.value;
       return {status: job.status, job};
     },
-    job_cancel: async (principal, args) => { await workspace(principal, args.workspaceId); const row = await readRequired(principal, 'jobs', args.jobId, args.workspaceId); if (!['pending', 'running'].includes(row.value.status)) return {status: row.value.status, jobId: args.jobId}; controllers.get(args.jobId)?.abort(); await store.put(objectKey(principal, 'jobs', args.jobId), {...row.value, status: 'cancelled', ...(row.value.resumable ? {phaseState: 'cancelled', phaseLease: null, checkpointDigest: null} : {}), finishedAt: now()}, {ifMatch: row.etag}); if (row.value.resumable) {await store.delete(objectKey(principal, 'jobcheckpoints', args.jobId)); await store.delete(objectKey(principal, 'candidates', args.jobId));} return {status: 'cancelled', jobId: args.jobId}; },
+    job_cancel: async (principal, args) => { await workspace(principal, args.workspaceId); const row = await readRequired(principal, 'jobs', args.jobId, args.workspaceId); if (!['pending', 'running'].includes(row.value.status)) return {status: row.value.status, jobId: args.jobId}; controllers.get(args.jobId)?.abort(); await store.put(objectKey(principal, 'jobs', args.jobId), {...row.value, status: 'cancelled', ...(row.value.resumable ? {phaseState: 'cancelled', phaseLease: null, checkpointDigest: null} : {}), finishedAt: now()}, {ifMatch: row.etag}); if (row.value.resumable) {await store.delete(objectKey(principal, 'jobcheckpoints', args.jobId)); await store.delete(objectKey(principal, 'candidates', args.jobId)); await clearJobArtifacts(principal, args.jobId);} return {status: 'cancelled', jobId: args.jobId}; },
     preview_open: async (principal, args, context) => {
       await workspace(principal, args.workspaceId); const selected = await execution(principal, args);
       const available = [selected.primary, ...selected.extensions], view = args.uiArtifactId ? available.find(a => a.id === args.uiArtifactId) : available.find(a => a.manifest.ui) || selected.primary;
