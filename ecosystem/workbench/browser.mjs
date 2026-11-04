@@ -129,7 +129,11 @@ action('#open-preview', async () => {
     getDraft, subscribeDraft: getDraft, stage: params => editDraft('stage', params), removeOperation: params => editDraft('removeOperation', params), reorderOperations: params => editDraft('reorderOperations', params),
     catalogQuery: params => call('catalog_query', {workspaceId: workspace.id, query: params.search || params.query || ''}),
     resize: async () => ({accepted: true}), announce: async params => { show(String(params.message || '').slice(0, 300)); return {announced: true}; }
-  }, onReview: async () => { await getDraft(); tab('run'); show('Review the shared offline draft, then validate its reconstructed candidate.'); }, onViolation: error => show(`The isolated preview stopped (${error.code || 'UI_ERROR'}).`, true), onReady: host => host.notifyDraft(draft)});
+  }, onReview: async () => {
+    const current = await getDraft();
+    $('#operations').value = JSON.stringify(current.operations.map(({id, apiVersion, params}) => ({id, apiVersion, params})), null, 2);
+    tab('run'); show(`Review shared draft revision ${current.revision}, then validate its reconstructed candidate.`);
+  }, onViolation: error => show(`The isolated preview stopped (${error.code || 'UI_ERROR'}).`, true), onReady: host => host.notifyDraft(draft)});
 });
 $('#extension-artifacts').addEventListener('change', () => { frame?.revoke(); frame = undefined; preview = undefined; draft = undefined; $('#preview-view').replaceChildren(el('option', 'Automatic view')); $('#preview-view').firstChild.value = ''; $('#draft-state').textContent = 'Dependency selection changed. Open a view to load its exact bound shared draft.'; });
 $('#preview-view').addEventListener('change', () => { frame?.revoke(); frame = undefined; preview = undefined; draft = undefined; $('#draft-state').textContent = 'Open the selected package view to connect its scoped editor.'; });
@@ -172,6 +176,13 @@ async function initializeProjects() {
   let result;
   try { result = await call('project_list'); }
   catch (error) { if (!['TOOL_NOT_FOUND', 'UNKNOWN_TOOL', 'METHOD_NOT_FOUND', 'TOOL_UNKNOWN'].includes(error.code)) throw error; $('#game-project').replaceChildren(el('option', 'Local source tools')); $('#game-project').disabled = true; return; }
+  // The local service explicitly has no hosted enrollment adapter. Its empty
+  // project list must not turn otherwise-authorized local workspaces read-only.
+  if (result.hostedEnrollment === false) {
+    projectTools = false; projects = []; project = discovery = membership = undefined;
+    $('#game-project').replaceChildren(el('option', 'Local source tools')); $('#game-project').disabled = true;
+    $('#project-portal').hidden = true; renderTemplates(); return;
+  }
   projectTools = true; projects = result.projects;
   $('#game-project').replaceChildren(...projects.map(value => { const option = el('option', value.displayName); option.value = value.id; return option; }));
   const saved = sessionStorage.getItem('saverift-dev-project');

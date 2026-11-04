@@ -1,0 +1,9 @@
+{
+  "name": "@saverift/game-ac-shadows",
+  "version": "0.1.0-dev.1",
+  "private": true,
+  "type": "module",
+  "license": "Apache-2.0 AND MIT AND BSD-3-Clause",
+  "scripts": {"build": "node scripts/build.mjs", "test": "node --test tests/*.test.mjs"},
+  "devDependencies": {"esbuild": "0.25.12"}
+}

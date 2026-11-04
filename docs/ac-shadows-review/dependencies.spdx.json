@@ -1,0 +1,867 @@
+{
+  "spdxVersion": "SPDX-2.3",
+  "dataLicense": "CC0-1.0",
+  "SPDXID": "SPDXRef-DOCUMENT",
+  "name": "SaveRift AC Shadows local review dependencies",
+  "documentNamespace": "https://saverift.com/spdx/f049480b060c9f8ef49eaf182a445b9578ca869ffa3b78ed8b5283be678a91af",
+  "creationInfo": {
+    "creators": [
+      "Tool: saverift-release-audit"
+    ],
+    "created": "1970-01-01T00:00:00Z",
+    "comment": "Deterministic package-lock metadata inventory; license files and artifact inclusion require separate review."
+  },
+  "packages": [
+    {
+      "name": "@esbuild/aix-ppc64",
+      "SPDXID": "SPDXRef-Package-1",
+      "versionInfo": "0.25.12",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "MIT",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "name": "@esbuild/android-arm",
+      "SPDXID": "SPDXRef-Package-2",
+      "versionInfo": "0.25.12",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "MIT",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "name": "@esbuild/android-arm64",
+      "SPDXID": "SPDXRef-Package-3",
+      "versionInfo": "0.25.12",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "MIT",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "name": "@esbuild/android-x64",
+      "SPDXID": "SPDXRef-Package-4",
+      "versionInfo": "0.25.12",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "MIT",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "name": "@esbuild/darwin-arm64",
+      "SPDXID": "SPDXRef-Package-5",
+      "versionInfo": "0.25.12",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "MIT",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "name": "@esbuild/darwin-x64",
+      "SPDXID": "SPDXRef-Package-6",
+      "versionInfo": "0.25.12",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "MIT",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "name": "@esbuild/freebsd-arm64",
+      "SPDXID": "SPDXRef-Package-7",
+      "versionInfo": "0.25.12",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "MIT",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "name": "@esbuild/freebsd-x64",
+      "SPDXID": "SPDXRef-Package-8",
+      "versionInfo": "0.25.12",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "MIT",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "name": "@esbuild/linux-arm",
+      "SPDXID": "SPDXRef-Package-9",
+      "versionInfo": "0.25.12",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "MIT",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "name": "@esbuild/linux-arm64",
+      "SPDXID": "SPDXRef-Package-10",
+      "versionInfo": "0.25.12",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "MIT",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "name": "@esbuild/linux-ia32",
+      "SPDXID": "SPDXRef-Package-11",
+      "versionInfo": "0.25.12",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "MIT",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "name": "@esbuild/linux-loong64",
+      "SPDXID": "SPDXRef-Package-12",
+      "versionInfo": "0.25.12",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "MIT",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "name": "@esbuild/linux-mips64el",
+      "SPDXID": "SPDXRef-Package-13",
+      "versionInfo": "0.25.12",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "MIT",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "name": "@esbuild/linux-ppc64",
+      "SPDXID": "SPDXRef-Package-14",
+      "versionInfo": "0.25.12",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "MIT",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "name": "@esbuild/linux-riscv64",
+      "SPDXID": "SPDXRef-Package-15",
+      "versionInfo": "0.25.12",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "MIT",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "name": "@esbuild/linux-s390x",
+      "SPDXID": "SPDXRef-Package-16",
+      "versionInfo": "0.25.12",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "MIT",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "name": "@esbuild/linux-x64",
+      "SPDXID": "SPDXRef-Package-17",
+      "versionInfo": "0.25.12",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "MIT",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "name": "@esbuild/netbsd-arm64",
+      "SPDXID": "SPDXRef-Package-18",
+      "versionInfo": "0.25.12",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "MIT",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "name": "@esbuild/netbsd-x64",
+      "SPDXID": "SPDXRef-Package-19",
+      "versionInfo": "0.25.12",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "MIT",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "name": "@esbuild/openbsd-arm64",
+      "SPDXID": "SPDXRef-Package-20",
+      "versionInfo": "0.25.12",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "MIT",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "name": "@esbuild/openbsd-x64",
+      "SPDXID": "SPDXRef-Package-21",
+      "versionInfo": "0.25.12",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "MIT",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "name": "@esbuild/openharmony-arm64",
+      "SPDXID": "SPDXRef-Package-22",
+      "versionInfo": "0.25.12",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "MIT",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "name": "@esbuild/sunos-x64",
+      "SPDXID": "SPDXRef-Package-23",
+      "versionInfo": "0.25.12",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "MIT",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "name": "@esbuild/win32-arm64",
+      "SPDXID": "SPDXRef-Package-24",
+      "versionInfo": "0.25.12",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "MIT",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "name": "@esbuild/win32-ia32",
+      "SPDXID": "SPDXRef-Package-25",
+      "versionInfo": "0.25.12",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "MIT",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "name": "@esbuild/win32-x64",
+      "SPDXID": "SPDXRef-Package-26",
+      "versionInfo": "0.25.12",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "MIT",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "name": "@phosphor-icons/react",
+      "SPDXID": "SPDXRef-Package-27",
+      "versionInfo": "2.1.10",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "MIT",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "name": "esbuild",
+      "SPDXID": "SPDXRef-Package-28",
+      "versionInfo": "0.25.12",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "MIT",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "name": "react",
+      "SPDXID": "SPDXRef-Package-29",
+      "versionInfo": "19.2.0",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "MIT",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "name": "react-dom",
+      "SPDXID": "SPDXRef-Package-30",
+      "versionInfo": "19.2.0",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "MIT",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "name": "scheduler",
+      "SPDXID": "SPDXRef-Package-31",
+      "versionInfo": "0.27.0",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "MIT",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "name": "@cloudflare/workerd-darwin-64",
+      "SPDXID": "SPDXRef-Package-32",
+      "versionInfo": "1.20261102.1",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "Apache-2.0",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "name": "@cloudflare/workerd-darwin-arm64",
+      "SPDXID": "SPDXRef-Package-33",
+      "versionInfo": "1.20261102.1",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "Apache-2.0",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "name": "@cloudflare/workerd-linux-64",
+      "SPDXID": "SPDXRef-Package-34",
+      "versionInfo": "1.20261102.1",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "Apache-2.0",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "name": "@cloudflare/workerd-linux-arm64",
+      "SPDXID": "SPDXRef-Package-35",
+      "versionInfo": "1.20261102.1",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "Apache-2.0",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "name": "@cloudflare/workerd-windows-64",
+      "SPDXID": "SPDXRef-Package-36",
+      "versionInfo": "1.20261102.1",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "Apache-2.0",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "name": "@esbuild/aix-ppc64",
+      "SPDXID": "SPDXRef-Package-37",
+      "versionInfo": "0.28.2",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "MIT",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "name": "@esbuild/android-arm",
+      "SPDXID": "SPDXRef-Package-38",
+      "versionInfo": "0.28.2",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "MIT",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "name": "@esbuild/android-arm64",
+      "SPDXID": "SPDXRef-Package-39",
+      "versionInfo": "0.28.2",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "MIT",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "name": "@esbuild/android-x64",
+      "SPDXID": "SPDXRef-Package-40",
+      "versionInfo": "0.28.2",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "MIT",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "name": "@esbuild/darwin-arm64",
+      "SPDXID": "SPDXRef-Package-41",
+      "versionInfo": "0.28.2",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "MIT",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "name": "@esbuild/darwin-x64",
+      "SPDXID": "SPDXRef-Package-42",
+      "versionInfo": "0.28.2",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "MIT",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "name": "@esbuild/freebsd-arm64",
+      "SPDXID": "SPDXRef-Package-43",
+      "versionInfo": "0.28.2",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "MIT",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "name": "@esbuild/freebsd-x64",
+      "SPDXID": "SPDXRef-Package-44",
+      "versionInfo": "0.28.2",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "MIT",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "name": "@esbuild/linux-arm",
+      "SPDXID": "SPDXRef-Package-45",
+      "versionInfo": "0.28.2",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "MIT",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "name": "@esbuild/linux-arm64",
+      "SPDXID": "SPDXRef-Package-46",
+      "versionInfo": "0.28.2",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "MIT",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "name": "@esbuild/linux-ia32",
+      "SPDXID": "SPDXRef-Package-47",
+      "versionInfo": "0.28.2",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "MIT",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "name": "@esbuild/linux-loong64",
+      "SPDXID": "SPDXRef-Package-48",
+      "versionInfo": "0.28.2",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "MIT",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "name": "@esbuild/linux-mips64el",
+      "SPDXID": "SPDXRef-Package-49",
+      "versionInfo": "0.28.2",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "MIT",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "name": "@esbuild/linux-ppc64",
+      "SPDXID": "SPDXRef-Package-50",
+      "versionInfo": "0.28.2",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "MIT",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "name": "@esbuild/linux-riscv64",
+      "SPDXID": "SPDXRef-Package-51",
+      "versionInfo": "0.28.2",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "MIT",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "name": "@esbuild/linux-s390x",
+      "SPDXID": "SPDXRef-Package-52",
+      "versionInfo": "0.28.2",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "MIT",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "name": "@esbuild/linux-x64",
+      "SPDXID": "SPDXRef-Package-53",
+      "versionInfo": "0.28.2",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "MIT",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "name": "@esbuild/netbsd-arm64",
+      "SPDXID": "SPDXRef-Package-54",
+      "versionInfo": "0.28.2",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "MIT",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "name": "@esbuild/netbsd-x64",
+      "SPDXID": "SPDXRef-Package-55",
+      "versionInfo": "0.28.2",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "MIT",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "name": "@esbuild/openbsd-arm64",
+      "SPDXID": "SPDXRef-Package-56",
+      "versionInfo": "0.28.2",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "MIT",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "name": "@esbuild/openbsd-x64",
+      "SPDXID": "SPDXRef-Package-57",
+      "versionInfo": "0.28.2",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "MIT",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "name": "@esbuild/openharmony-arm64",
+      "SPDXID": "SPDXRef-Package-58",
+      "versionInfo": "0.28.2",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "MIT",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "name": "@esbuild/sunos-x64",
+      "SPDXID": "SPDXRef-Package-59",
+      "versionInfo": "0.28.2",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "MIT",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "name": "@esbuild/win32-arm64",
+      "SPDXID": "SPDXRef-Package-60",
+      "versionInfo": "0.28.2",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "MIT",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "name": "@esbuild/win32-ia32",
+      "SPDXID": "SPDXRef-Package-61",
+      "versionInfo": "0.28.2",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "MIT",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "name": "@esbuild/win32-x64",
+      "SPDXID": "SPDXRef-Package-62",
+      "versionInfo": "0.28.2",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "MIT",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "name": "@jitl/quickjs-ffi-types",
+      "SPDXID": "SPDXRef-Package-63",
+      "versionInfo": "0.32.0",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "MIT",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "name": "@jitl/quickjs-wasmfile-release-sync",
+      "SPDXID": "SPDXRef-Package-64",
+      "versionInfo": "0.32.0",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "MIT",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "name": "@noble/hashes",
+      "SPDXID": "SPDXRef-Package-65",
+      "versionInfo": "1.8.0",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "MIT",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "name": "base64-js",
+      "SPDXID": "SPDXRef-Package-66",
+      "versionInfo": "1.5.1",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "MIT",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "name": "buffer",
+      "SPDXID": "SPDXRef-Package-67",
+      "versionInfo": "6.0.3",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "MIT",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "name": "esbuild",
+      "SPDXID": "SPDXRef-Package-68",
+      "versionInfo": "0.28.2",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "MIT",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "name": "ieee754",
+      "SPDXID": "SPDXRef-Package-69",
+      "versionInfo": "1.2.1",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "BSD-3-Clause",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "name": "quickjs-emscripten-core",
+      "SPDXID": "SPDXRef-Package-70",
+      "versionInfo": "0.32.0",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "MIT",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "name": "workerd",
+      "SPDXID": "SPDXRef-Package-71",
+      "versionInfo": "1.20261102.1",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "Apache-2.0",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "name": "@modelcontextprotocol/client",
+      "SPDXID": "SPDXRef-Package-72",
+      "versionInfo": "2.4.0",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "Apache-2.0",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "name": "@modelcontextprotocol/core",
+      "SPDXID": "SPDXRef-Package-73",
+      "versionInfo": "2.4.0",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "Apache-2.0",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "name": "@modelcontextprotocol/server",
+      "SPDXID": "SPDXRef-Package-74",
+      "versionInfo": "2.4.0",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "Apache-2.0",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "name": "cross-spawn",
+      "SPDXID": "SPDXRef-Package-75",
+      "versionInfo": "7.0.6",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "MIT",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "name": "eventsource",
+      "SPDXID": "SPDXRef-Package-76",
+      "versionInfo": "3.0.7",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "MIT",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "name": "eventsource-parser",
+      "SPDXID": "SPDXRef-Package-77",
+      "versionInfo": "3.1.1",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "MIT",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "name": "isexe",
+      "SPDXID": "SPDXRef-Package-78",
+      "versionInfo": "2.0.0",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "ISC",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "name": "jose",
+      "SPDXID": "SPDXRef-Package-79",
+      "versionInfo": "6.2.15",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "MIT",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "name": "path-key",
+      "SPDXID": "SPDXRef-Package-80",
+      "versionInfo": "3.1.1",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "MIT",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "name": "pkce-challenge",
+      "SPDXID": "SPDXRef-Package-81",
+      "versionInfo": "5.0.1",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "MIT",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "name": "shebang-command",
+      "SPDXID": "SPDXRef-Package-82",
+      "versionInfo": "2.0.0",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "MIT",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "name": "shebang-regex",
+      "SPDXID": "SPDXRef-Package-83",
+      "versionInfo": "3.0.0",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "MIT",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "name": "which",
+      "SPDXID": "SPDXRef-Package-84",
+      "versionInfo": "2.0.2",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "ISC",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "name": "zod",
+      "SPDXID": "SPDXRef-Package-85",
+      "versionInfo": "4.6.6",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "MIT",
+      "copyrightText": "NOASSERTION"
+    }
+  ],
+  "relationships": []
+}

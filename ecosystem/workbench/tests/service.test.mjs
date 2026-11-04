@@ -54,6 +54,19 @@ test('workspace patches conflict atomically, reject traversal and preserve sourc
   assert.equal((await h.call('workspace_read', {workspaceId: ws.id, path: 'README.md'})).content, 'Updated source');
 });
 
+test('release review includes format compatibility documentation and excludes private transform files', async () => {
+  const h = schemaHarness((manifest, files) => {
+    files['FORMAT_SUPPORT.md'] = 'Synthetic example format only; game acceptance not run.';
+    files['data/synthetic.ac-key'] = 'SYNTHETIC-NOT-A-REAL-KEY';
+  });
+  const ws = await create(h), artifactId = await build(h, ws);
+  const paths = ['manifest.json','runtime/index.mjs','schemas/set-level.json','ui/index.html','ui/entry.js','ui/style.css','FORMAT_SUPPORT.md'];
+  const release = await h.call('release_prepare', {workspaceId:ws.id, artifactId, paths, licenseEvidence:'Original synthetic source, Apache-2.0.'});
+  assert.ok(release.files.includes('FORMAT_SUPPORT.md'));
+  assert.equal(release.publication,'not_performed');
+  await assert.rejects(h.call('release_prepare', {workspaceId:ws.id, artifactId, paths:[...paths,'data/synthetic.ac-key'], licenseEvidence:'Synthetic test only.'}), {code:'EXPORT_PATH_REJECTED'});
+});
+
 test('other developer cannot access guessed workspace, fixture, job, artifact, preview, candidate or release IDs', async () => {
   const h = harness(), ws = await create(h), artifactId = await build(h, ws);
   const preview = await h.call('preview_open', {workspaceId: ws.id, artifactId});

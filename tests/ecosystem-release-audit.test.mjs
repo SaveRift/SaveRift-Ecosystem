@@ -10,6 +10,15 @@ const digest=bytes=>createHash('sha256').update(bytes).digest('hex');
 async function fixture(t){const base=await mkdtemp(join(tmpdir(),'saverift-export-')),root=join(base,'source');await mkdir(root);t.after(()=>rm(base,{recursive:true,force:true}));return {base,root,output:join(base,'export')};}
 async function entry(root,path,text,extra={}){await mkdir(join(root,path,'..'),{recursive:true});await writeFile(join(root,path),text);return {source:path,destination:path,sha256:digest(text),license:'Apache-2.0',rights:'original',origin:'Original synthetic test source',review:'approved-local-candidate',...extra};}
 const plan=files=>({schema:PLAN_SCHEMA,publicReleaseApproved:false,repositoryDestinations:null,files});
+
+test('AC source can be reviewed while native fixtures and transform keys remain excluded',async t=>{
+ const f=await fixture(t),a=await entry(f.root,'ecosystem/plugins/ac-shadows/src/example.mjs','export {};\n');
+ assert.equal((await auditPlan(plan([a]),{sourceRoot:f.root})).state,'ready_for_local_review');
+ for(const name of ['private-transform.ac-key','player.save','private/context.json']){
+  const r=await auditPlan(plan([{...a,source:'ecosystem/plugins/ac-shadows/'+name}]),{sourceRoot:f.root});
+  assert.equal(r.findings[0].rule,'private-or-unsupported-path');
+ }
+});
 test('exact reviewed source exports without private Git history and produces deterministic archives',async t=>{
  const f=await fixture(t),item=await entry(f.root,'ecosystem/sdk/example.mjs','export const value=1;\n');await mkdir(join(f.root,'.git'));await writeFile(join(f.root,'.git','config'),'private');
  const report=await stageExport(plan([item]),{sourceRoot:f.root,output:f.output});assert.equal(report.state,'ready_for_local_review');assert.equal(report.publicReleaseApproved,false);assert.equal(await readFile(join(f.output,item.destination),'utf8'),'export const value=1;\n');await assert.rejects(lstat(join(f.output,'.git')),{code:'ENOENT'});

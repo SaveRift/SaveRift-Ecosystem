@@ -1,0 +1,99 @@
+{
+  "schema": "saverift.package-build.v1",
+  "packageDigest": "a41b1d17233b8130fe6b62c972dac74e45f1db56f5bccabad4f2350ab37b033a",
+  "byteLength": 365101,
+  "files": [
+    {
+      "path": "DEVELOPER_API.md",
+      "byteLength": 3125,
+      "sha256": "779bdccf52201e26b06596fae4a9c6cb5f053a295e80c388e05e9b3f26cdb19a"
+    },
+    {
+      "path": "FORMAT_SUPPORT.md",
+      "byteLength": 5359,
+      "sha256": "5f4016e2b53ef3df9c17e00b3747e86945d4807b4562240fc2ba66e9b2a2775b"
+    },
+    {
+      "path": "LICENSE",
+      "byteLength": 11357,
+      "sha256": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4"
+    },
+    {
+      "path": "licenses/base64-js-MIT.txt",
+      "byteLength": 1081,
+      "sha256": "5b37224c080cdcc97c871ada971c224e9926370fe74f11b539aa1cf9f3b1aca1"
+    },
+    {
+      "path": "licenses/Buffer-MIT.txt",
+      "byteLength": 1106,
+      "sha256": "06bafa45fdad2579ba0e43b0c9b2c6290287c99c4203c300254a462b38a307f6"
+    },
+    {
+      "path": "licenses/ieee754-BSD-3-Clause.txt",
+      "byteLength": 1465,
+      "sha256": "18d45466ba3253deae04667e267a91ea8de8548f18c1125264d1c9db28194cc1"
+    },
+    {
+      "path": "licenses/Noble-Hashes-MIT.txt",
+      "byteLength": 1109,
+      "sha256": "4f221aee6e072336700c408c68ab3b96a3fc09f6aebe6f48f1bd99e5ef13faec"
+    },
+    {
+      "path": "licenses/React-DOM-MIT.txt",
+      "byteLength": 1088,
+      "sha256": "da6d3703ed11cbe42bd212c725957c98da23cbff1998c05fa4b3d976d1a58e93"
+    },
+    {
+      "path": "licenses/React-MIT.txt",
+      "byteLength": 1088,
+      "sha256": "da6d3703ed11cbe42bd212c725957c98da23cbff1998c05fa4b3d976d1a58e93"
+    },
+    {
+      "path": "NOTICE",
+      "byteLength": 905,
+      "sha256": "47aef0b5d2cb0c5d2d3785b1a00272821e9094dbf64c1087d8f9bdd57c72f64c"
+    },
+    {
+      "path": "README.md",
+      "byteLength": 4337,
+      "sha256": "88bc0dd54332a6bbd5390f447c95ceae218d304ca3f741b5b885d20dc048e472"
+    },
+    {
+      "path": "runtime/connector.mjs",
+      "byteLength": 114859,
+      "sha256": "164dd5b8002c9dbc722b536b623b339a57e108a6440ae2d468ac057c44d7e6e5"
+    },
+    {
+      "path": "ui/dist/entry.js",
+      "byteLength": 213656,
+      "sha256": "9a46a6c7fc7ce99e8b79544eb6b124d3a765362b08b33313037d24026381cdf9"
+    },
+    {
+      "path": "ui/dist/style.css",
+      "byteLength": 4544,
+      "sha256": "4c4d03c7d36717d47a518cf06b22e0a5df2c8875ed86d979bb58d98253a7b420"
+    },
+    {
+      "path": "ui/index.html",
+      "byteLength": 22,
+      "sha256": "2873cbefe5c2b785808c7f0e9f1ebe16666b6b40f82f4e2aa169cc89964f34f5"
+    }
+  ],
+  "inputs": [
+    "../../sdk/buffer.mjs",
+    "../../sdk/crypto.mjs",
+    "../../sdk/node_modules/@noble/hashes/esm/_md.js",
+    "../../sdk/node_modules/@noble/hashes/esm/_u64.js",
+    "../../sdk/node_modules/@noble/hashes/esm/crypto.js",
+    "../../sdk/node_modules/@noble/hashes/esm/hmac.js",
+    "../../sdk/node_modules/@noble/hashes/esm/sha2.js",
+    "../../sdk/node_modules/@noble/hashes/esm/sha256.js",
+    "../../sdk/node_modules/@noble/hashes/esm/utils.js",
+    "../../sdk/node_modules/base64-js/index.js",
+    "../../sdk/node_modules/buffer/index.js",
+    "../../sdk/node_modules/ieee754/index.js",
+    "connector.mjs",
+    "src/native-container.mjs",
+    "src/typed-context.mjs"
+  ]
+}

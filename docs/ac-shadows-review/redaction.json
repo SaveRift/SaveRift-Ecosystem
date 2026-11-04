@@ -1,0 +1,13 @@
+{
+  "privateFixtureBytesIncluded": false,
+  "privateKeyBytesIncluded": false,
+  "privateStateIncluded": false,
+  "credentialsIncluded": false,
+  "originalSdkSyntheticFixturesRetained": true,
+  "changes": [
+    "Local user/project paths replaced in evidence/logs",
+    "Input-only transform key hash redacted",
+    "Private UI screenshots retained locally; not copied to review archive"
+  ],
+  "sourceAndCanonicalPackageContentModified": false
+}

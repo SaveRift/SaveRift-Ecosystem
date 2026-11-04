@@ -1,0 +1,101 @@
+{
+  "schema": "saverift.ac-shadows.handoff-verification.v1",
+  "status": "passed",
+  "verifiedFiles": 23,
+  "source": "09c92ff35097160528a669d753724b3a36c24059",
+  "originalAssets": 18,
+  "files": [
+    {
+      "path": "00_START_HERE.md",
+      "sha256": "e77e5e2ff0a05642cba0f0834b5944718710d590708717853b5458329a08633c"
+    },
+    {
+      "path": "AC_SHADOWS_HANDOFF.md",
+      "sha256": "9dbbee5582fae67761f6dcf3157640cc6cfea5b8f552c96227835b9e306fff86"
+    },
+    {
+      "path": "MANIFEST.json",
+      "sha256": "9966cdb6e68175b222662f2b308cd1b075512f60784260a80412c7cb920f3512"
+    },
+    {
+      "path": "PASTE_INTO_CODEX.txt",
+      "sha256": "ef4b5b239fc6a371b81d384df09d2b2a2e0d72ac77d9d9f5e5e55428a7f22e7e"
+    },
+    {
+      "path": "tooling/original-developer-release/CLEAN_BUILD_CORRESPONDENCE.json",
+      "sha256": "8ba55329ab79d511d87e10aa52e67c147ac0878fd7fd5fb64c8ab750c91d75eb"
+    },
+    {
+      "path": "tooling/original-developer-release/crimson-dependencies.json",
+      "sha256": "9f8338cd25a717fb0664ec80a93795f2b5dae5a4b70327a9f7c1fa9537d0a0ec"
+    },
+    {
+      "path": "tooling/original-developer-release/crimson.spdx.json",
+      "sha256": "80dd391ab2303d7232bcc5934b9a72e3b5dea64fb53b7189660fa97421b383a5"
+    },
+    {
+      "path": "tooling/original-developer-release/ecosystem-dependencies.json",
+      "sha256": "f94428b277794bb8918b45f7fc94b337e7e1db6253927d73df7d29d5cf1c1a38"
+    },
+    {
+      "path": "tooling/original-developer-release/ecosystem.spdx.json",
+      "sha256": "8bd2784a9c18e6cd41b3b357b727374a0a599cd48a76b952bc50c92180cdea62"
+    },
+    {
+      "path": "tooling/original-developer-release/PROVENANCE.json",
+      "sha256": "2c2d7575bef96b820f17fb2570598268e09be4711bff184bd10ea6996894b1d2"
+    },
+    {
+      "path": "tooling/original-developer-release/README.md",
+      "sha256": "962ecca51608db627c49d64650de2e6d7a4240bd8ee2ec823f7970ff3ee8cc8f"
+    },
+    {
+      "path": "tooling/original-developer-release/REGISTRY_SUBMISSION.json",
+      "sha256": "01dea99b23a78777e488aaf16ce2106c536b2f83d718be8ab7f721621193cdaf"
+    },
+    {
+      "path": "tooling/original-developer-release/saverift-crimson-desert-0.1.0-dev.1.package.json",
+      "sha256": "45eab3983c076a28cceb8f900c3ceab40bd86fa8bae6fa0b2303f5818f6ade1d"
+    },
+    {
+      "path": "tooling/original-developer-release/saverift-ecosystem-source-2026-11-02.tar.gz",
+      "sha256": "fc22f949b02291caad988056a5433a8d661bc2299996b14ab68f5060a2f9940d"
+    },
+    {
+      "path": "tooling/original-developer-release/sdk-dependencies.json",
+      "sha256": "7f29394cd7003b3af2b1f3eeda081478ef00b4c0c1d9e1e6c131b70e7cc18baf"
+    },
+    {
+      "path": "tooling/original-developer-release/sdk.spdx.json",
+      "sha256": "f9bc5b72e951c1d59c9fa1008db94c17aeeac2034a5c90f8270df3048e239691"
+    },
+    {
+      "path": "tooling/original-developer-release/SHA256SUMS",
+      "sha256": "0e01bdc8b10c1fae274b61edf3bdbe90855155cfb65f46a844eceb956a89ad2a"
+    },
+    {
+      "path": "tooling/original-developer-release/SOURCE_AUDIT.json",
+      "sha256": "53f79437bf004274712b951009e6f87b59443deff6a7303da05c5049550452a9"
+    },
+    {
+      "path": "tooling/original-developer-release/SOURCE_REVIEW.json",
+      "sha256": "2690aa790ff3b5dcff6262cff708706e992e1b2f25bda0661f021b3122d1e7e0"
+    },
+    {
+      "path": "tooling/original-developer-release/VALIDATION.json",
+      "sha256": "9709873a199bd00a0300d10a54537b99a6cc9ecb329c0b34295624a2c4e7aadb"
+    },
+    {
+      "path": "tooling/original-developer-release/workbench-dependencies.json",
+      "sha256": "ca4cbc83fce03585ef90df33ea82ff310b43737410b9317f13b6a306922798b4"
+    },
+    {
+      "path": "tooling/original-developer-release/workbench.spdx.json",
+      "sha256": "0d2a4a4cef7bc5305354c428248a98c892b6d64ecb35ed47f2954f89d07e5046"
+    },
+    {
+      "path": "tooling/saverift-ecosystem-public-09c92ff.tar",
+      "sha256": "85f5bf32255b0a9d7a12b2c1e0dbf19503349150fa9967f1750c39579bb4c482"
+    }
+  ]
+}

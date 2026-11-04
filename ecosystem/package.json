@@ -9,7 +9,7 @@
   "scripts": {
     "test": "node scripts/test.mjs",
     "test:release": "node --test ../tests/ecosystem-release-audit.test.mjs",
-    "build:plugins": "node plugins/crimson-desert/scripts/build.mjs && node plugins/synthetic-extension/build.mjs"
+    "build:plugins": "node plugins/crimson-desert/scripts/build.mjs && node plugins/synthetic-extension/build.mjs && node plugins/ac-shadows/scripts/build.mjs"
   },
   "devDependencies": {"esbuild": "0.25.12"},
   "dependencies": {

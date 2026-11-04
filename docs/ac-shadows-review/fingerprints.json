@@ -1,0 +1,185 @@
+{
+  "schema": "saverift.ac-shadows.fingerprints.v1",
+  "status": "passed",
+  "canonicalPackageDigest": "a41b1d17233b8130fe6b62c972dac74e45f1db56f5bccabad4f2350ab37b033a",
+  "canonicalPackageBytes": 365101,
+  "canonicalFiles": [
+    {
+      "path": "DEVELOPER_API.md",
+      "byteLength": 3125,
+      "sha256": "779bdccf52201e26b06596fae4a9c6cb5f053a295e80c388e05e9b3f26cdb19a"
+    },
+    {
+      "path": "FORMAT_SUPPORT.md",
+      "byteLength": 5359,
+      "sha256": "5f4016e2b53ef3df9c17e00b3747e86945d4807b4562240fc2ba66e9b2a2775b"
+    },
+    {
+      "path": "LICENSE",
+      "byteLength": 11357,
+      "sha256": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4"
+    },
+    {
+      "path": "licenses/base64-js-MIT.txt",
+      "byteLength": 1081,
+      "sha256": "5b37224c080cdcc97c871ada971c224e9926370fe74f11b539aa1cf9f3b1aca1"
+    },
+    {
+      "path": "licenses/Buffer-MIT.txt",
+      "byteLength": 1106,
+      "sha256": "06bafa45fdad2579ba0e43b0c9b2c6290287c99c4203c300254a462b38a307f6"
+    },
+    {
+      "path": "licenses/ieee754-BSD-3-Clause.txt",
+      "byteLength": 1465,
+      "sha256": "18d45466ba3253deae04667e267a91ea8de8548f18c1125264d1c9db28194cc1"
+    },
+    {
+      "path": "licenses/Noble-Hashes-MIT.txt",
+      "byteLength": 1109,
+      "sha256": "4f221aee6e072336700c408c68ab3b96a3fc09f6aebe6f48f1bd99e5ef13faec"
+    },
+    {
+      "path": "licenses/React-DOM-MIT.txt",
+      "byteLength": 1088,
+      "sha256": "da6d3703ed11cbe42bd212c725957c98da23cbff1998c05fa4b3d976d1a58e93"
+    },
+    {
+      "path": "licenses/React-MIT.txt",
+      "byteLength": 1088,
+      "sha256": "da6d3703ed11cbe42bd212c725957c98da23cbff1998c05fa4b3d976d1a58e93"
+    },
+    {
+      "path": "NOTICE",
+      "byteLength": 905,
+      "sha256": "47aef0b5d2cb0c5d2d3785b1a00272821e9094dbf64c1087d8f9bdd57c72f64c"
+    },
+    {
+      "path": "README.md",
+      "byteLength": 4337,
+      "sha256": "88bc0dd54332a6bbd5390f447c95ceae218d304ca3f741b5b885d20dc048e472"
+    },
+    {
+      "path": "runtime/connector.mjs",
+      "byteLength": 114859,
+      "sha256": "164dd5b8002c9dbc722b536b623b339a57e108a6440ae2d468ac057c44d7e6e5"
+    },
+    {
+      "path": "ui/dist/entry.js",
+      "byteLength": 213656,
+      "sha256": "9a46a6c7fc7ce99e8b79544eb6b124d3a765362b08b33313037d24026381cdf9"
+    },
+    {
+      "path": "ui/dist/style.css",
+      "byteLength": 4544,
+      "sha256": "4c4d03c7d36717d47a518cf06b22e0a5df2c8875ed86d979bb58d98253a7b420"
+    },
+    {
+      "path": "ui/index.html",
+      "byteLength": 22,
+      "sha256": "2873cbefe5c2b785808c7f0e9f1ebe16666b6b40f82f4e2aa169cc89964f34f5"
+    }
+  ],
+  "sourceTemplatePackageDigest": "495c32b2d17c941a44ae0f7d744a29fa23a22557f706d69982cc0e95ff3e36da",
+  "sourceTemplateBytes": 466407,
+  "sourceTreeDigest": "62308e07e26eaedb639419ce114041bf5e33d3952f7e3ca0078963c0aa5ae340",
+  "extraSourceTemplateFiles": [
+    {
+      "path": "connector.mjs",
+      "byteLength": 14671,
+      "sha256": "6776c66a3e61de8a3aa85cdf21d704d9dc4ba5208b30d8ec7e2aab0e986d14c0"
+    },
+    {
+      "path": "package-lock.generated.json",
+      "byteLength": 3249,
+      "sha256": "f19567db6aba9a4812b5333051f91372eca42784e5539b288762fdc4523f4f1b"
+    },
+    {
+      "path": "package-lock.json",
+      "byteLength": 14644,
+      "sha256": "d3f4191a8420cd33a514af6e3d9b2417dd598511a9c4b8be5355a7636ef4148c"
+    },
+    {
+      "path": "package.json",
+      "byteLength": 296,
+      "sha256": "1930c5d8c0aa3fd8b5f08e220afdbb98e3918a8ebd4b0186664a12dece8bf661"
+    },
+    {
+      "path": "scripts/build.mjs",
+      "byteLength": 2701,
+      "sha256": "cdde9cdc915c63409a07c460597076546881448017f052a01e0e9fa8ce483a4b"
+    },
+    {
+      "path": "scripts/prepare-native.mjs",
+      "byteLength": 5801,
+      "sha256": "39a977184655cf86654a10625af66b4d251e7a858b3ddcc9cf47cd9e7e32916a"
+    },
+    {
+      "path": "src/native-container.mjs",
+      "byteLength": 6715,
+      "sha256": "b41582fc9e37016cc13a23edc5af9b74ea8a28c2002b599a477e50498f90e77d"
+    },
+    {
+      "path": "src/typed-context.mjs",
+      "byteLength": 7845,
+      "sha256": "0a3d120c791d3dffc3be765110d0be76af69f8da7a427dca1b825df9e49325c7"
+    },
+    {
+      "path": "tests/format-container.test.mjs",
+      "byteLength": 2264,
+      "sha256": "2dc4816a182b72a328b60c1891d376319b27eb74a9d8e3b1af69b4f6d4b5af87"
+    },
+    {
+      "path": "tests/format-core.test.mjs",
+      "byteLength": 6242,
+      "sha256": "c6ed636448cf98738e1cb7813e4ec89f016e69576692a089965fc1209986b022"
+    },
+    {
+      "path": "tests/format-fixtures.mjs",
+      "byteLength": 3532,
+      "sha256": "7d4bc0dd6354798ec0ee93c829a6d89cc0fed72ac690458cf435bcd2bc9f8257"
+    },
+    {
+      "path": "tests/format-native-connector.test.mjs",
+      "byteLength": 4291,
+      "sha256": "4c076f293c2b8531e7338b619b54de127a7678aea4627bdfe462b936c7718134"
+    },
+    {
+      "path": "tests/format-private-diagnostic.mjs",
+      "byteLength": 2166,
+      "sha256": "1d620611ee22e86a2af11c44f11908ecc783f0229dfce4e8436fe7a40ebd54e7"
+    },
+    {
+      "path": "tests/format-runtime.test.mjs",
+      "byteLength": 2141,
+      "sha256": "0650d959afcf02fd292cf99b6ea0e0cf3f3d99eec6dc3e162fcb248bfed16316"
+    },
+    {
+      "path": "tests/ui.test.mjs",
+      "byteLength": 6598,
+      "sha256": "b0496a814c345bd771bd8bce87f5808b673ee575ab092c3ba8d06baaa8ff4886"
+    },
+    {
+      "path": "ui/App.jsx",
+      "byteLength": 10103,
+      "sha256": "d562a8f21dea2b7d0a6cdc6a729c91779c4eb4ff00c9d9416d857caa1f72ce56"
+    },
+    {
+      "path": "ui/index.jsx",
+      "byteLength": 1240,
+      "sha256": "e82bba2578954801fed7b14afb7436ba61f59150843a13310d96e2289bff4869"
+    },
+    {
+      "path": "ui/model.mjs",
+      "byteLength": 2221,
+      "sha256": "d1aecdf872003f0161464af7e465b556086aaf849b393d78af30e5e01b9b9970"
+    },
+    {
+      "path": "ui/style.css",
+      "byteLength": 4586,
+      "sha256": "3ad023a86e476ccebd272dc38b2ef0a07898cbd1ffefe356abacd3b37413246f"
+    }
+  ],
+  "explanation": "Canonical package contains the compiled runtime/UI and licensed runtime documents. The discovered editable-source template additionally includes source modules, build scripts, package metadata/locks, generated build inventory and synthetic tests. Package hashes cover every file, so those closures intentionally have distinct hashes. Their shared executable/UI bytes are verified identical. node_modules, hidden directories and fixture/private/log directories are excluded by localTemplates; source exports and review bundles never include private workbench state.",
+  "publication": "not_performed"
+}
