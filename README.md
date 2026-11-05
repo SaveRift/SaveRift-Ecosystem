@@ -17,11 +17,14 @@ and production-cutover gates. The released dev.3 browser journey and workbench
 package-default reconciliation are complete. The two-human-contributor
 acceptance test remains deferred by the owner.
 
+The owner-private developer workbench's mobile/disclosure refinements are deployed
+in v22. External tester access and attributed contributor acceptance remain separate.
+
 The separate large original-download route has passed hosted capture, native
 browser download and independent artifact checks for a synthetic 1 GiB
 collection (eight 128 MiB files) and an authorized native save collection.
-Operator v112 is live; public customer start/advance remains disabled. The planned
-v113 deployment is blocked by the hosting artifact upload; see [issue #5](https://github.com/SaveRift/SaveRift-Ecosystem/issues/5).
+Public v113 unifies standard and larger originals under one Download original
+action, with compact progress/ready feedback and native result links; see [issue #5](https://github.com/SaveRift/SaveRift-Ecosystem/issues/5).
 Temporary copies have 24-hour access and a 2 GiB per-account allowance, with an
 explicit Discard action; physical cleanup can lag expiry. An individual 1 GiB
 file timed out safely incomplete, so the collection proof does not establish that
