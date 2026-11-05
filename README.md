@@ -20,7 +20,8 @@ acceptance test remains deferred by the owner.
 The separate large original-download route has passed hosted capture, native
 browser download and independent artifact checks for a synthetic 1 GiB
 collection (eight 128 MiB files) and an authorized native save collection.
-Customer availability remains pending public deployment; see [issue #5](https://github.com/SaveRift/SaveRift-Ecosystem/issues/5).
+Operator v112 is live; public customer start/advance remains disabled. The planned
+v113 deployment is blocked by the hosting artifact upload; see [issue #5](https://github.com/SaveRift/SaveRift-Ecosystem/issues/5).
 Temporary copies have 24-hour access and a 2 GiB per-account allowance, with an
 explicit Discard action; physical cleanup can lag expiry. An individual 1 GiB
 file timed out safely incomplete, so the collection proof does not establish that
