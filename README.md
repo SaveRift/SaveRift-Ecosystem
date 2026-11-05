@@ -17,6 +17,16 @@ and production-cutover gates. The released dev.3 browser journey and workbench
 package-default reconciliation are complete. The two-human-contributor
 acceptance test remains deferred by the owner.
 
+The separate large original-download route has passed hosted capture, native
+browser download and independent artifact checks for a synthetic 1 GiB
+collection (eight 128 MiB files) and an authorized native save collection.
+Customer availability remains pending public deployment; see [issue #5](https://github.com/SaveRift/SaveRift-Ecosystem/issues/5).
+Temporary copies have 24-hour access and a 2 GiB per-account allowance, with an
+explicit Discard action; physical cleanup can lag expiry. An individual 1 GiB
+file timed out safely incomplete, so the collection proof does not establish that
+case. This route downloads originals only; existing editor and Send limits remain
+unchanged.
+
 The experimental [AC Shadows prepared-PC-v54 plugin](ecosystem/plugins/ac-shadows/README.md)
 is merged in [PR #12](https://github.com/SaveRift/SaveRift-Ecosystem/pull/12).
 Its local shared-UI, draft, isolated-processing, download and independent-comparison
