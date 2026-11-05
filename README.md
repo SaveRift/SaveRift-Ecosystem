@@ -23,8 +23,9 @@ in v22. External tester access and attributed contributor acceptance remain sepa
 The separate large original-download route has passed hosted capture, native
 browser download and independent artifact checks for a synthetic 1 GiB
 collection (eight 128 MiB files) and an authorized native save collection.
-Public v113 unifies standard and larger originals under one Download original
-action, with compact progress/ready feedback and native result links; see [issue #5](https://github.com/SaveRift/SaveRift-Ecosystem/issues/5).
+Public v114 keeps one Download original action for standard and larger originals,
+with compact progress/ready feedback and native result links. Busy steps wait via
+owned status reads; errors/timeouts pause for explicit Resume. See [issue #5](https://github.com/SaveRift/SaveRift-Ecosystem/issues/5).
 Temporary copies have 24-hour access and a 2 GiB per-account allowance, with an
 explicit Discard action; physical cleanup can lag expiry. An individual 1 GiB
 file timed out safely incomplete, so the collection proof does not establish that
