@@ -1,9 +1,9 @@
 name: Public ecosystem checks
 on:
   pull_request:
-    paths: ['ecosystem/**', 'scripts/ecosystem-release-audit.mjs', 'tests/ecosystem-release-audit.test.mjs', '.github/workflows/ecosystem-ci.yml']
+    paths: ['README.md', 'ecosystem/**', 'scripts/ecosystem-release-audit.mjs', 'tests/ecosystem-release-audit.test.mjs', '.github/workflows/ecosystem-ci.yml']
   push:
-    paths: ['ecosystem/**', 'scripts/ecosystem-release-audit.mjs', 'tests/ecosystem-release-audit.test.mjs', '.github/workflows/ecosystem-ci.yml']
+    paths: ['README.md', 'ecosystem/**', 'scripts/ecosystem-release-audit.mjs', 'tests/ecosystem-release-audit.test.mjs', '.github/workflows/ecosystem-ci.yml']
 permissions:
   contents: read
 jobs:
