@@ -9,3 +9,7 @@ raw-saves/
 *.xvd
 *.ps5b
 *.ps4b
+*.sqlite
+*.sqlite-*
+*.db
+*.db-*

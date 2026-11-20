@@ -1,1 +1,4936 @@
-{ "schema": "saverift.gta-vi.entities.v1", "category": "activities", "entries": [] }
+{
+  "schema": "saverift.gta-vi.entities.v1",
+  "category": "activities",
+  "entries": [
+    {
+      "id": "gta-vi:activities:rpf9-observation-0060ed1eb2ccc3a77efbb21af4f7cadb2c337527abf9154e709ba5f0194e63ef",
+      "name": {
+        "en": "INT_PRISO_TRIGGER_EARLY — mission configuration"
+      },
+      "attributes": {
+        "recordRole": "mission_configuration",
+        "semanticRole": "configuration_definition",
+        "nameKind": "qualified-source-identifier",
+        "editorReady": false,
+        "runtimeAvailability": "unverified",
+        "saveMapping": "unvalidated",
+        "originalArchiveMembershipProven": false,
+        "sourceRecordId": "b6eeeaf55b07c1142182e71c88ef6d49e8ebc94c165b1cf164d80ee04070b9d9"
+      },
+      "confidence": "observed",
+      "applicability": {
+        "platforms": [
+          "xbox"
+        ],
+        "build": null
+      },
+      "evidence": [
+        {
+          "sourceRef": "saverift-rpf9-xml-e6f60f5500fdbac906a31b12ca215057f7c4da63e34d338033e04baadb017265",
+          "location": "/CMissions[1]/Missions[1]/Item[123]",
+          "method": "Literal MissionId observation in the recovered XML document; gameplay role and save link unvalidated"
+        }
+      ],
+      "nativeIds": {
+        "configurationId": "INT_PRISO_TRIGGER_EARLY",
+        "configurationNamespace": "XML:CMissions:MissionId"
+      }
+    },
+    {
+      "id": "gta-vi:activities:rpf9-observation-01645bf9d4e5525959eb1d8194c193b755a25af852b1dcadad3f7a1204b32997",
+      "name": {
+        "en": "COM_KBOS_RADR — mission configuration"
+      },
+      "attributes": {
+        "recordRole": "mission_configuration",
+        "semanticRole": "configuration_definition",
+        "nameKind": "qualified-source-identifier",
+        "editorReady": false,
+        "runtimeAvailability": "unverified",
+        "saveMapping": "unvalidated",
+        "originalArchiveMembershipProven": false,
+        "sourceRecordId": "20bce1581a6b83b30a061126eb8ef223190e691d32b653fa840653e08e7adc02"
+      },
+      "confidence": "observed",
+      "applicability": {
+        "platforms": [
+          "xbox"
+        ],
+        "build": null
+      },
+      "evidence": [
+        {
+          "sourceRef": "saverift-rpf9-xml-e6f60f5500fdbac906a31b12ca215057f7c4da63e34d338033e04baadb017265",
+          "location": "/CMissions[1]/Missions[1]/Item[7]",
+          "method": "Literal MissionId observation in the recovered XML document; gameplay role and save link unvalidated"
+        }
+      ],
+      "nativeIds": {
+        "configurationId": "COM_KBOS_RADR",
+        "configurationNamespace": "XML:CMissions:MissionId"
+      }
+    },
+    {
+      "id": "gta-vi:activities:rpf9-observation-03d9cf7f2d22b42d823474a2c0a460064f8921f0ba783adff8428fd1cfd1d9bb",
+      "name": {
+        "en": "COM_SHOW_TRAILER — mission configuration"
+      },
+      "attributes": {
+        "recordRole": "mission_configuration",
+        "semanticRole": "configuration_definition",
+        "nameKind": "qualified-source-identifier",
+        "editorReady": false,
+        "runtimeAvailability": "unverified",
+        "saveMapping": "unvalidated",
+        "originalArchiveMembershipProven": false,
+        "sourceRecordId": "6b46fc4b0c0d5597104012d8d88ad8cae2d2599ca4a726a50d21fc7d9f689356"
+      },
+      "confidence": "observed",
+      "applicability": {
+        "platforms": [
+          "xbox"
+        ],
+        "build": null
+      },
+      "evidence": [
+        {
+          "sourceRef": "saverift-rpf9-xml-e6f60f5500fdbac906a31b12ca215057f7c4da63e34d338033e04baadb017265",
+          "location": "/CMissions[1]/Missions[1]/Item[55]",
+          "method": "Literal MissionId observation in the recovered XML document; gameplay role and save link unvalidated"
+        }
+      ],
+      "nativeIds": {
+        "configurationId": "COM_SHOW_TRAILER",
+        "configurationNamespace": "XML:CMissions:MissionId"
+      }
+    },
+    {
+      "id": "gta-vi:activities:rpf9-observation-065410818aa534b92f85ce0eb7bb32a384d77f715ea180821c5a0d69221e1ab2",
+      "name": {
+        "en": "COA_HELIS — mission configuration"
+      },
+      "attributes": {
+        "recordRole": "mission_configuration",
+        "semanticRole": "configuration_definition",
+        "nameKind": "qualified-source-identifier",
+        "editorReady": false,
+        "runtimeAvailability": "unverified",
+        "saveMapping": "unvalidated",
+        "originalArchiveMembershipProven": false,
+        "sourceRecordId": "eb8e8b3ef69cdd0f9a8b56c009fe41da9bfa29a213cc8380bf52857f7f3a5a0b"
+      },
+      "confidence": "observed",
+      "applicability": {
+        "platforms": [
+          "xbox"
+        ],
+        "build": null
+      },
+      "evidence": [
+        {
+          "sourceRef": "saverift-rpf9-xml-e6f60f5500fdbac906a31b12ca215057f7c4da63e34d338033e04baadb017265",
+          "location": "/CMissions[1]/Missions[1]/Item[91]",
+          "method": "Literal MissionId observation in the recovered XML document; gameplay role and save link unvalidated"
+        }
+      ],
+      "nativeIds": {
+        "configurationId": "COA_HELIS",
+        "configurationNamespace": "XML:CMissions:MissionId"
+      }
+    },
+    {
+      "id": "gta-vi:activities:rpf9-observation-06bc74cd5d3bfba335bc965858170ccbc83051cf551dbe09fd437deb32fd94b4",
+      "name": {
+        "en": "INT_PROLO — mission configuration"
+      },
+      "attributes": {
+        "recordRole": "mission_configuration",
+        "semanticRole": "configuration_definition",
+        "nameKind": "qualified-source-identifier",
+        "editorReady": false,
+        "runtimeAvailability": "unverified",
+        "saveMapping": "unvalidated",
+        "originalArchiveMembershipProven": false,
+        "sourceRecordId": "ca8030ced69a8a53eb5cef0a90b0e380586d27107ad07dca58df77555966dd3b"
+      },
+      "confidence": "observed",
+      "applicability": {
+        "platforms": [
+          "xbox"
+        ],
+        "build": null
+      },
+      "evidence": [
+        {
+          "sourceRef": "saverift-rpf9-xml-e6f60f5500fdbac906a31b12ca215057f7c4da63e34d338033e04baadb017265",
+          "location": "/CMissions[1]/Missions[1]/Item[1]",
+          "method": "Literal MissionId observation in the recovered XML document; gameplay role and save link unvalidated"
+        }
+      ],
+      "nativeIds": {
+        "configurationId": "INT_PROLO",
+        "configurationNamespace": "XML:CMissions:MissionId"
+      }
+    },
+    {
+      "id": "gta-vi:activities:rpf9-observation-076b81504632553c7cd6b53367ec5997a4603d797c6c0676730a657612c8a4d9",
+      "name": {
+        "en": "COM_KBOS_CLEAN — mission configuration"
+      },
+      "attributes": {
+        "recordRole": "mission_configuration",
+        "semanticRole": "configuration_definition",
+        "nameKind": "qualified-source-identifier",
+        "editorReady": false,
+        "runtimeAvailability": "unverified",
+        "saveMapping": "unvalidated",
+        "originalArchiveMembershipProven": false,
+        "sourceRecordId": "ef3c2d7d72dba0d5c7095a9d140d74eb103d4fa32adb4272b195b313cef00fdf"
+      },
+      "confidence": "observed",
+      "applicability": {
+        "platforms": [
+          "xbox"
+        ],
+        "build": null
+      },
+      "evidence": [
+        {
+          "sourceRef": "saverift-rpf9-xml-e6f60f5500fdbac906a31b12ca215057f7c4da63e34d338033e04baadb017265",
+          "location": "/CMissions[1]/Missions[1]/Item[17]",
+          "method": "Literal MissionId observation in the recovered XML document; gameplay role and save link unvalidated"
+        }
+      ],
+      "nativeIds": {
+        "configurationId": "COM_KBOS_CLEAN",
+        "configurationNamespace": "XML:CMissions:MissionId"
+      }
+    },
+    {
+      "id": "gta-vi:activities:rpf9-observation-0af1e33e6a4d2c80028fa546ebf13aa62d14fc289c139e69e6db7ae8059ee554",
+      "name": {
+        "en": "AIR_TRUCK — mission configuration"
+      },
+      "attributes": {
+        "recordRole": "mission_configuration",
+        "semanticRole": "configuration_definition",
+        "nameKind": "qualified-source-identifier",
+        "editorReady": false,
+        "runtimeAvailability": "unverified",
+        "saveMapping": "unvalidated",
+        "originalArchiveMembershipProven": false,
+        "sourceRecordId": "d3bf2290f79700752e3420c0d1c1dffd8385a4284d1366f3c57cfc1592679ef5"
+      },
+      "confidence": "observed",
+      "applicability": {
+        "platforms": [
+          "xbox"
+        ],
+        "build": null
+      },
+      "evidence": [
+        {
+          "sourceRef": "saverift-rpf9-xml-e6f60f5500fdbac906a31b12ca215057f7c4da63e34d338033e04baadb017265",
+          "location": "/CMissions[1]/Missions[1]/Item[81]",
+          "method": "Literal MissionId observation in the recovered XML document; gameplay role and save link unvalidated"
+        }
+      ],
+      "nativeIds": {
+        "configurationId": "AIR_TRUCK",
+        "configurationNamespace": "XML:CMissions:MissionId"
+      }
+    },
+    {
+      "id": "gta-vi:activities:rpf9-observation-0b78bd345fe6ffd864305fe1f4b29486160ea25e8504442f18b161f247793a26",
+      "name": {
+        "en": "MTL_DRIVE — mission configuration"
+      },
+      "attributes": {
+        "recordRole": "mission_configuration",
+        "semanticRole": "configuration_definition",
+        "nameKind": "qualified-source-identifier",
+        "editorReady": false,
+        "runtimeAvailability": "unverified",
+        "saveMapping": "unvalidated",
+        "originalArchiveMembershipProven": false,
+        "sourceRecordId": "d272713cd3053b8c21fa3fb13228c26494f2a2baf5a7f10f8b721423d56916f7"
+      },
+      "confidence": "observed",
+      "applicability": {
+        "platforms": [
+          "xbox"
+        ],
+        "build": null
+      },
+      "evidence": [
+        {
+          "sourceRef": "saverift-rpf9-xml-e6f60f5500fdbac906a31b12ca215057f7c4da63e34d338033e04baadb017265",
+          "location": "/CMissions[1]/Missions[1]/Item[25]",
+          "method": "Literal MissionId observation in the recovered XML document; gameplay role and save link unvalidated"
+        }
+      ],
+      "nativeIds": {
+        "configurationId": "MTL_DRIVE",
+        "configurationNamespace": "XML:CMissions:MissionId"
+      }
+    },
+    {
+      "id": "gta-vi:activities:rpf9-observation-0bccc6e34695633629890f6416a5e02f8a8eaa8bd5fef9271b66c4e0ab94f1f0",
+      "name": {
+        "en": "BAN_SAFE — mission configuration"
+      },
+      "attributes": {
+        "recordRole": "mission_configuration",
+        "semanticRole": "configuration_definition",
+        "nameKind": "qualified-source-identifier",
+        "editorReady": false,
+        "runtimeAvailability": "unverified",
+        "saveMapping": "unvalidated",
+        "originalArchiveMembershipProven": false,
+        "sourceRecordId": "6fc424cd8c979acf8b45676c00ace05cf2a037cca849a43ffcf40e309fee67a5"
+      },
+      "confidence": "observed",
+      "applicability": {
+        "platforms": [
+          "xbox"
+        ],
+        "build": null
+      },
+      "evidence": [
+        {
+          "sourceRef": "saverift-rpf9-xml-e6f60f5500fdbac906a31b12ca215057f7c4da63e34d338033e04baadb017265",
+          "location": "/CMissions[1]/Missions[1]/Item[61]",
+          "method": "Literal MissionId observation in the recovered XML document; gameplay role and save link unvalidated"
+        }
+      ],
+      "nativeIds": {
+        "configurationId": "BAN_SAFE",
+        "configurationNamespace": "XML:CMissions:MissionId"
+      }
+    },
+    {
+      "id": "gta-vi:activities:rpf9-observation-0f3e50fd0506b502f095f12cf269bc9aa2d34fc8966d245270cfc70d609f5004",
+      "name": {
+        "en": "MTL_CONT — mission configuration"
+      },
+      "attributes": {
+        "recordRole": "mission_configuration",
+        "semanticRole": "configuration_definition",
+        "nameKind": "qualified-source-identifier",
+        "editorReady": false,
+        "runtimeAvailability": "unverified",
+        "saveMapping": "unvalidated",
+        "originalArchiveMembershipProven": false,
+        "sourceRecordId": "1e833161ee53a60216ae6ee567c609d72cda88e76e73eaa6459e915d974f7329"
+      },
+      "confidence": "observed",
+      "applicability": {
+        "platforms": [
+          "xbox"
+        ],
+        "build": null
+      },
+      "evidence": [
+        {
+          "sourceRef": "saverift-rpf9-xml-e6f60f5500fdbac906a31b12ca215057f7c4da63e34d338033e04baadb017265",
+          "location": "/CMissions[1]/Missions[1]/Item[31]",
+          "method": "Literal MissionId observation in the recovered XML document; gameplay role and save link unvalidated"
+        }
+      ],
+      "nativeIds": {
+        "configurationId": "MTL_CONT",
+        "configurationNamespace": "XML:CMissions:MissionId"
+      }
+    },
+    {
+      "id": "gta-vi:activities:rpf9-observation-0f4e4afd4135b5f63285f2760e60547bc8d9217802ed3b39aed4b9e734b2cbb6",
+      "name": {
+        "en": "BAN_CARTE — mission configuration"
+      },
+      "attributes": {
+        "recordRole": "mission_configuration",
+        "semanticRole": "configuration_definition",
+        "nameKind": "qualified-source-identifier",
+        "editorReady": false,
+        "runtimeAvailability": "unverified",
+        "saveMapping": "unvalidated",
+        "originalArchiveMembershipProven": false,
+        "sourceRecordId": "01d69cf7d151498524424ed5270ac2f6851b0ed71478eeb909f27adfeca4b01a"
+      },
+      "confidence": "observed",
+      "applicability": {
+        "platforms": [
+          "xbox"
+        ],
+        "build": null
+      },
+      "evidence": [
+        {
+          "sourceRef": "saverift-rpf9-xml-e6f60f5500fdbac906a31b12ca215057f7c4da63e34d338033e04baadb017265",
+          "location": "/CMissions[1]/Missions[1]/Item[60]",
+          "method": "Literal MissionId observation in the recovered XML document; gameplay role and save link unvalidated"
+        }
+      ],
+      "nativeIds": {
+        "configurationId": "BAN_CARTE",
+        "configurationNamespace": "XML:CMissions:MissionId"
+      }
+    },
+    {
+      "id": "gta-vi:activities:rpf9-observation-0f580632091b84b0346b905a1d2d085e97bb5d2978459c66cd43da93bf635593",
+      "name": {
+        "en": "HO_PAR_FRINT — mission configuration"
+      },
+      "attributes": {
+        "recordRole": "mission_configuration",
+        "semanticRole": "configuration_definition",
+        "nameKind": "qualified-source-identifier",
+        "editorReady": false,
+        "runtimeAvailability": "unverified",
+        "saveMapping": "unvalidated",
+        "originalArchiveMembershipProven": false,
+        "sourceRecordId": "84ff8dc0de389140aec7348c6f79709e786e491b79af8cd5d4449e59d0254fa5"
+      },
+      "confidence": "observed",
+      "applicability": {
+        "platforms": [
+          "xbox"
+        ],
+        "build": null
+      },
+      "evidence": [
+        {
+          "sourceRef": "saverift-rpf9-xml-e6f60f5500fdbac906a31b12ca215057f7c4da63e34d338033e04baadb017265",
+          "location": "/CMissions[1]/Missions[1]/Item[30]",
+          "method": "Literal MissionId observation in the recovered XML document; gameplay role and save link unvalidated"
+        }
+      ],
+      "nativeIds": {
+        "configurationId": "HO_PAR_FRINT",
+        "configurationNamespace": "XML:CMissions:MissionId"
+      }
+    },
+    {
+      "id": "gta-vi:activities:rpf9-observation-0f8e040000539161169297f3f97d7c1ac2644323aa0b3c4b9dedaedb35151d38",
+      "name": {
+        "en": "MNY_KIDNP — mission configuration"
+      },
+      "attributes": {
+        "recordRole": "mission_configuration",
+        "semanticRole": "configuration_definition",
+        "nameKind": "qualified-source-identifier",
+        "editorReady": false,
+        "runtimeAvailability": "unverified",
+        "saveMapping": "unvalidated",
+        "originalArchiveMembershipProven": false,
+        "sourceRecordId": "6dcefbc25725e175aa72fee64836aa7925be29664240fb6c4e9afeeef09a1afa"
+      },
+      "confidence": "observed",
+      "applicability": {
+        "platforms": [
+          "xbox"
+        ],
+        "build": null
+      },
+      "evidence": [
+        {
+          "sourceRef": "saverift-rpf9-xml-e6f60f5500fdbac906a31b12ca215057f7c4da63e34d338033e04baadb017265",
+          "location": "/CMissions[1]/Missions[1]/Item[82]",
+          "method": "Literal MissionId observation in the recovered XML document; gameplay role and save link unvalidated"
+        }
+      ],
+      "nativeIds": {
+        "configurationId": "MNY_KIDNP",
+        "configurationNamespace": "XML:CMissions:MissionId"
+      }
+    },
+    {
+      "id": "gta-vi:activities:rpf9-observation-119ee922fae3a3207da088ab87d1bb36c5331ffcfc3274d2d22d29443dbb0b31",
+      "name": {
+        "en": "SFH_TAXI — mission configuration"
+      },
+      "attributes": {
+        "recordRole": "mission_configuration",
+        "semanticRole": "configuration_definition",
+        "nameKind": "qualified-source-identifier",
+        "editorReady": false,
+        "runtimeAvailability": "unverified",
+        "saveMapping": "unvalidated",
+        "originalArchiveMembershipProven": false,
+        "sourceRecordId": "d24fcc037a12b36c38d1da3043438bc3b51e1425c6aacf680fa098532a558436"
+      },
+      "confidence": "observed",
+      "applicability": {
+        "platforms": [
+          "xbox"
+        ],
+        "build": null
+      },
+      "evidence": [
+        {
+          "sourceRef": "saverift-rpf9-xml-e6f60f5500fdbac906a31b12ca215057f7c4da63e34d338033e04baadb017265",
+          "location": "/CMissions[1]/Missions[1]/Item[67]",
+          "method": "Literal MissionId observation in the recovered XML document; gameplay role and save link unvalidated"
+        }
+      ],
+      "nativeIds": {
+        "configurationId": "SFH_TAXI",
+        "configurationNamespace": "XML:CMissions:MissionId"
+      }
+    },
+    {
+      "id": "gta-vi:activities:rpf9-observation-1233c4e628830493627f603e7e98f5be5bce36ee0473a06171a582c7961f32d4",
+      "name": {
+        "en": "CLB_HELI — mission configuration"
+      },
+      "attributes": {
+        "recordRole": "mission_configuration",
+        "semanticRole": "configuration_definition",
+        "nameKind": "qualified-source-identifier",
+        "editorReady": false,
+        "runtimeAvailability": "unverified",
+        "saveMapping": "unvalidated",
+        "originalArchiveMembershipProven": false,
+        "sourceRecordId": "e1cec2d5eef0f9c5e40e9449f3c1001c8aba126d06f7368d05d86ed05f9101f9"
+      },
+      "confidence": "observed",
+      "applicability": {
+        "platforms": [
+          "xbox"
+        ],
+        "build": null
+      },
+      "evidence": [
+        {
+          "sourceRef": "saverift-rpf9-xml-e6f60f5500fdbac906a31b12ca215057f7c4da63e34d338033e04baadb017265",
+          "location": "/CMissions[1]/Missions[1]/Item[72]",
+          "method": "Literal MissionId observation in the recovered XML document; gameplay role and save link unvalidated"
+        }
+      ],
+      "nativeIds": {
+        "configurationId": "CLB_HELI",
+        "configurationNamespace": "XML:CMissions:MissionId"
+      }
+    },
+    {
+      "id": "gta-vi:activities:rpf9-observation-12872b9d8c5949148d725bdd0da8471d2e83a91f1b448bbc89c890966811ffa5",
+      "name": {
+        "en": "COM_UP_BBWOR — mission configuration"
+      },
+      "attributes": {
+        "recordRole": "mission_configuration",
+        "semanticRole": "configuration_definition",
+        "nameKind": "qualified-source-identifier",
+        "editorReady": false,
+        "runtimeAvailability": "unverified",
+        "saveMapping": "unvalidated",
+        "originalArchiveMembershipProven": false,
+        "sourceRecordId": "3cbc35bc9f42d6a0c6282e50ca93e998109d1a8e138c6b005885ba024b2d547f"
+      },
+      "confidence": "observed",
+      "applicability": {
+        "platforms": [
+          "xbox"
+        ],
+        "build": null
+      },
+      "evidence": [
+        {
+          "sourceRef": "saverift-rpf9-xml-e6f60f5500fdbac906a31b12ca215057f7c4da63e34d338033e04baadb017265",
+          "location": "/CMissions[1]/Missions[1]/Item[129]",
+          "method": "Literal MissionId observation in the recovered XML document; gameplay role and save link unvalidated"
+        }
+      ],
+      "nativeIds": {
+        "configurationId": "COM_UP_BBWOR",
+        "configurationNamespace": "XML:CMissions:MissionId"
+      }
+    },
+    {
+      "id": "gta-vi:activities:rpf9-observation-16001211c801f461ece1551a4a08fc61c0608b9c82475311d90ee1d8186db6e1",
+      "name": {
+        "en": "BAN_SETUP — mission configuration"
+      },
+      "attributes": {
+        "recordRole": "mission_configuration",
+        "semanticRole": "configuration_definition",
+        "nameKind": "qualified-source-identifier",
+        "editorReady": false,
+        "runtimeAvailability": "unverified",
+        "saveMapping": "unvalidated",
+        "originalArchiveMembershipProven": false,
+        "sourceRecordId": "178fc1e2f30e7a2d4594635d2e74f1104b9da5d493f9de3f7377e896592afe4a"
+      },
+      "confidence": "observed",
+      "applicability": {
+        "platforms": [
+          "xbox"
+        ],
+        "build": null
+      },
+      "evidence": [
+        {
+          "sourceRef": "saverift-rpf9-xml-e6f60f5500fdbac906a31b12ca215057f7c4da63e34d338033e04baadb017265",
+          "location": "/CMissions[1]/Missions[1]/Item[56]",
+          "method": "Literal MissionId observation in the recovered XML document; gameplay role and save link unvalidated"
+        }
+      ],
+      "nativeIds": {
+        "configurationId": "BAN_SETUP",
+        "configurationNamespace": "XML:CMissions:MissionId"
+      }
+    },
+    {
+      "id": "gta-vi:activities:rpf9-observation-169ce2493337180aa0a697d458944e35030b2c7d97f020f1de2bb5c76995895e",
+      "name": {
+        "en": "AIR_BUS — mission configuration"
+      },
+      "attributes": {
+        "recordRole": "mission_configuration",
+        "semanticRole": "configuration_definition",
+        "nameKind": "qualified-source-identifier",
+        "editorReady": false,
+        "runtimeAvailability": "unverified",
+        "saveMapping": "unvalidated",
+        "originalArchiveMembershipProven": false,
+        "sourceRecordId": "7ffb7a5df587ed933737d83c97aa4c8d321c0b3ed93e63e432abc2113ffb9bd4"
+      },
+      "confidence": "observed",
+      "applicability": {
+        "platforms": [
+          "xbox"
+        ],
+        "build": null
+      },
+      "evidence": [
+        {
+          "sourceRef": "saverift-rpf9-xml-e6f60f5500fdbac906a31b12ca215057f7c4da63e34d338033e04baadb017265",
+          "location": "/CMissions[1]/Missions[1]/Item[76]",
+          "method": "Literal MissionId observation in the recovered XML document; gameplay role and save link unvalidated"
+        }
+      ],
+      "nativeIds": {
+        "configurationId": "AIR_BUS",
+        "configurationNamespace": "XML:CMissions:MissionId"
+      }
+    },
+    {
+      "id": "gta-vi:activities:rpf9-observation-1936a9bce9d17262e36b2004824f7576613bb000b99bcf1ab99633317eb2af7a",
+      "name": {
+        "en": "BIL_WHEEL — mission configuration"
+      },
+      "attributes": {
+        "recordRole": "mission_configuration",
+        "semanticRole": "configuration_definition",
+        "nameKind": "qualified-source-identifier",
+        "editorReady": false,
+        "runtimeAvailability": "unverified",
+        "saveMapping": "unvalidated",
+        "originalArchiveMembershipProven": false,
+        "sourceRecordId": "796488434677aad825da87c229052776d339ac96c0e36186a4d9cc5f17cce19f"
+      },
+      "confidence": "observed",
+      "applicability": {
+        "platforms": [
+          "xbox"
+        ],
+        "build": null
+      },
+      "evidence": [
+        {
+          "sourceRef": "saverift-rpf9-xml-e6f60f5500fdbac906a31b12ca215057f7c4da63e34d338033e04baadb017265",
+          "location": "/CMissions[1]/Missions[1]/Item[21]",
+          "method": "Literal MissionId observation in the recovered XML document; gameplay role and save link unvalidated"
+        }
+      ],
+      "nativeIds": {
+        "configurationId": "BIL_WHEEL",
+        "configurationNamespace": "XML:CMissions:MissionId"
+      }
+    },
+    {
+      "id": "gta-vi:activities:rpf9-observation-1bebd6b276432d9ef2ae4d7995796bd040497bbf0482fd1ce8e9815738a5f028",
+      "name": {
+        "en": "MTL_CHECK_LOW_REL — mission configuration"
+      },
+      "attributes": {
+        "recordRole": "mission_configuration",
+        "semanticRole": "configuration_definition",
+        "nameKind": "qualified-source-identifier",
+        "editorReady": false,
+        "runtimeAvailability": "unverified",
+        "saveMapping": "unvalidated",
+        "originalArchiveMembershipProven": false,
+        "sourceRecordId": "ce4b64f5df5ca6968585646513bce818e9817d9951e4c40f99180463784ef687"
+      },
+      "confidence": "observed",
+      "applicability": {
+        "platforms": [
+          "xbox"
+        ],
+        "build": null
+      },
+      "evidence": [
+        {
+          "sourceRef": "saverift-rpf9-xml-e6f60f5500fdbac906a31b12ca215057f7c4da63e34d338033e04baadb017265",
+          "location": "/CMissions[1]/Missions[1]/Item[104]",
+          "method": "Literal MissionId observation in the recovered XML document; gameplay role and save link unvalidated"
+        }
+      ],
+      "nativeIds": {
+        "configurationId": "MTL_CHECK_LOW_REL",
+        "configurationNamespace": "XML:CMissions:MissionId"
+      }
+    },
+    {
+      "id": "gta-vi:activities:rpf9-observation-1d531b1d25aea0d7169ccf6e2627fd7ecc8ceebfcc057fece3b5dc2a08c76158",
+      "name": {
+        "en": "AIR_CATER — mission configuration"
+      },
+      "attributes": {
+        "recordRole": "mission_configuration",
+        "semanticRole": "configuration_definition",
+        "nameKind": "qualified-source-identifier",
+        "editorReady": false,
+        "runtimeAvailability": "unverified",
+        "saveMapping": "unvalidated",
+        "originalArchiveMembershipProven": false,
+        "sourceRecordId": "74535bb0cbfe52ce759d5f82d4c82d0696c6e69a8ab0882b168bfdee37ebfde3"
+      },
+      "confidence": "observed",
+      "applicability": {
+        "platforms": [
+          "xbox"
+        ],
+        "build": null
+      },
+      "evidence": [
+        {
+          "sourceRef": "saverift-rpf9-xml-e6f60f5500fdbac906a31b12ca215057f7c4da63e34d338033e04baadb017265",
+          "location": "/CMissions[1]/Missions[1]/Item[87]",
+          "method": "Literal MissionId observation in the recovered XML document; gameplay role and save link unvalidated"
+        }
+      ],
+      "nativeIds": {
+        "configurationId": "AIR_CATER",
+        "configurationNamespace": "XML:CMissions:MissionId"
+      }
+    },
+    {
+      "id": "gta-vi:activities:rpf9-observation-1f9adc9cdce157cfec92eea1a805ecb45eba62d0911f187a8dd0a69761eafe9d",
+      "name": {
+        "en": "CSC_MOM_FLIP — mission configuration"
+      },
+      "attributes": {
+        "recordRole": "mission_configuration",
+        "semanticRole": "configuration_definition",
+        "nameKind": "qualified-source-identifier",
+        "editorReady": false,
+        "runtimeAvailability": "unverified",
+        "saveMapping": "unvalidated",
+        "originalArchiveMembershipProven": false,
+        "sourceRecordId": "10d1ffa41d18e9cb14c9d144a0ff552084015baae09893eed9ac36de5fd5cfa8"
+      },
+      "confidence": "observed",
+      "applicability": {
+        "platforms": [
+          "xbox"
+        ],
+        "build": null
+      },
+      "evidence": [
+        {
+          "sourceRef": "saverift-rpf9-xml-e6f60f5500fdbac906a31b12ca215057f7c4da63e34d338033e04baadb017265",
+          "location": "/CMissions[1]/Missions[1]/Item[40]",
+          "method": "Literal MissionId observation in the recovered XML document; gameplay role and save link unvalidated"
+        }
+      ],
+      "nativeIds": {
+        "configurationId": "CSC_MOM_FLIP",
+        "configurationNamespace": "XML:CMissions:MissionId"
+      }
+    },
+    {
+      "id": "gta-vi:activities:rpf9-observation-200c6aa4fcca446a8862cf0c0f2b14963edea2e85fe42f1bc8efc147cc0e7bd3",
+      "name": {
+        "en": "BAN_RESCU — mission configuration"
+      },
+      "attributes": {
+        "recordRole": "mission_configuration",
+        "semanticRole": "configuration_definition",
+        "nameKind": "qualified-source-identifier",
+        "editorReady": false,
+        "runtimeAvailability": "unverified",
+        "saveMapping": "unvalidated",
+        "originalArchiveMembershipProven": false,
+        "sourceRecordId": "b2f22a5e0305a8a16fb5c1a277c8db1725a8dfbf5ba15ce75988dd3e50817a52"
+      },
+      "confidence": "observed",
+      "applicability": {
+        "platforms": [
+          "xbox"
+        ],
+        "build": null
+      },
+      "evidence": [
+        {
+          "sourceRef": "saverift-rpf9-xml-e6f60f5500fdbac906a31b12ca215057f7c4da63e34d338033e04baadb017265",
+          "location": "/CMissions[1]/Missions[1]/Item[57]",
+          "method": "Literal MissionId observation in the recovered XML document; gameplay role and save link unvalidated"
+        }
+      ],
+      "nativeIds": {
+        "configurationId": "BAN_RESCU",
+        "configurationNamespace": "XML:CMissions:MissionId"
+      }
+    },
+    {
+      "id": "gta-vi:activities:rpf9-observation-213c8088cce4d3538ef0c74f2882d12c6d3f9c9fd4ce5cc464c3e52ff0c13f8d",
+      "name": {
+        "en": "MNY_HOTEL — mission configuration"
+      },
+      "attributes": {
+        "recordRole": "mission_configuration",
+        "semanticRole": "configuration_definition",
+        "nameKind": "qualified-source-identifier",
+        "editorReady": false,
+        "runtimeAvailability": "unverified",
+        "saveMapping": "unvalidated",
+        "originalArchiveMembershipProven": false,
+        "sourceRecordId": "c9460b046fca67216cb26d9a159545bb2aedb29fb2493ae299d5f9ee0ec3d19c"
+      },
+      "confidence": "observed",
+      "applicability": {
+        "platforms": [
+          "xbox"
+        ],
+        "build": null
+      },
+      "evidence": [
+        {
+          "sourceRef": "saverift-rpf9-xml-e6f60f5500fdbac906a31b12ca215057f7c4da63e34d338033e04baadb017265",
+          "location": "/CMissions[1]/Missions[1]/Item[66]",
+          "method": "Literal MissionId observation in the recovered XML document; gameplay role and save link unvalidated"
+        }
+      ],
+      "nativeIds": {
+        "configurationId": "MNY_HOTEL",
+        "configurationNamespace": "XML:CMissions:MissionId"
+      }
+    },
+    {
+      "id": "gta-vi:activities:rpf9-observation-23b8dacecbe7404b1c250dd686d9657b43312fbb5d64356a331b0cf5927bd64b",
+      "name": {
+        "en": "COA_DOG — mission configuration"
+      },
+      "attributes": {
+        "recordRole": "mission_configuration",
+        "semanticRole": "configuration_definition",
+        "nameKind": "qualified-source-identifier",
+        "editorReady": false,
+        "runtimeAvailability": "unverified",
+        "saveMapping": "unvalidated",
+        "originalArchiveMembershipProven": false,
+        "sourceRecordId": "3beb23deeb3cdb76bffbeafd0700a8350844602a3d01833f7dfb695aaaf04501"
+      },
+      "confidence": "observed",
+      "applicability": {
+        "platforms": [
+          "xbox"
+        ],
+        "build": null
+      },
+      "evidence": [
+        {
+          "sourceRef": "saverift-rpf9-xml-e6f60f5500fdbac906a31b12ca215057f7c4da63e34d338033e04baadb017265",
+          "location": "/CMissions[1]/Missions[1]/Item[94]",
+          "method": "Literal MissionId observation in the recovered XML document; gameplay role and save link unvalidated"
+        }
+      ],
+      "nativeIds": {
+        "configurationId": "COA_DOG",
+        "configurationNamespace": "XML:CMissions:MissionId"
+      }
+    },
+    {
+      "id": "gta-vi:activities:rpf9-observation-23c04fd401eaceacea20d2d1ba8dae484c4b6ec8c204e1a0cc8050c318a024c4",
+      "name": {
+        "en": "COM_SFH_FLTPK — mission configuration"
+      },
+      "attributes": {
+        "recordRole": "mission_configuration",
+        "semanticRole": "configuration_definition",
+        "nameKind": "qualified-source-identifier",
+        "editorReady": false,
+        "runtimeAvailability": "unverified",
+        "saveMapping": "unvalidated",
+        "originalArchiveMembershipProven": false,
+        "sourceRecordId": "b7e1da6ea1317b66f34f37a938f5195d4e0695f2ae8954fd62204cc391123e47"
+      },
+      "confidence": "observed",
+      "applicability": {
+        "platforms": [
+          "xbox"
+        ],
+        "build": null
+      },
+      "evidence": [
+        {
+          "sourceRef": "saverift-rpf9-xml-e6f60f5500fdbac906a31b12ca215057f7c4da63e34d338033e04baadb017265",
+          "location": "/CMissions[1]/Missions[1]/Item[128]",
+          "method": "Literal MissionId observation in the recovered XML document; gameplay role and save link unvalidated"
+        }
+      ],
+      "nativeIds": {
+        "configurationId": "COM_SFH_FLTPK",
+        "configurationNamespace": "XML:CMissions:MissionId"
+      }
+    },
+    {
+      "id": "gta-vi:activities:rpf9-observation-261c458684946f65dbd4a74b7663ce38ccfb126d9a9417270f36db0861577a3d",
+      "name": {
+        "en": "RecoverDropTipShackDonnieAlive — mission configuration"
+      },
+      "attributes": {
+        "recordRole": "mission_configuration",
+        "semanticRole": "configuration_definition",
+        "nameKind": "qualified-source-identifier",
+        "editorReady": false,
+        "runtimeAvailability": "unverified",
+        "saveMapping": "unvalidated",
+        "originalArchiveMembershipProven": false,
+        "sourceRecordId": "555aa8f3fadee208648ca96a6e81957ca441855d321da3fc5a66599de26a74a7"
+      },
+      "confidence": "observed",
+      "applicability": {
+        "platforms": [
+          "xbox"
+        ],
+        "build": null
+      },
+      "evidence": [
+        {
+          "sourceRef": "saverift-rpf9-xml-e6f60f5500fdbac906a31b12ca215057f7c4da63e34d338033e04baadb017265",
+          "location": "/CMissions[1]/Missions[1]/Item[106]",
+          "method": "Literal MissionId observation in the recovered XML document; gameplay role and save link unvalidated"
+        }
+      ],
+      "nativeIds": {
+        "configurationId": "RecoverDropTipShackDonnieAlive",
+        "configurationNamespace": "XML:CMissions:MissionId"
+      }
+    },
+    {
+      "id": "gta-vi:activities:rpf9-observation-27980f977687da83d25bbac1fa51df5649bd983bd5db55a0e1064e81e481fc71",
+      "name": {
+        "en": "UP_MLSPM_CONFRONT — mission configuration"
+      },
+      "attributes": {
+        "recordRole": "mission_configuration",
+        "semanticRole": "configuration_definition",
+        "nameKind": "qualified-source-identifier",
+        "editorReady": false,
+        "runtimeAvailability": "unverified",
+        "saveMapping": "unvalidated",
+        "originalArchiveMembershipProven": false,
+        "sourceRecordId": "49ac256610f59809cfbc17d48c3a8c1f523ea0fdad70dfd262fed0114d5aba62"
+      },
+      "confidence": "observed",
+      "applicability": {
+        "platforms": [
+          "xbox"
+        ],
+        "build": null
+      },
+      "evidence": [
+        {
+          "sourceRef": "saverift-rpf9-xml-e6f60f5500fdbac906a31b12ca215057f7c4da63e34d338033e04baadb017265",
+          "location": "/CMissions[1]/Missions[1]/Item[132]",
+          "method": "Literal MissionId observation in the recovered XML document; gameplay role and save link unvalidated"
+        }
+      ],
+      "nativeIds": {
+        "configurationId": "UP_MLSPM_CONFRONT",
+        "configurationNamespace": "XML:CMissions:MissionId"
+      }
+    },
+    {
+      "id": "gta-vi:activities:rpf9-observation-2985f5727b1a3b96ce4fa583c8d20b842000a7d0a1bf879c98eaa00cd1d33de1",
+      "name": {
+        "en": "CSC_DIG_DATA — mission configuration"
+      },
+      "attributes": {
+        "recordRole": "mission_configuration",
+        "semanticRole": "configuration_definition",
+        "nameKind": "qualified-source-identifier",
+        "editorReady": false,
+        "runtimeAvailability": "unverified",
+        "saveMapping": "unvalidated",
+        "originalArchiveMembershipProven": false,
+        "sourceRecordId": "4ddd6f97421940c28d1c059996f44301ac7d9e423ce620ef29cbec184a49191e"
+      },
+      "confidence": "observed",
+      "applicability": {
+        "platforms": [
+          "xbox"
+        ],
+        "build": null
+      },
+      "evidence": [
+        {
+          "sourceRef": "saverift-rpf9-xml-e6f60f5500fdbac906a31b12ca215057f7c4da63e34d338033e04baadb017265",
+          "location": "/CMissions[1]/Missions[1]/Item[69]",
+          "method": "Literal MissionId observation in the recovered XML document; gameplay role and save link unvalidated"
+        }
+      ],
+      "nativeIds": {
+        "configurationId": "CSC_DIG_DATA",
+        "configurationNamespace": "XML:CMissions:MissionId"
+      }
+    },
+    {
+      "id": "gta-vi:activities:rpf9-observation-2ab4148b3186976e39d2715a5791a7719f425b5df648365efe2de4c965fdd679",
+      "name": {
+        "en": "CSC_MOM_MSEVN — mission configuration"
+      },
+      "attributes": {
+        "recordRole": "mission_configuration",
+        "semanticRole": "configuration_definition",
+        "nameKind": "qualified-source-identifier",
+        "editorReady": false,
+        "runtimeAvailability": "unverified",
+        "saveMapping": "unvalidated",
+        "originalArchiveMembershipProven": false,
+        "sourceRecordId": "8bd42e3634b3dc5fcf9818af33097a828f1b4f157978492b5869b3b25bb216be"
+      },
+      "confidence": "observed",
+      "applicability": {
+        "platforms": [
+          "xbox"
+        ],
+        "build": null
+      },
+      "evidence": [
+        {
+          "sourceRef": "saverift-rpf9-xml-e6f60f5500fdbac906a31b12ca215057f7c4da63e34d338033e04baadb017265",
+          "location": "/CMissions[1]/Missions[1]/Item[41]",
+          "method": "Literal MissionId observation in the recovered XML document; gameplay role and save link unvalidated"
+        }
+      ],
+      "nativeIds": {
+        "configurationId": "CSC_MOM_MSEVN",
+        "configurationNamespace": "XML:CMissions:MissionId"
+      }
+    },
+    {
+      "id": "gta-vi:activities:rpf9-observation-2d80d95d5911e11402d8ba9f28b379d7ce59f03121900e6e53dba9dfc2dc45c9",
+      "name": {
+        "en": "ROB_BOAT_L_LUCIA — mission configuration"
+      },
+      "attributes": {
+        "recordRole": "mission_configuration",
+        "semanticRole": "configuration_definition",
+        "nameKind": "qualified-source-identifier",
+        "editorReady": false,
+        "runtimeAvailability": "unverified",
+        "saveMapping": "unvalidated",
+        "originalArchiveMembershipProven": false,
+        "sourceRecordId": "c07f90c0ea7b46e9fc99f699e00f10951b35c684737e7884c4514fff9db3419f"
+      },
+      "confidence": "observed",
+      "applicability": {
+        "platforms": [
+          "xbox"
+        ],
+        "build": null
+      },
+      "evidence": [
+        {
+          "sourceRef": "saverift-rpf9-xml-e6f60f5500fdbac906a31b12ca215057f7c4da63e34d338033e04baadb017265",
+          "location": "/CMissions[1]/Missions[1]/Item[130]",
+          "method": "Literal MissionId observation in the recovered XML document; gameplay role and save link unvalidated"
+        }
+      ],
+      "nativeIds": {
+        "configurationId": "ROB_BOAT_L_LUCIA",
+        "configurationNamespace": "XML:CMissions:MissionId"
+      }
+    },
+    {
+      "id": "gta-vi:activities:rpf9-observation-2e2c14d254037ff03c99679deba3fb436e3f5552dc597a99770ec695b33af3eb",
+      "name": {
+        "en": "ROB_BANK — mission configuration"
+      },
+      "attributes": {
+        "recordRole": "mission_configuration",
+        "semanticRole": "configuration_definition",
+        "nameKind": "qualified-source-identifier",
+        "editorReady": false,
+        "runtimeAvailability": "unverified",
+        "saveMapping": "unvalidated",
+        "originalArchiveMembershipProven": false,
+        "sourceRecordId": "2a794bc97860d0dba5505eafb4782de3f835a3ca9e1529226894416470218d60"
+      },
+      "confidence": "observed",
+      "applicability": {
+        "platforms": [
+          "xbox"
+        ],
+        "build": null
+      },
+      "evidence": [
+        {
+          "sourceRef": "saverift-rpf9-xml-e6f60f5500fdbac906a31b12ca215057f7c4da63e34d338033e04baadb017265",
+          "location": "/CMissions[1]/Missions[1]/Item[52]",
+          "method": "Literal MissionId observation in the recovered XML document; gameplay role and save link unvalidated"
+        }
+      ],
+      "nativeIds": {
+        "configurationId": "ROB_BANK",
+        "configurationNamespace": "XML:CMissions:MissionId"
+      }
+    },
+    {
+      "id": "gta-vi:activities:rpf9-observation-2eaa81b77254820939db59a923e458fee6c5af3b78ebbff1b28a341d091f618d",
+      "name": {
+        "en": "BAN_PKBMB — mission configuration"
+      },
+      "attributes": {
+        "recordRole": "mission_configuration",
+        "semanticRole": "configuration_definition",
+        "nameKind": "qualified-source-identifier",
+        "editorReady": false,
+        "runtimeAvailability": "unverified",
+        "saveMapping": "unvalidated",
+        "originalArchiveMembershipProven": false,
+        "sourceRecordId": "4aed18dc336a15e6d5cdff925c7b48d79450b3f26702a71afc40020147f48c65"
+      },
+      "confidence": "observed",
+      "applicability": {
+        "platforms": [
+          "xbox"
+        ],
+        "build": null
+      },
+      "evidence": [
+        {
+          "sourceRef": "saverift-rpf9-xml-e6f60f5500fdbac906a31b12ca215057f7c4da63e34d338033e04baadb017265",
+          "location": "/CMissions[1]/Missions[1]/Item[140]",
+          "method": "Literal MissionId observation in the recovered XML document; gameplay role and save link unvalidated"
+        }
+      ],
+      "nativeIds": {
+        "configurationId": "BAN_PKBMB",
+        "configurationNamespace": "XML:CMissions:MissionId"
+      }
+    },
+    {
+      "id": "gta-vi:activities:rpf9-observation-2ef70ba13455485030972556932e734b9a7bedae14592ecc6143d9aacc722ac9",
+      "name": {
+        "en": "CSC_DRT_CNVY — mission configuration"
+      },
+      "attributes": {
+        "recordRole": "mission_configuration",
+        "semanticRole": "configuration_definition",
+        "nameKind": "qualified-source-identifier",
+        "editorReady": false,
+        "runtimeAvailability": "unverified",
+        "saveMapping": "unvalidated",
+        "originalArchiveMembershipProven": false,
+        "sourceRecordId": "52b788dec6033ca84475c7ada23ef711d0220af86bb3060d58e6f9328c06b8ef"
+      },
+      "confidence": "observed",
+      "applicability": {
+        "platforms": [
+          "xbox"
+        ],
+        "build": null
+      },
+      "evidence": [
+        {
+          "sourceRef": "saverift-rpf9-xml-e6f60f5500fdbac906a31b12ca215057f7c4da63e34d338033e04baadb017265",
+          "location": "/CMissions[1]/Missions[1]/Item[33]",
+          "method": "Literal MissionId observation in the recovered XML document; gameplay role and save link unvalidated"
+        }
+      ],
+      "nativeIds": {
+        "configurationId": "CSC_DRT_CNVY",
+        "configurationNamespace": "XML:CMissions:MissionId"
+      }
+    },
+    {
+      "id": "gta-vi:activities:rpf9-observation-304710e0667fe8a9781eb67bd523b1eccee58d5d09483110bcb7e9c0b25360f7",
+      "name": {
+        "en": "FIN_CONT — mission configuration"
+      },
+      "attributes": {
+        "recordRole": "mission_configuration",
+        "semanticRole": "configuration_definition",
+        "nameKind": "qualified-source-identifier",
+        "editorReady": false,
+        "runtimeAvailability": "unverified",
+        "saveMapping": "unvalidated",
+        "originalArchiveMembershipProven": false,
+        "sourceRecordId": "93fe8060303450edbb3d994040ea9323e7f7e32fbcc81c8564fc24dc57f76774"
+      },
+      "confidence": "observed",
+      "applicability": {
+        "platforms": [
+          "xbox"
+        ],
+        "build": null
+      },
+      "evidence": [
+        {
+          "sourceRef": "saverift-rpf9-xml-e6f60f5500fdbac906a31b12ca215057f7c4da63e34d338033e04baadb017265",
+          "location": "/CMissions[1]/Missions[1]/Item[133]",
+          "method": "Literal MissionId observation in the recovered XML document; gameplay role and save link unvalidated"
+        }
+      ],
+      "nativeIds": {
+        "configurationId": "FIN_CONT",
+        "configurationNamespace": "XML:CMissions:MissionId"
+      }
+    },
+    {
+      "id": "gta-vi:activities:rpf9-observation-313c6212e9d7e6c1e08c70e23b7411ccb92d7213829ccb4fe706e3b2569a4804",
+      "name": {
+        "en": "ANT_CHASE — mission configuration"
+      },
+      "attributes": {
+        "recordRole": "mission_configuration",
+        "semanticRole": "configuration_definition",
+        "nameKind": "qualified-source-identifier",
+        "editorReady": false,
+        "runtimeAvailability": "unverified",
+        "saveMapping": "unvalidated",
+        "originalArchiveMembershipProven": false,
+        "sourceRecordId": "5df8c91154eb35f060910f470cf851f11d06e5d0ff2048ac1c42ebc820d0a149"
+      },
+      "confidence": "observed",
+      "applicability": {
+        "platforms": [
+          "xbox"
+        ],
+        "build": null
+      },
+      "evidence": [
+        {
+          "sourceRef": "saverift-rpf9-xml-e6f60f5500fdbac906a31b12ca215057f7c4da63e34d338033e04baadb017265",
+          "location": "/CMissions[1]/Missions[1]/Item[39]",
+          "method": "Literal MissionId observation in the recovered XML document; gameplay role and save link unvalidated"
+        }
+      ],
+      "nativeIds": {
+        "configurationId": "ANT_CHASE",
+        "configurationNamespace": "XML:CMissions:MissionId"
+      }
+    },
+    {
+      "id": "gta-vi:activities:rpf9-observation-33244ed328cdce99d04a2878a89e666a31cc750f682d50c0f2e6e9955b6d7b16",
+      "name": {
+        "en": "COM_KBOS_COLAT — mission configuration"
+      },
+      "attributes": {
+        "recordRole": "mission_configuration",
+        "semanticRole": "configuration_definition",
+        "nameKind": "qualified-source-identifier",
+        "editorReady": false,
+        "runtimeAvailability": "unverified",
+        "saveMapping": "unvalidated",
+        "originalArchiveMembershipProven": false,
+        "sourceRecordId": "81a66eb816d015d877c9b8df77e92a44b1a8f2da60c94db2fd4dee19358199f9"
+      },
+      "confidence": "observed",
+      "applicability": {
+        "platforms": [
+          "xbox"
+        ],
+        "build": null
+      },
+      "evidence": [
+        {
+          "sourceRef": "saverift-rpf9-xml-e6f60f5500fdbac906a31b12ca215057f7c4da63e34d338033e04baadb017265",
+          "location": "/CMissions[1]/Missions[1]/Item[6]",
+          "method": "Literal MissionId observation in the recovered XML document; gameplay role and save link unvalidated"
+        }
+      ],
+      "nativeIds": {
+        "configurationId": "COM_KBOS_COLAT",
+        "configurationNamespace": "XML:CMissions:MissionId"
+      }
+    },
+    {
+      "id": "gta-vi:activities:rpf9-observation-397baf23758cc66d48aad4bd9d49595b6633d35dc2b0bf957f08b02e405fa036",
+      "name": {
+        "en": "BIL_PICK_NIGHT_TIME_START — mission configuration"
+      },
+      "attributes": {
+        "recordRole": "mission_configuration",
+        "semanticRole": "configuration_definition",
+        "nameKind": "qualified-source-identifier",
+        "editorReady": false,
+        "runtimeAvailability": "unverified",
+        "saveMapping": "unvalidated",
+        "originalArchiveMembershipProven": false,
+        "sourceRecordId": "c112a464ce76348ffa57d144d4c06636f72adad27143e0cad2b412708022e900"
+      },
+      "confidence": "observed",
+      "applicability": {
+        "platforms": [
+          "xbox"
+        ],
+        "build": null
+      },
+      "evidence": [
+        {
+          "sourceRef": "saverift-rpf9-xml-e6f60f5500fdbac906a31b12ca215057f7c4da63e34d338033e04baadb017265",
+          "location": "/CMissions[1]/Missions[1]/Item[118]",
+          "method": "Literal MissionId observation in the recovered XML document; gameplay role and save link unvalidated"
+        }
+      ],
+      "nativeIds": {
+        "configurationId": "BIL_PICK_NIGHT_TIME_START",
+        "configurationNamespace": "XML:CMissions:MissionId"
+      }
+    },
+    {
+      "id": "gta-vi:activities:rpf9-observation-3a3d9d747bc5098d7cdd731e536c2f223bbd4782db78bb89d38368f431a02c2a",
+      "name": {
+        "en": "AIR_TRAIN — mission configuration"
+      },
+      "attributes": {
+        "recordRole": "mission_configuration",
+        "semanticRole": "configuration_definition",
+        "nameKind": "qualified-source-identifier",
+        "editorReady": false,
+        "runtimeAvailability": "unverified",
+        "saveMapping": "unvalidated",
+        "originalArchiveMembershipProven": false,
+        "sourceRecordId": "df77b4b6b7fa7c4893ec503cf32e51ce7f4174288189b54457bed472aeea2492"
+      },
+      "confidence": "observed",
+      "applicability": {
+        "platforms": [
+          "xbox"
+        ],
+        "build": null
+      },
+      "evidence": [
+        {
+          "sourceRef": "saverift-rpf9-xml-e6f60f5500fdbac906a31b12ca215057f7c4da63e34d338033e04baadb017265",
+          "location": "/CMissions[1]/Missions[1]/Item[73]",
+          "method": "Literal MissionId observation in the recovered XML document; gameplay role and save link unvalidated"
+        }
+      ],
+      "nativeIds": {
+        "configurationId": "AIR_TRAIN",
+        "configurationNamespace": "XML:CMissions:MissionId"
+      }
+    },
+    {
+      "id": "gta-vi:activities:rpf9-observation-3b8451a35a9c3a4ae87b65eeedaf4a240c128e863f224a1548b14ef70112fe8b",
+      "name": {
+        "en": "CLB_DEAL — mission configuration"
+      },
+      "attributes": {
+        "recordRole": "mission_configuration",
+        "semanticRole": "configuration_definition",
+        "nameKind": "qualified-source-identifier",
+        "editorReady": false,
+        "runtimeAvailability": "unverified",
+        "saveMapping": "unvalidated",
+        "originalArchiveMembershipProven": false,
+        "sourceRecordId": "5ac2477d50ca3eb5bb62b80b8d737b8eee0bc2f864491d6df3e3ef1719a9c023"
+      },
+      "confidence": "observed",
+      "applicability": {
+        "platforms": [
+          "xbox"
+        ],
+        "build": null
+      },
+      "evidence": [
+        {
+          "sourceRef": "saverift-rpf9-xml-e6f60f5500fdbac906a31b12ca215057f7c4da63e34d338033e04baadb017265",
+          "location": "/CMissions[1]/Missions[1]/Item[36]",
+          "method": "Literal MissionId observation in the recovered XML document; gameplay role and save link unvalidated"
+        }
+      ],
+      "nativeIds": {
+        "configurationId": "CLB_DEAL",
+        "configurationNamespace": "XML:CMissions:MissionId"
+      }
+    },
+    {
+      "id": "gta-vi:activities:rpf9-observation-3fc0d9a056b1d7703a562f2922e1481110340e147250744396baf95e1856b6af",
+      "name": {
+        "en": "MNY_ESCRT — mission configuration"
+      },
+      "attributes": {
+        "recordRole": "mission_configuration",
+        "semanticRole": "configuration_definition",
+        "nameKind": "qualified-source-identifier",
+        "editorReady": false,
+        "runtimeAvailability": "unverified",
+        "saveMapping": "unvalidated",
+        "originalArchiveMembershipProven": false,
+        "sourceRecordId": "037a9038d6cfacccf4a3145ec4407e2fa898890955ee65c302f076cf20600493"
+      },
+      "confidence": "observed",
+      "applicability": {
+        "platforms": [
+          "xbox"
+        ],
+        "build": null
+      },
+      "evidence": [
+        {
+          "sourceRef": "saverift-rpf9-xml-e6f60f5500fdbac906a31b12ca215057f7c4da63e34d338033e04baadb017265",
+          "location": "/CMissions[1]/Missions[1]/Item[79]",
+          "method": "Literal MissionId observation in the recovered XML document; gameplay role and save link unvalidated"
+        }
+      ],
+      "nativeIds": {
+        "configurationId": "MNY_ESCRT",
+        "configurationNamespace": "XML:CMissions:MissionId"
+      }
+    },
+    {
+      "id": "gta-vi:activities:rpf9-observation-4226140880649ea884ebb81406f1ccbdfa65af5e2efe8ce79c043c67a446ca0a",
+      "name": {
+        "en": "FT_BAN_DISTR — mission configuration"
+      },
+      "attributes": {
+        "recordRole": "mission_configuration",
+        "semanticRole": "configuration_definition",
+        "nameKind": "qualified-source-identifier",
+        "editorReady": false,
+        "runtimeAvailability": "unverified",
+        "saveMapping": "unvalidated",
+        "originalArchiveMembershipProven": false,
+        "sourceRecordId": "c19f7451ca609b56ff310a4fd52ae6d48530d6ffa7bb0e15a0bbba39d6ae83d3"
+      },
+      "confidence": "observed",
+      "applicability": {
+        "platforms": [
+          "xbox"
+        ],
+        "build": null
+      },
+      "evidence": [
+        {
+          "sourceRef": "saverift-rpf9-xml-e6f60f5500fdbac906a31b12ca215057f7c4da63e34d338033e04baadb017265",
+          "location": "/CMissions[1]/Missions[1]/Item[64]",
+          "method": "Literal MissionId observation in the recovered XML document; gameplay role and save link unvalidated"
+        }
+      ],
+      "nativeIds": {
+        "configurationId": "FT_BAN_DISTR",
+        "configurationNamespace": "XML:CMissions:MissionId"
+      }
+    },
+    {
+      "id": "gta-vi:activities:rpf9-observation-443866c85f1de7b357ac67ba4a9e8ea08aa8df2a276d028eb6c42204bfb79ed3",
+      "name": {
+        "en": "ROB_DRIVE — mission configuration"
+      },
+      "attributes": {
+        "recordRole": "mission_configuration",
+        "semanticRole": "configuration_definition",
+        "nameKind": "qualified-source-identifier",
+        "editorReady": false,
+        "runtimeAvailability": "unverified",
+        "saveMapping": "unvalidated",
+        "originalArchiveMembershipProven": false,
+        "sourceRecordId": "90bb3d7a8f52a778027946b6442b07ee6b5e0e1ced42e823f2cc73659cb1f561"
+      },
+      "confidence": "observed",
+      "applicability": {
+        "platforms": [
+          "xbox"
+        ],
+        "build": null
+      },
+      "evidence": [
+        {
+          "sourceRef": "saverift-rpf9-xml-e6f60f5500fdbac906a31b12ca215057f7c4da63e34d338033e04baadb017265",
+          "location": "/CMissions[1]/Missions[1]/Item[49]",
+          "method": "Literal MissionId observation in the recovered XML document; gameplay role and save link unvalidated"
+        }
+      ],
+      "nativeIds": {
+        "configurationId": "ROB_DRIVE",
+        "configurationNamespace": "XML:CMissions:MissionId"
+      }
+    },
+    {
+      "id": "gta-vi:activities:rpf9-observation-4691b18eec41c83a44e73aaa74b47d087672ad2015433d6376af3a2421cde498",
+      "name": {
+        "en": "INT_PLNSH — mission configuration"
+      },
+      "attributes": {
+        "recordRole": "mission_configuration",
+        "semanticRole": "configuration_definition",
+        "nameKind": "qualified-source-identifier",
+        "editorReady": false,
+        "runtimeAvailability": "unverified",
+        "saveMapping": "unvalidated",
+        "originalArchiveMembershipProven": false,
+        "sourceRecordId": "fe59bd635f208ff91a75a4bdadd7765d5c50566b3f78c6b67fed8f8ebbbd25cf"
+      },
+      "confidence": "observed",
+      "applicability": {
+        "platforms": [
+          "xbox"
+        ],
+        "build": null
+      },
+      "evidence": [
+        {
+          "sourceRef": "saverift-rpf9-xml-e6f60f5500fdbac906a31b12ca215057f7c4da63e34d338033e04baadb017265",
+          "location": "/CMissions[1]/Missions[1]/Item[14]",
+          "method": "Literal MissionId observation in the recovered XML document; gameplay role and save link unvalidated"
+        }
+      ],
+      "nativeIds": {
+        "configurationId": "INT_PLNSH",
+        "configurationNamespace": "XML:CMissions:MissionId"
+      }
+    },
+    {
+      "id": "gta-vi:activities:rpf9-observation-46ec1e990e9b5c613b6edd6c121a6784a6e1dcd3ba0bb76f7f534bf0d89112ca",
+      "name": {
+        "en": "FT_AMUCO — mission configuration"
+      },
+      "attributes": {
+        "recordRole": "mission_configuration",
+        "semanticRole": "configuration_definition",
+        "nameKind": "qualified-source-identifier",
+        "editorReady": false,
+        "runtimeAvailability": "unverified",
+        "saveMapping": "unvalidated",
+        "originalArchiveMembershipProven": false,
+        "sourceRecordId": "5aefc65120974e520e3095cc37cba6756f3cbf9eb032ac09b38354904c56d333"
+      },
+      "confidence": "observed",
+      "applicability": {
+        "platforms": [
+          "xbox"
+        ],
+        "build": null
+      },
+      "evidence": [
+        {
+          "sourceRef": "saverift-rpf9-xml-e6f60f5500fdbac906a31b12ca215057f7c4da63e34d338033e04baadb017265",
+          "location": "/CMissions[1]/Missions[1]/Item[3]",
+          "method": "Literal MissionId observation in the recovered XML document; gameplay role and save link unvalidated"
+        }
+      ],
+      "nativeIds": {
+        "configurationId": "FT_AMUCO",
+        "configurationNamespace": "XML:CMissions:MissionId"
+      }
+    },
+    {
+      "id": "gta-vi:activities:rpf9-observation-48162890bf8267d493d51ef4d1fa0010e3eadfd529b2d08792d230425b37e244",
+      "name": {
+        "en": "ROB_BOAT_J — mission configuration"
+      },
+      "attributes": {
+        "recordRole": "mission_configuration",
+        "semanticRole": "configuration_definition",
+        "nameKind": "qualified-source-identifier",
+        "editorReady": false,
+        "runtimeAvailability": "unverified",
+        "saveMapping": "unvalidated",
+        "originalArchiveMembershipProven": false,
+        "sourceRecordId": "094e53796e59ac98c32e097f3e7de9184b432d32cb6f363c07022446bb1de7b3"
+      },
+      "confidence": "observed",
+      "applicability": {
+        "platforms": [
+          "xbox"
+        ],
+        "build": null
+      },
+      "evidence": [
+        {
+          "sourceRef": "saverift-rpf9-xml-e6f60f5500fdbac906a31b12ca215057f7c4da63e34d338033e04baadb017265",
+          "location": "/CMissions[1]/Missions[1]/Item[51]",
+          "method": "Literal MissionId observation in the recovered XML document; gameplay role and save link unvalidated"
+        }
+      ],
+      "nativeIds": {
+        "configurationId": "ROB_BOAT_J",
+        "configurationNamespace": "XML:CMissions:MissionId"
+      }
+    },
+    {
+      "id": "gta-vi:activities:rpf9-observation-4957b3c3f8f67fadc8aefa675547e56422650dec4d5ea2dbdb785c36c69ae1cb",
+      "name": {
+        "en": "AIR_GANG — mission configuration"
+      },
+      "attributes": {
+        "recordRole": "mission_configuration",
+        "semanticRole": "configuration_definition",
+        "nameKind": "qualified-source-identifier",
+        "editorReady": false,
+        "runtimeAvailability": "unverified",
+        "saveMapping": "unvalidated",
+        "originalArchiveMembershipProven": false,
+        "sourceRecordId": "33a63ac719408fd618999d2470ffd33f92d147e920b9b83f53958d94d9ac98e9"
+      },
+      "confidence": "observed",
+      "applicability": {
+        "platforms": [
+          "xbox"
+        ],
+        "build": null
+      },
+      "evidence": [
+        {
+          "sourceRef": "saverift-rpf9-xml-e6f60f5500fdbac906a31b12ca215057f7c4da63e34d338033e04baadb017265",
+          "location": "/CMissions[1]/Missions[1]/Item[77]",
+          "method": "Literal MissionId observation in the recovered XML document; gameplay role and save link unvalidated"
+        }
+      ],
+      "nativeIds": {
+        "configurationId": "AIR_GANG",
+        "configurationNamespace": "XML:CMissions:MissionId"
+      }
+    },
+    {
+      "id": "gta-vi:activities:rpf9-observation-4e615b964cb0369013b36156f4686f4f738df6fa6e1b474d92578418395f5256",
+      "name": {
+        "en": "MNY_KIDNP_AUTO-LAUNCH — mission configuration"
+      },
+      "attributes": {
+        "recordRole": "mission_configuration",
+        "semanticRole": "configuration_definition",
+        "nameKind": "qualified-source-identifier",
+        "editorReady": false,
+        "runtimeAvailability": "unverified",
+        "saveMapping": "unvalidated",
+        "originalArchiveMembershipProven": false,
+        "sourceRecordId": "0e1d64620110b153f6bceca0afe6e97f1711bab863a0c3117c6726caff2ce7e7"
+      },
+      "confidence": "observed",
+      "applicability": {
+        "platforms": [
+          "xbox"
+        ],
+        "build": null
+      },
+      "evidence": [
+        {
+          "sourceRef": "saverift-rpf9-xml-e6f60f5500fdbac906a31b12ca215057f7c4da63e34d338033e04baadb017265",
+          "location": "/CMissions[1]/Missions[1]/Item[125]",
+          "method": "Literal MissionId observation in the recovered XML document; gameplay role and save link unvalidated"
+        }
+      ],
+      "nativeIds": {
+        "configurationId": "MNY_KIDNP_AUTO-LAUNCH",
+        "configurationNamespace": "XML:CMissions:MissionId"
+      }
+    },
+    {
+      "id": "gta-vi:activities:rpf9-observation-4f76844ec5679910757ad5dd294b183a9ef7002953b0da0096e56fb30f767156",
+      "name": {
+        "en": "ROB_BOAT_J_JASON — mission configuration"
+      },
+      "attributes": {
+        "recordRole": "mission_configuration",
+        "semanticRole": "configuration_definition",
+        "nameKind": "qualified-source-identifier",
+        "editorReady": false,
+        "runtimeAvailability": "unverified",
+        "saveMapping": "unvalidated",
+        "originalArchiveMembershipProven": false,
+        "sourceRecordId": "b07d3bab13cc3d09d1084c49aa83f4bc482c0fa5975c38e19eec682cb1e940bc"
+      },
+      "confidence": "observed",
+      "applicability": {
+        "platforms": [
+          "xbox"
+        ],
+        "build": null
+      },
+      "evidence": [
+        {
+          "sourceRef": "saverift-rpf9-xml-e6f60f5500fdbac906a31b12ca215057f7c4da63e34d338033e04baadb017265",
+          "location": "/CMissions[1]/Missions[1]/Item[142]",
+          "method": "Literal MissionId observation in the recovered XML document; gameplay role and save link unvalidated"
+        }
+      ],
+      "nativeIds": {
+        "configurationId": "ROB_BOAT_J_JASON",
+        "configurationNamespace": "XML:CMissions:MissionId"
+      }
+    },
+    {
+      "id": "gta-vi:activities:rpf9-observation-526b7acb7804f44f74acbeff538822f726a8e50071afc7220d57e8b2a040fc71",
+      "name": {
+        "en": "ROB_DEATH — mission configuration"
+      },
+      "attributes": {
+        "recordRole": "mission_configuration",
+        "semanticRole": "configuration_definition",
+        "nameKind": "qualified-source-identifier",
+        "editorReady": false,
+        "runtimeAvailability": "unverified",
+        "saveMapping": "unvalidated",
+        "originalArchiveMembershipProven": false,
+        "sourceRecordId": "fb4263b83fef60bc113ffd2569ff355b5b8005fc5d90c80dc7f790682cc2f10a"
+      },
+      "confidence": "observed",
+      "applicability": {
+        "platforms": [
+          "xbox"
+        ],
+        "build": null
+      },
+      "evidence": [
+        {
+          "sourceRef": "saverift-rpf9-xml-e6f60f5500fdbac906a31b12ca215057f7c4da63e34d338033e04baadb017265",
+          "location": "/CMissions[1]/Missions[1]/Item[89]",
+          "method": "Literal MissionId observation in the recovered XML document; gameplay role and save link unvalidated"
+        }
+      ],
+      "nativeIds": {
+        "configurationId": "ROB_DEATH",
+        "configurationNamespace": "XML:CMissions:MissionId"
+      }
+    },
+    {
+      "id": "gta-vi:activities:rpf9-observation-53d863f8587bb7838cad3cee872e99ccad841e00c89b8db4654fc1d640825c3b",
+      "name": {
+        "en": "CLB_STEAL — mission configuration"
+      },
+      "attributes": {
+        "recordRole": "mission_configuration",
+        "semanticRole": "configuration_definition",
+        "nameKind": "qualified-source-identifier",
+        "editorReady": false,
+        "runtimeAvailability": "unverified",
+        "saveMapping": "unvalidated",
+        "originalArchiveMembershipProven": false,
+        "sourceRecordId": "1f54549aacc99aeaf7295d51850430331f528c6bc519b85f4de4ef5f5fea62a4"
+      },
+      "confidence": "observed",
+      "applicability": {
+        "platforms": [
+          "xbox"
+        ],
+        "build": null
+      },
+      "evidence": [
+        {
+          "sourceRef": "saverift-rpf9-xml-e6f60f5500fdbac906a31b12ca215057f7c4da63e34d338033e04baadb017265",
+          "location": "/CMissions[1]/Missions[1]/Item[58]",
+          "method": "Literal MissionId observation in the recovered XML document; gameplay role and save link unvalidated"
+        }
+      ],
+      "nativeIds": {
+        "configurationId": "CLB_STEAL",
+        "configurationNamespace": "XML:CMissions:MissionId"
+      }
+    },
+    {
+      "id": "gta-vi:activities:rpf9-observation-54186ea60eeb4d94824c1501248667d02aeb8315455118eec8f9e2e7c67c6d30",
+      "name": {
+        "en": "FT_KMODSHP — mission configuration"
+      },
+      "attributes": {
+        "recordRole": "mission_configuration",
+        "semanticRole": "configuration_definition",
+        "nameKind": "qualified-source-identifier",
+        "editorReady": false,
+        "runtimeAvailability": "unverified",
+        "saveMapping": "unvalidated",
+        "originalArchiveMembershipProven": false,
+        "sourceRecordId": "376673c1d70659d861806065cedf1d1a748e933e95d8584108679d68ce80ae3c"
+      },
+      "confidence": "observed",
+      "applicability": {
+        "platforms": [
+          "xbox"
+        ],
+        "build": null
+      },
+      "evidence": [
+        {
+          "sourceRef": "saverift-rpf9-xml-e6f60f5500fdbac906a31b12ca215057f7c4da63e34d338033e04baadb017265",
+          "location": "/CMissions[1]/Missions[1]/Item[4]",
+          "method": "Literal MissionId observation in the recovered XML document; gameplay role and save link unvalidated"
+        }
+      ],
+      "nativeIds": {
+        "configurationId": "FT_KMODSHP",
+        "configurationNamespace": "XML:CMissions:MissionId"
+      }
+    },
+    {
+      "id": "gta-vi:activities:rpf9-observation-56b3575ff5b893bf0690938f1d63e7c5569812c7846fdfd9fce56e1268989617",
+      "name": {
+        "en": "MTL_MONT — mission configuration"
+      },
+      "attributes": {
+        "recordRole": "mission_configuration",
+        "semanticRole": "configuration_definition",
+        "nameKind": "qualified-source-identifier",
+        "editorReady": false,
+        "runtimeAvailability": "unverified",
+        "saveMapping": "unvalidated",
+        "originalArchiveMembershipProven": false,
+        "sourceRecordId": "649597539fe8378dffb033bf261a9f1955251f533343e7f1afd265e93c2c79ca"
+      },
+      "confidence": "observed",
+      "applicability": {
+        "platforms": [
+          "xbox"
+        ],
+        "build": null
+      },
+      "evidence": [
+        {
+          "sourceRef": "saverift-rpf9-xml-e6f60f5500fdbac906a31b12ca215057f7c4da63e34d338033e04baadb017265",
+          "location": "/CMissions[1]/Missions[1]/Item[29]",
+          "method": "Literal MissionId observation in the recovered XML document; gameplay role and save link unvalidated"
+        }
+      ],
+      "nativeIds": {
+        "configurationId": "MTL_MONT",
+        "configurationNamespace": "XML:CMissions:MissionId"
+      }
+    },
+    {
+      "id": "gta-vi:activities:rpf9-observation-56c8b8e08a06e0848e57a1167e4203effed89fe51f65452ee9cbb7ce7f7ca832",
+      "name": {
+        "en": "FT_UP_MMRENT_MANAGER_LATE_NO_COPS — mission configuration"
+      },
+      "attributes": {
+        "recordRole": "mission_configuration",
+        "semanticRole": "configuration_definition",
+        "nameKind": "qualified-source-identifier",
+        "editorReady": false,
+        "runtimeAvailability": "unverified",
+        "saveMapping": "unvalidated",
+        "originalArchiveMembershipProven": false,
+        "sourceRecordId": "cfc63f803a167bdb623ef086eb4aa6457b82e26f07492656af958d00921c6bce"
+      },
+      "confidence": "observed",
+      "applicability": {
+        "platforms": [
+          "xbox"
+        ],
+        "build": null
+      },
+      "evidence": [
+        {
+          "sourceRef": "saverift-rpf9-xml-e6f60f5500fdbac906a31b12ca215057f7c4da63e34d338033e04baadb017265",
+          "location": "/CMissions[1]/Missions[1]/Item[138]",
+          "method": "Literal MissionId observation in the recovered XML document; gameplay role and save link unvalidated"
+        }
+      ],
+      "nativeIds": {
+        "configurationId": "FT_UP_MMRENT_MANAGER_LATE_NO_COPS",
+        "configurationNamespace": "XML:CMissions:MissionId"
+      }
+    },
+    {
+      "id": "gta-vi:activities:rpf9-observation-5852f81ae2428873f38935644a7a2437a1c7d91e319d8d549da7efd1a6c98bad",
+      "name": {
+        "en": "COM_DEAL_INTR — mission configuration"
+      },
+      "attributes": {
+        "recordRole": "mission_configuration",
+        "semanticRole": "configuration_definition",
+        "nameKind": "qualified-source-identifier",
+        "editorReady": false,
+        "runtimeAvailability": "unverified",
+        "saveMapping": "unvalidated",
+        "originalArchiveMembershipProven": false,
+        "sourceRecordId": "27db2ebcec5baba55d747b06dabda9e6719dcc8b7905c457e611e7004a786c5f"
+      },
+      "confidence": "observed",
+      "applicability": {
+        "platforms": [
+          "xbox"
+        ],
+        "build": null
+      },
+      "evidence": [
+        {
+          "sourceRef": "saverift-rpf9-xml-e6f60f5500fdbac906a31b12ca215057f7c4da63e34d338033e04baadb017265",
+          "location": "/CMissions[1]/Missions[1]/Item[42]",
+          "method": "Literal MissionId observation in the recovered XML document; gameplay role and save link unvalidated"
+        }
+      ],
+      "nativeIds": {
+        "configurationId": "COM_DEAL_INTR",
+        "configurationNamespace": "XML:CMissions:MissionId"
+      }
+    },
+    {
+      "id": "gta-vi:activities:rpf9-observation-59d1045d48aab8d86d4f2a33fc47ed131c2a51b24d8cf161abd8a8542ff6d498",
+      "name": {
+        "en": "AIR_TAIL — mission configuration"
+      },
+      "attributes": {
+        "recordRole": "mission_configuration",
+        "semanticRole": "configuration_definition",
+        "nameKind": "qualified-source-identifier",
+        "editorReady": false,
+        "runtimeAvailability": "unverified",
+        "saveMapping": "unvalidated",
+        "originalArchiveMembershipProven": false,
+        "sourceRecordId": "7b623794750db14369395efdd9afb0741438ff9cc3f47aa060a9c1fac579913f"
+      },
+      "confidence": "observed",
+      "applicability": {
+        "platforms": [
+          "xbox"
+        ],
+        "build": null
+      },
+      "evidence": [
+        {
+          "sourceRef": "saverift-rpf9-xml-e6f60f5500fdbac906a31b12ca215057f7c4da63e34d338033e04baadb017265",
+          "location": "/CMissions[1]/Missions[1]/Item[71]",
+          "method": "Literal MissionId observation in the recovered XML document; gameplay role and save link unvalidated"
+        }
+      ],
+      "nativeIds": {
+        "configurationId": "AIR_TAIL",
+        "configurationNamespace": "XML:CMissions:MissionId"
+      }
+    },
+    {
+      "id": "gta-vi:activities:rpf9-observation-5f72eb29c68200bdbee4f90955e501bd45f77010ff19c503efe3ab828c11734a",
+      "name": {
+        "en": "BIL_LAW — mission configuration"
+      },
+      "attributes": {
+        "recordRole": "mission_configuration",
+        "semanticRole": "configuration_definition",
+        "nameKind": "qualified-source-identifier",
+        "editorReady": false,
+        "runtimeAvailability": "unverified",
+        "saveMapping": "unvalidated",
+        "originalArchiveMembershipProven": false,
+        "sourceRecordId": "7a291897c3e29a92110ee36e541cbb01f36866a194a0f2ac6991ad40e85eff8a"
+      },
+      "confidence": "observed",
+      "applicability": {
+        "platforms": [
+          "xbox"
+        ],
+        "build": null
+      },
+      "evidence": [
+        {
+          "sourceRef": "saverift-rpf9-xml-e6f60f5500fdbac906a31b12ca215057f7c4da63e34d338033e04baadb017265",
+          "location": "/CMissions[1]/Missions[1]/Item[100]",
+          "method": "Literal MissionId observation in the recovered XML document; gameplay role and save link unvalidated"
+        }
+      ],
+      "nativeIds": {
+        "configurationId": "BIL_LAW",
+        "configurationNamespace": "XML:CMissions:MissionId"
+      }
+    },
+    {
+      "id": "gta-vi:activities:rpf9-observation-625c5f87b000bc392cec33e400bfe2bbb67a0dd9036e791699de13f2c9372f84",
+      "name": {
+        "en": "INT_AIR — mission configuration"
+      },
+      "attributes": {
+        "recordRole": "mission_configuration",
+        "semanticRole": "configuration_definition",
+        "nameKind": "qualified-source-identifier",
+        "editorReady": false,
+        "runtimeAvailability": "unverified",
+        "saveMapping": "unvalidated",
+        "originalArchiveMembershipProven": false,
+        "sourceRecordId": "8c03d93806fbf35c2be414e4e9789b1415f952be6e40f7da878bcfe66c72d412"
+      },
+      "confidence": "observed",
+      "applicability": {
+        "platforms": [
+          "xbox"
+        ],
+        "build": null
+      },
+      "evidence": [
+        {
+          "sourceRef": "saverift-rpf9-xml-e6f60f5500fdbac906a31b12ca215057f7c4da63e34d338033e04baadb017265",
+          "location": "/CMissions[1]/Missions[1]/Item[16]",
+          "method": "Literal MissionId observation in the recovered XML document; gameplay role and save link unvalidated"
+        }
+      ],
+      "nativeIds": {
+        "configurationId": "INT_AIR",
+        "configurationNamespace": "XML:CMissions:MissionId"
+      }
+    },
+    {
+      "id": "gta-vi:activities:rpf9-observation-627317ea762ecbf492595bb6ca8af746ab614f669022c9a600837e42b3ba6237",
+      "name": {
+        "en": "FT_AMUCO_FIRST_INTERACTION — mission configuration"
+      },
+      "attributes": {
+        "recordRole": "mission_configuration",
+        "semanticRole": "configuration_definition",
+        "nameKind": "qualified-source-identifier",
+        "editorReady": false,
+        "runtimeAvailability": "unverified",
+        "saveMapping": "unvalidated",
+        "originalArchiveMembershipProven": false,
+        "sourceRecordId": "4a96f8c56ee0633b5a04b87f67c5dc088d1f0fff8e6ccae4703619153a7518cb"
+      },
+      "confidence": "observed",
+      "applicability": {
+        "platforms": [
+          "xbox"
+        ],
+        "build": null
+      },
+      "evidence": [
+        {
+          "sourceRef": "saverift-rpf9-xml-e6f60f5500fdbac906a31b12ca215057f7c4da63e34d338033e04baadb017265",
+          "location": "/CMissions[1]/Missions[1]/Item[119]",
+          "method": "Literal MissionId observation in the recovered XML document; gameplay role and save link unvalidated"
+        }
+      ],
+      "nativeIds": {
+        "configurationId": "FT_AMUCO_FIRST_INTERACTION",
+        "configurationNamespace": "XML:CMissions:MissionId"
+      }
+    },
+    {
+      "id": "gta-vi:activities:rpf9-observation-62ad7e4adba9538a22974b79b6274d12898934a658d1169e9ec8906164ddcb67",
+      "name": {
+        "en": "BIL_PREG — mission configuration"
+      },
+      "attributes": {
+        "recordRole": "mission_configuration",
+        "semanticRole": "configuration_definition",
+        "nameKind": "qualified-source-identifier",
+        "editorReady": false,
+        "runtimeAvailability": "unverified",
+        "saveMapping": "unvalidated",
+        "originalArchiveMembershipProven": false,
+        "sourceRecordId": "62981d6071c9bc678c68e2f7959e16979355e7443ec794137de4a6c9a9a5725e"
+      },
+      "confidence": "observed",
+      "applicability": {
+        "platforms": [
+          "xbox"
+        ],
+        "build": null
+      },
+      "evidence": [
+        {
+          "sourceRef": "saverift-rpf9-xml-e6f60f5500fdbac906a31b12ca215057f7c4da63e34d338033e04baadb017265",
+          "location": "/CMissions[1]/Missions[1]/Item[93]",
+          "method": "Literal MissionId observation in the recovered XML document; gameplay role and save link unvalidated"
+        }
+      ],
+      "nativeIds": {
+        "configurationId": "BIL_PREG",
+        "configurationNamespace": "XML:CMissions:MissionId"
+      }
+    },
+    {
+      "id": "gta-vi:activities:rpf9-observation-659763dd14a2c1d6b58cdf7e85e2f7a4490f2221435e7efe4d37206edf7ae032",
+      "name": {
+        "en": "COM_SFH_MVFN — mission configuration"
+      },
+      "attributes": {
+        "recordRole": "mission_configuration",
+        "semanticRole": "configuration_definition",
+        "nameKind": "qualified-source-identifier",
+        "editorReady": false,
+        "runtimeAvailability": "unverified",
+        "saveMapping": "unvalidated",
+        "originalArchiveMembershipProven": false,
+        "sourceRecordId": "01f4f8f4b4bd26c4e2eb0ae90f9d518ec7fb577a6873ef23945f91f87dea136c"
+      },
+      "confidence": "observed",
+      "applicability": {
+        "platforms": [
+          "xbox"
+        ],
+        "build": null
+      },
+      "evidence": [
+        {
+          "sourceRef": "saverift-rpf9-xml-e6f60f5500fdbac906a31b12ca215057f7c4da63e34d338033e04baadb017265",
+          "location": "/CMissions[1]/Missions[1]/Item[9]",
+          "method": "Literal MissionId observation in the recovered XML document; gameplay role and save link unvalidated"
+        }
+      ],
+      "nativeIds": {
+        "configurationId": "COM_SFH_MVFN",
+        "configurationNamespace": "XML:CMissions:MissionId"
+      }
+    },
+    {
+      "id": "gta-vi:activities:rpf9-observation-7070be1f352e4646dfa134341af27105ae4c75e74e0f60888820218aa4de67b3",
+      "name": {
+        "en": "AO_SHOW_L_EXP — mission configuration"
+      },
+      "attributes": {
+        "recordRole": "mission_configuration",
+        "semanticRole": "configuration_definition",
+        "nameKind": "qualified-source-identifier",
+        "editorReady": false,
+        "runtimeAvailability": "unverified",
+        "saveMapping": "unvalidated",
+        "originalArchiveMembershipProven": false,
+        "sourceRecordId": "0e1ce9bdd2dccb91b323b01a147c33b3de9374db2f789926d21ab6b01ff50e34"
+      },
+      "confidence": "observed",
+      "applicability": {
+        "platforms": [
+          "xbox"
+        ],
+        "build": null
+      },
+      "evidence": [
+        {
+          "sourceRef": "saverift-rpf9-xml-e6f60f5500fdbac906a31b12ca215057f7c4da63e34d338033e04baadb017265",
+          "location": "/CMissions[1]/Missions[1]/Item[54]",
+          "method": "Literal MissionId observation in the recovered XML document; gameplay role and save link unvalidated"
+        }
+      ],
+      "nativeIds": {
+        "configurationId": "AO_SHOW_L_EXP",
+        "configurationNamespace": "XML:CMissions:MissionId"
+      }
+    },
+    {
+      "id": "gta-vi:activities:rpf9-observation-70e106bad54b414ba21f737997ff36d595ac6f091a287b45ecc541324733c0c7",
+      "name": {
+        "en": "FT_UP_MMRENT_MANAGER_INITIAL — mission configuration"
+      },
+      "attributes": {
+        "recordRole": "mission_configuration",
+        "semanticRole": "configuration_definition",
+        "nameKind": "qualified-source-identifier",
+        "editorReady": false,
+        "runtimeAvailability": "unverified",
+        "saveMapping": "unvalidated",
+        "originalArchiveMembershipProven": false,
+        "sourceRecordId": "12c731faadbc357314285730cd2bd9e7c3a8d1ef4cd7aae79b86a32d26452317"
+      },
+      "confidence": "observed",
+      "applicability": {
+        "platforms": [
+          "xbox"
+        ],
+        "build": null
+      },
+      "evidence": [
+        {
+          "sourceRef": "saverift-rpf9-xml-e6f60f5500fdbac906a31b12ca215057f7c4da63e34d338033e04baadb017265",
+          "location": "/CMissions[1]/Missions[1]/Item[136]",
+          "method": "Literal MissionId observation in the recovered XML document; gameplay role and save link unvalidated"
+        }
+      ],
+      "nativeIds": {
+        "configurationId": "FT_UP_MMRENT_MANAGER_INITIAL",
+        "configurationNamespace": "XML:CMissions:MissionId"
+      }
+    },
+    {
+      "id": "gta-vi:activities:rpf9-observation-71b01c7182ed33c593ec74861c82459abca6e3626374a52fe9aec110efa4d470",
+      "name": {
+        "en": "INT_PRISO_TRIGGER_LATE — mission configuration"
+      },
+      "attributes": {
+        "recordRole": "mission_configuration",
+        "semanticRole": "configuration_definition",
+        "nameKind": "qualified-source-identifier",
+        "editorReady": false,
+        "runtimeAvailability": "unverified",
+        "saveMapping": "unvalidated",
+        "originalArchiveMembershipProven": false,
+        "sourceRecordId": "5a0584d6016ea5a09a4f4521cf6c2b4f22baa00564ac81627d181c6d1fb83686"
+      },
+      "confidence": "observed",
+      "applicability": {
+        "platforms": [
+          "xbox"
+        ],
+        "build": null
+      },
+      "evidence": [
+        {
+          "sourceRef": "saverift-rpf9-xml-e6f60f5500fdbac906a31b12ca215057f7c4da63e34d338033e04baadb017265",
+          "location": "/CMissions[1]/Missions[1]/Item[124]",
+          "method": "Literal MissionId observation in the recovered XML document; gameplay role and save link unvalidated"
+        }
+      ],
+      "nativeIds": {
+        "configurationId": "INT_PRISO_TRIGGER_LATE",
+        "configurationNamespace": "XML:CMissions:MissionId"
+      }
+    },
+    {
+      "id": "gta-vi:activities:rpf9-observation-72291d35cb07ff167a2222665bd8cb11c0fa3ba8c33f99338b6b5896bb6c7a3e",
+      "name": {
+        "en": "BAN_EXPLO — mission configuration"
+      },
+      "attributes": {
+        "recordRole": "mission_configuration",
+        "semanticRole": "configuration_definition",
+        "nameKind": "qualified-source-identifier",
+        "editorReady": false,
+        "runtimeAvailability": "unverified",
+        "saveMapping": "unvalidated",
+        "originalArchiveMembershipProven": false,
+        "sourceRecordId": "2ec3fab926a0a79eac4575f6501e421abe96ee303eada2d140b007c5e2e5f91b"
+      },
+      "confidence": "observed",
+      "applicability": {
+        "platforms": [
+          "xbox"
+        ],
+        "build": null
+      },
+      "evidence": [
+        {
+          "sourceRef": "saverift-rpf9-xml-e6f60f5500fdbac906a31b12ca215057f7c4da63e34d338033e04baadb017265",
+          "location": "/CMissions[1]/Missions[1]/Item[59]",
+          "method": "Literal MissionId observation in the recovered XML document; gameplay role and save link unvalidated"
+        }
+      ],
+      "nativeIds": {
+        "configurationId": "BAN_EXPLO",
+        "configurationNamespace": "XML:CMissions:MissionId"
+      }
+    },
+    {
+      "id": "gta-vi:activities:rpf9-observation-725e9efe45faa2d58f0a4d435a7406a91747f03a7cff5330b44c9c92969f38e9",
+      "name": {
+        "en": "MTL_WAKE — mission configuration"
+      },
+      "attributes": {
+        "recordRole": "mission_configuration",
+        "semanticRole": "configuration_definition",
+        "nameKind": "qualified-source-identifier",
+        "editorReady": false,
+        "runtimeAvailability": "unverified",
+        "saveMapping": "unvalidated",
+        "originalArchiveMembershipProven": false,
+        "sourceRecordId": "892124ce29ae3285400dc02f02aca2b718c12fc0c7fd1548d2d3286f15a56757"
+      },
+      "confidence": "observed",
+      "applicability": {
+        "platforms": [
+          "xbox"
+        ],
+        "build": null
+      },
+      "evidence": [
+        {
+          "sourceRef": "saverift-rpf9-xml-e6f60f5500fdbac906a31b12ca215057f7c4da63e34d338033e04baadb017265",
+          "location": "/CMissions[1]/Missions[1]/Item[22]",
+          "method": "Literal MissionId observation in the recovered XML document; gameplay role and save link unvalidated"
+        }
+      ],
+      "nativeIds": {
+        "configurationId": "MTL_WAKE",
+        "configurationNamespace": "XML:CMissions:MissionId"
+      }
+    },
+    {
+      "id": "gta-vi:activities:rpf9-observation-73855d43ac46ece5ac4d7263c8abaf41e1a6f59d2ca0d1d3832787915bb30b46",
+      "name": {
+        "en": "CLB_PARTY — mission configuration"
+      },
+      "attributes": {
+        "recordRole": "mission_configuration",
+        "semanticRole": "configuration_definition",
+        "nameKind": "qualified-source-identifier",
+        "editorReady": false,
+        "runtimeAvailability": "unverified",
+        "saveMapping": "unvalidated",
+        "originalArchiveMembershipProven": false,
+        "sourceRecordId": "333e60353c57589f2da12cfbc2cea1bcbb1cb04fc91572711a2ad11c7bd9d6fd"
+      },
+      "confidence": "observed",
+      "applicability": {
+        "platforms": [
+          "xbox"
+        ],
+        "build": null
+      },
+      "evidence": [
+        {
+          "sourceRef": "saverift-rpf9-xml-e6f60f5500fdbac906a31b12ca215057f7c4da63e34d338033e04baadb017265",
+          "location": "/CMissions[1]/Missions[1]/Item[83]",
+          "method": "Literal MissionId observation in the recovered XML document; gameplay role and save link unvalidated"
+        }
+      ],
+      "nativeIds": {
+        "configurationId": "CLB_PARTY",
+        "configurationNamespace": "XML:CMissions:MissionId"
+      }
+    },
+    {
+      "id": "gta-vi:activities:rpf9-observation-77b6ff82df17ebf653b9f01518eef59131b8bc016aa3af1b166f7587323c6646",
+      "name": {
+        "en": "BIL_PENT_M_MENDEZ — mission configuration"
+      },
+      "attributes": {
+        "recordRole": "mission_configuration",
+        "semanticRole": "configuration_definition",
+        "nameKind": "qualified-source-identifier",
+        "editorReady": false,
+        "runtimeAvailability": "unverified",
+        "saveMapping": "unvalidated",
+        "originalArchiveMembershipProven": false,
+        "sourceRecordId": "257b4f8f6b0db769c5dc9c18f5efb06053a74d809ae5274cb54bd06aac07f6b0"
+      },
+      "confidence": "observed",
+      "applicability": {
+        "platforms": [
+          "xbox"
+        ],
+        "build": null
+      },
+      "evidence": [
+        {
+          "sourceRef": "saverift-rpf9-xml-e6f60f5500fdbac906a31b12ca215057f7c4da63e34d338033e04baadb017265",
+          "location": "/CMissions[1]/Missions[1]/Item[102]",
+          "method": "Literal MissionId observation in the recovered XML document; gameplay role and save link unvalidated"
+        }
+      ],
+      "nativeIds": {
+        "configurationId": "BIL_PENT_M_MENDEZ",
+        "configurationNamespace": "XML:CMissions:MissionId"
+      }
+    },
+    {
+      "id": "gta-vi:activities:rpf9-observation-77e24a9dcdf9a55c3521cd531f8952d328eff120ca28c65f0062fcc82464acf8",
+      "name": {
+        "en": "BIL_CONFR — mission configuration"
+      },
+      "attributes": {
+        "recordRole": "mission_configuration",
+        "semanticRole": "configuration_definition",
+        "nameKind": "qualified-source-identifier",
+        "editorReady": false,
+        "runtimeAvailability": "unverified",
+        "saveMapping": "unvalidated",
+        "originalArchiveMembershipProven": false,
+        "sourceRecordId": "cb28228da7f56335c5cb4753e7afb9b555cf487828d59b4888558ee64fa2a2df"
+      },
+      "confidence": "observed",
+      "applicability": {
+        "platforms": [
+          "xbox"
+        ],
+        "build": null
+      },
+      "evidence": [
+        {
+          "sourceRef": "saverift-rpf9-xml-e6f60f5500fdbac906a31b12ca215057f7c4da63e34d338033e04baadb017265",
+          "location": "/CMissions[1]/Missions[1]/Item[90]",
+          "method": "Literal MissionId observation in the recovered XML document; gameplay role and save link unvalidated"
+        }
+      ],
+      "nativeIds": {
+        "configurationId": "BIL_CONFR",
+        "configurationNamespace": "XML:CMissions:MissionId"
+      }
+    },
+    {
+      "id": "gta-vi:activities:rpf9-observation-78c53742a3a1c84b8cab9be83ee3ae645a3d22aa005dd7318b6f418c79bfebcb",
+      "name": {
+        "en": "BIL_FUN — mission configuration"
+      },
+      "attributes": {
+        "recordRole": "mission_configuration",
+        "semanticRole": "configuration_definition",
+        "nameKind": "qualified-source-identifier",
+        "editorReady": false,
+        "runtimeAvailability": "unverified",
+        "saveMapping": "unvalidated",
+        "originalArchiveMembershipProven": false,
+        "sourceRecordId": "e43ae56f65ab93cbb5702cfa9bb56aaff03cfb40c885a3f1f600b75f6cc7025d"
+      },
+      "confidence": "observed",
+      "applicability": {
+        "platforms": [
+          "xbox"
+        ],
+        "build": null
+      },
+      "evidence": [
+        {
+          "sourceRef": "saverift-rpf9-xml-e6f60f5500fdbac906a31b12ca215057f7c4da63e34d338033e04baadb017265",
+          "location": "/CMissions[1]/Missions[1]/Item[15]",
+          "method": "Literal MissionId observation in the recovered XML document; gameplay role and save link unvalidated"
+        }
+      ],
+      "nativeIds": {
+        "configurationId": "BIL_FUN",
+        "configurationNamespace": "XML:CMissions:MissionId"
+      }
+    },
+    {
+      "id": "gta-vi:activities:rpf9-observation-7d9c9a6053dda6b086350c77f8c192da95457372ed354edf7d213e56b275501e",
+      "name": {
+        "en": "INT_PRISO — mission configuration"
+      },
+      "attributes": {
+        "recordRole": "mission_configuration",
+        "semanticRole": "configuration_definition",
+        "nameKind": "qualified-source-identifier",
+        "editorReady": false,
+        "runtimeAvailability": "unverified",
+        "saveMapping": "unvalidated",
+        "originalArchiveMembershipProven": false,
+        "sourceRecordId": "fc7704de130a1bd203358580338d64e45f7f9764f1a1cf3bea2a4a8eb45e89b8"
+      },
+      "confidence": "observed",
+      "applicability": {
+        "platforms": [
+          "xbox"
+        ],
+        "build": null
+      },
+      "evidence": [
+        {
+          "sourceRef": "saverift-rpf9-xml-e6f60f5500fdbac906a31b12ca215057f7c4da63e34d338033e04baadb017265",
+          "location": "/CMissions[1]/Missions[1]/Item[10]",
+          "method": "Literal MissionId observation in the recovered XML document; gameplay role and save link unvalidated"
+        }
+      ],
+      "nativeIds": {
+        "configurationId": "INT_PRISO",
+        "configurationNamespace": "XML:CMissions:MissionId"
+      }
+    },
+    {
+      "id": "gta-vi:activities:rpf9-observation-7f44c9740956e858871f149bfe63cadc73285545a6a52e1846fa852b0017ea32",
+      "name": {
+        "en": "INT_CRED — mission configuration"
+      },
+      "attributes": {
+        "recordRole": "mission_configuration",
+        "semanticRole": "configuration_definition",
+        "nameKind": "qualified-source-identifier",
+        "editorReady": false,
+        "runtimeAvailability": "unverified",
+        "saveMapping": "unvalidated",
+        "originalArchiveMembershipProven": false,
+        "sourceRecordId": "10b06a1257da23e870bde8978e877fbbfddd3e1c05ffdcb908bc7140241605e8"
+      },
+      "confidence": "observed",
+      "applicability": {
+        "platforms": [
+          "xbox"
+        ],
+        "build": null
+      },
+      "evidence": [
+        {
+          "sourceRef": "saverift-rpf9-xml-e6f60f5500fdbac906a31b12ca215057f7c4da63e34d338033e04baadb017265",
+          "location": "/CMissions[1]/Missions[1]/Item[108]",
+          "method": "Literal MissionId observation in the recovered XML document; gameplay role and save link unvalidated"
+        }
+      ],
+      "nativeIds": {
+        "configurationId": "INT_CRED",
+        "configurationNamespace": "XML:CMissions:MissionId"
+      }
+    },
+    {
+      "id": "gta-vi:activities:rpf9-observation-812dd76fa6fa4db0327fc45efd3e189d80f960e233a26efd9889634742d77097",
+      "name": {
+        "en": "FT_UP_MMRENT_MANAGER_LATE_COPS — mission configuration"
+      },
+      "attributes": {
+        "recordRole": "mission_configuration",
+        "semanticRole": "configuration_definition",
+        "nameKind": "qualified-source-identifier",
+        "editorReady": false,
+        "runtimeAvailability": "unverified",
+        "saveMapping": "unvalidated",
+        "originalArchiveMembershipProven": false,
+        "sourceRecordId": "1f1d3e60b6a14da6b5cd195697f1ab45b2dc7b08466fc1638ec602c5cef46209"
+      },
+      "confidence": "observed",
+      "applicability": {
+        "platforms": [
+          "xbox"
+        ],
+        "build": null
+      },
+      "evidence": [
+        {
+          "sourceRef": "saverift-rpf9-xml-e6f60f5500fdbac906a31b12ca215057f7c4da63e34d338033e04baadb017265",
+          "location": "/CMissions[1]/Missions[1]/Item[139]",
+          "method": "Literal MissionId observation in the recovered XML document; gameplay role and save link unvalidated"
+        }
+      ],
+      "nativeIds": {
+        "configurationId": "FT_UP_MMRENT_MANAGER_LATE_COPS",
+        "configurationNamespace": "XML:CMissions:MissionId"
+      }
+    },
+    {
+      "id": "gta-vi:activities:rpf9-observation-81896f1d78cc378200ccba6251103025ce7ee66aa490efc4f496efb0c5e94975",
+      "name": {
+        "en": "AIR_BEACH — mission configuration"
+      },
+      "attributes": {
+        "recordRole": "mission_configuration",
+        "semanticRole": "configuration_definition",
+        "nameKind": "qualified-source-identifier",
+        "editorReady": false,
+        "runtimeAvailability": "unverified",
+        "saveMapping": "unvalidated",
+        "originalArchiveMembershipProven": false,
+        "sourceRecordId": "610f25df8a5491e91672669a71c7a6d0138510ebb8d08d8d571457fc8a08279a"
+      },
+      "confidence": "observed",
+      "applicability": {
+        "platforms": [
+          "xbox"
+        ],
+        "build": null
+      },
+      "evidence": [
+        {
+          "sourceRef": "saverift-rpf9-xml-e6f60f5500fdbac906a31b12ca215057f7c4da63e34d338033e04baadb017265",
+          "location": "/CMissions[1]/Missions[1]/Item[75]",
+          "method": "Literal MissionId observation in the recovered XML document; gameplay role and save link unvalidated"
+        }
+      ],
+      "nativeIds": {
+        "configurationId": "AIR_BEACH",
+        "configurationNamespace": "XML:CMissions:MissionId"
+      }
+    },
+    {
+      "id": "gta-vi:activities:rpf9-observation-8266cd11cc8e96b5bcbb23fe8b542d2a14c2bb2f59973a81b9c95efa20ff45a1",
+      "name": {
+        "en": "BIL_HOUSE — mission configuration"
+      },
+      "attributes": {
+        "recordRole": "mission_configuration",
+        "semanticRole": "configuration_definition",
+        "nameKind": "qualified-source-identifier",
+        "editorReady": false,
+        "runtimeAvailability": "unverified",
+        "saveMapping": "unvalidated",
+        "originalArchiveMembershipProven": false,
+        "sourceRecordId": "1c44a2f249f4e0ed1cb71444cb655e5989814512e2be83605805db44d2a4cbe4"
+      },
+      "confidence": "observed",
+      "applicability": {
+        "platforms": [
+          "xbox"
+        ],
+        "build": null
+      },
+      "evidence": [
+        {
+          "sourceRef": "saverift-rpf9-xml-e6f60f5500fdbac906a31b12ca215057f7c4da63e34d338033e04baadb017265",
+          "location": "/CMissions[1]/Missions[1]/Item[20]",
+          "method": "Literal MissionId observation in the recovered XML document; gameplay role and save link unvalidated"
+        }
+      ],
+      "nativeIds": {
+        "configurationId": "BIL_HOUSE",
+        "configurationNamespace": "XML:CMissions:MissionId"
+      }
+    },
+    {
+      "id": "gta-vi:activities:rpf9-observation-84c470403ca2bbc938a4763a6b6592c48db5b570f3d7d8819f1ff2332bd4a280",
+      "name": {
+        "en": "AIR_CATER_DHP — mission configuration"
+      },
+      "attributes": {
+        "recordRole": "mission_configuration",
+        "semanticRole": "configuration_definition",
+        "nameKind": "qualified-source-identifier",
+        "editorReady": false,
+        "runtimeAvailability": "unverified",
+        "saveMapping": "unvalidated",
+        "originalArchiveMembershipProven": false,
+        "sourceRecordId": "f15bd9c82f660a993252484e190a055bb1433ca3af3050fc3b30f9f38bdecdd4"
+      },
+      "confidence": "observed",
+      "applicability": {
+        "platforms": [
+          "xbox"
+        ],
+        "build": null
+      },
+      "evidence": [
+        {
+          "sourceRef": "saverift-rpf9-xml-e6f60f5500fdbac906a31b12ca215057f7c4da63e34d338033e04baadb017265",
+          "location": "/CMissions[1]/Missions[1]/Item[110]",
+          "method": "Literal MissionId observation in the recovered XML document; gameplay role and save link unvalidated"
+        }
+      ],
+      "nativeIds": {
+        "configurationId": "AIR_CATER_DHP",
+        "configurationNamespace": "XML:CMissions:MissionId"
+      }
+    },
+    {
+      "id": "gta-vi:activities:rpf9-observation-85f424d5c34b0ff4586eb87886651fc8e937e3e442e0e9487b817d0b693c88c7",
+      "name": {
+        "en": "COM_ROB_DRIVEPREP — mission configuration"
+      },
+      "attributes": {
+        "recordRole": "mission_configuration",
+        "semanticRole": "configuration_definition",
+        "nameKind": "qualified-source-identifier",
+        "editorReady": false,
+        "runtimeAvailability": "unverified",
+        "saveMapping": "unvalidated",
+        "originalArchiveMembershipProven": false,
+        "sourceRecordId": "598ca6e45be3f7f30457f44e43d07bcb0d6d481669b5e553bd9ab9fd90a4b47b"
+      },
+      "confidence": "observed",
+      "applicability": {
+        "platforms": [
+          "xbox"
+        ],
+        "build": null
+      },
+      "evidence": [
+        {
+          "sourceRef": "saverift-rpf9-xml-e6f60f5500fdbac906a31b12ca215057f7c4da63e34d338033e04baadb017265",
+          "location": "/CMissions[1]/Missions[1]/Item[46]",
+          "method": "Literal MissionId observation in the recovered XML document; gameplay role and save link unvalidated"
+        }
+      ],
+      "nativeIds": {
+        "configurationId": "COM_ROB_DRIVEPREP",
+        "configurationNamespace": "XML:CMissions:MissionId"
+      }
+    },
+    {
+      "id": "gta-vi:activities:rpf9-observation-86a8d5a62780f7675acab426d10c115c804e3a803bc6ff494e919361eb85f912",
+      "name": {
+        "en": "MTL_CHECK_HIGH_REL — mission configuration"
+      },
+      "attributes": {
+        "recordRole": "mission_configuration",
+        "semanticRole": "configuration_definition",
+        "nameKind": "qualified-source-identifier",
+        "editorReady": false,
+        "runtimeAvailability": "unverified",
+        "saveMapping": "unvalidated",
+        "originalArchiveMembershipProven": false,
+        "sourceRecordId": "5d34d7cbebedbc37ee6963505bb95c7f3ed7fdfabbec94bf316182370fa0d5eb"
+      },
+      "confidence": "observed",
+      "applicability": {
+        "platforms": [
+          "xbox"
+        ],
+        "build": null
+      },
+      "evidence": [
+        {
+          "sourceRef": "saverift-rpf9-xml-e6f60f5500fdbac906a31b12ca215057f7c4da63e34d338033e04baadb017265",
+          "location": "/CMissions[1]/Missions[1]/Item[105]",
+          "method": "Literal MissionId observation in the recovered XML document; gameplay role and save link unvalidated"
+        }
+      ],
+      "nativeIds": {
+        "configurationId": "MTL_CHECK_HIGH_REL",
+        "configurationNamespace": "XML:CMissions:MissionId"
+      }
+    },
+    {
+      "id": "gta-vi:activities:rpf9-observation-8d53c005b154d344e9df3acfbbc47e4b1bda28c4a57fadfb3c9de4aba7a21f3b",
+      "name": {
+        "en": "ANT_CHASE_AUTOLAUNCH — mission configuration"
+      },
+      "attributes": {
+        "recordRole": "mission_configuration",
+        "semanticRole": "configuration_definition",
+        "nameKind": "qualified-source-identifier",
+        "editorReady": false,
+        "runtimeAvailability": "unverified",
+        "saveMapping": "unvalidated",
+        "originalArchiveMembershipProven": false,
+        "sourceRecordId": "94a5180f03ddf1ae27931fabc54cb91c9ae383280286992d90287f547325f4e0"
+      },
+      "confidence": "observed",
+      "applicability": {
+        "platforms": [
+          "xbox"
+        ],
+        "build": null
+      },
+      "evidence": [
+        {
+          "sourceRef": "saverift-rpf9-xml-e6f60f5500fdbac906a31b12ca215057f7c4da63e34d338033e04baadb017265",
+          "location": "/CMissions[1]/Missions[1]/Item[114]",
+          "method": "Literal MissionId observation in the recovered XML document; gameplay role and save link unvalidated"
+        }
+      ],
+      "nativeIds": {
+        "configurationId": "ANT_CHASE_AUTOLAUNCH",
+        "configurationNamespace": "XML:CMissions:MissionId"
+      }
+    },
+    {
+      "id": "gta-vi:activities:rpf9-observation-90c68ca7d5b26e0fae6f7cbcab8a6ab543d381b1010e11435e51b2488958b3ed",
+      "name": {
+        "en": "CLB_TOWER — mission configuration"
+      },
+      "attributes": {
+        "recordRole": "mission_configuration",
+        "semanticRole": "configuration_definition",
+        "nameKind": "qualified-source-identifier",
+        "editorReady": false,
+        "runtimeAvailability": "unverified",
+        "saveMapping": "unvalidated",
+        "originalArchiveMembershipProven": false,
+        "sourceRecordId": "a70fa534c2a236eae35f822ce1db443ac903e280c4ff84bd4be4d82e8bac1803"
+      },
+      "confidence": "observed",
+      "applicability": {
+        "platforms": [
+          "xbox"
+        ],
+        "build": null
+      },
+      "evidence": [
+        {
+          "sourceRef": "saverift-rpf9-xml-e6f60f5500fdbac906a31b12ca215057f7c4da63e34d338033e04baadb017265",
+          "location": "/CMissions[1]/Missions[1]/Item[63]",
+          "method": "Literal MissionId observation in the recovered XML document; gameplay role and save link unvalidated"
+        }
+      ],
+      "nativeIds": {
+        "configurationId": "CLB_TOWER",
+        "configurationNamespace": "XML:CMissions:MissionId"
+      }
+    },
+    {
+      "id": "gta-vi:activities:rpf9-observation-94eef1eaa5ff6feef6c3b63122b4916b9015480a2da43477bd4aad68823e6f77",
+      "name": {
+        "en": "BIL_MOTEL_VIOLENT — mission configuration"
+      },
+      "attributes": {
+        "recordRole": "mission_configuration",
+        "semanticRole": "configuration_definition",
+        "nameKind": "qualified-source-identifier",
+        "editorReady": false,
+        "runtimeAvailability": "unverified",
+        "saveMapping": "unvalidated",
+        "originalArchiveMembershipProven": false,
+        "sourceRecordId": "4b0a203d16c559729bf5dadafb6662b99369e43471dc3859a0d3092808bf9981"
+      },
+      "confidence": "observed",
+      "applicability": {
+        "platforms": [
+          "xbox"
+        ],
+        "build": null
+      },
+      "evidence": [
+        {
+          "sourceRef": "saverift-rpf9-xml-e6f60f5500fdbac906a31b12ca215057f7c4da63e34d338033e04baadb017265",
+          "location": "/CMissions[1]/Missions[1]/Item[116]",
+          "method": "Literal MissionId observation in the recovered XML document; gameplay role and save link unvalidated"
+        }
+      ],
+      "nativeIds": {
+        "configurationId": "BIL_MOTEL_VIOLENT",
+        "configurationNamespace": "XML:CMissions:MissionId"
+      }
+    },
+    {
+      "id": "gta-vi:activities:rpf9-observation-96497623dbad71356e763348d305871667740b89cca93df72acfc04348a989b9",
+      "name": {
+        "en": "AIR_HACK — mission configuration"
+      },
+      "attributes": {
+        "recordRole": "mission_configuration",
+        "semanticRole": "configuration_definition",
+        "nameKind": "qualified-source-identifier",
+        "editorReady": false,
+        "runtimeAvailability": "unverified",
+        "saveMapping": "unvalidated",
+        "originalArchiveMembershipProven": false,
+        "sourceRecordId": "4e9f81ee357284fe9f81a231f937696422b21bd1dd925030bedb33807e03f3ed"
+      },
+      "confidence": "observed",
+      "applicability": {
+        "platforms": [
+          "xbox"
+        ],
+        "build": null
+      },
+      "evidence": [
+        {
+          "sourceRef": "saverift-rpf9-xml-e6f60f5500fdbac906a31b12ca215057f7c4da63e34d338033e04baadb017265",
+          "location": "/CMissions[1]/Missions[1]/Item[85]",
+          "method": "Literal MissionId observation in the recovered XML document; gameplay role and save link unvalidated"
+        }
+      ],
+      "nativeIds": {
+        "configurationId": "AIR_HACK",
+        "configurationNamespace": "XML:CMissions:MissionId"
+      }
+    },
+    {
+      "id": "gta-vi:activities:rpf9-observation-971dfb72126ba2f285e0c218eeda8a8a995b2c530c6578bd4d198ce855de55e3",
+      "name": {
+        "en": "INT_CHASE — mission configuration"
+      },
+      "attributes": {
+        "recordRole": "mission_configuration",
+        "semanticRole": "configuration_definition",
+        "nameKind": "qualified-source-identifier",
+        "editorReady": false,
+        "runtimeAvailability": "unverified",
+        "saveMapping": "unvalidated",
+        "originalArchiveMembershipProven": false,
+        "sourceRecordId": "763a48bc222afb2be9842e1e630eaa3155bbf826df3b94dccae218a3dc606a7b"
+      },
+      "confidence": "observed",
+      "applicability": {
+        "platforms": [
+          "xbox"
+        ],
+        "build": null
+      },
+      "evidence": [
+        {
+          "sourceRef": "saverift-rpf9-xml-e6f60f5500fdbac906a31b12ca215057f7c4da63e34d338033e04baadb017265",
+          "location": "/CMissions[1]/Missions[1]/Item[2]",
+          "method": "Literal MissionId observation in the recovered XML document; gameplay role and save link unvalidated"
+        }
+      ],
+      "nativeIds": {
+        "configurationId": "INT_CHASE",
+        "configurationNamespace": "XML:CMissions:MissionId"
+      }
+    },
+    {
+      "id": "gta-vi:activities:rpf9-observation-973d0305c4728d77460018528268d41f8c365ced7e21a5e16af32f3032fd31f9",
+      "name": {
+        "en": "HO_PAR_KEYCO — mission configuration"
+      },
+      "attributes": {
+        "recordRole": "mission_configuration",
+        "semanticRole": "configuration_definition",
+        "nameKind": "qualified-source-identifier",
+        "editorReady": false,
+        "runtimeAvailability": "unverified",
+        "saveMapping": "unvalidated",
+        "originalArchiveMembershipProven": false,
+        "sourceRecordId": "56414e4729ae40a862c9ce7afaba66aaf83e541d7608e0166ca7db58d6189667"
+      },
+      "confidence": "observed",
+      "applicability": {
+        "platforms": [
+          "xbox"
+        ],
+        "build": null
+      },
+      "evidence": [
+        {
+          "sourceRef": "saverift-rpf9-xml-e6f60f5500fdbac906a31b12ca215057f7c4da63e34d338033e04baadb017265",
+          "location": "/CMissions[1]/Missions[1]/Item[18]",
+          "method": "Literal MissionId observation in the recovered XML document; gameplay role and save link unvalidated"
+        }
+      ],
+      "nativeIds": {
+        "configurationId": "HO_PAR_KEYCO",
+        "configurationNamespace": "XML:CMissions:MissionId"
+      }
+    },
+    {
+      "id": "gta-vi:activities:rpf9-observation-986b7d512edfaf35095a68cb03375aca406a8f6d026c188288a551f1afbe41b5",
+      "name": {
+        "en": "BIL_RED — mission configuration"
+      },
+      "attributes": {
+        "recordRole": "mission_configuration",
+        "semanticRole": "configuration_definition",
+        "nameKind": "qualified-source-identifier",
+        "editorReady": false,
+        "runtimeAvailability": "unverified",
+        "saveMapping": "unvalidated",
+        "originalArchiveMembershipProven": false,
+        "sourceRecordId": "07a48b6ad61f8e7b5262ff5819da9869271bc93fb326538d1cacf6632e892c2d"
+      },
+      "confidence": "observed",
+      "applicability": {
+        "platforms": [
+          "xbox"
+        ],
+        "build": null
+      },
+      "evidence": [
+        {
+          "sourceRef": "saverift-rpf9-xml-e6f60f5500fdbac906a31b12ca215057f7c4da63e34d338033e04baadb017265",
+          "location": "/CMissions[1]/Missions[1]/Item[50]",
+          "method": "Literal MissionId observation in the recovered XML document; gameplay role and save link unvalidated"
+        }
+      ],
+      "nativeIds": {
+        "configurationId": "BIL_RED",
+        "configurationNamespace": "XML:CMissions:MissionId"
+      }
+    },
+    {
+      "id": "gta-vi:activities:rpf9-observation-99c5c903b8778df2eff2a77c23f26724dde3cff696a9bae29647b889e470dd14",
+      "name": {
+        "en": "COM_KBOS_PLNDATE_PLANE_N_DINNER_DATE — mission configuration"
+      },
+      "attributes": {
+        "recordRole": "mission_configuration",
+        "semanticRole": "configuration_definition",
+        "nameKind": "qualified-source-identifier",
+        "editorReady": false,
+        "runtimeAvailability": "unverified",
+        "saveMapping": "unvalidated",
+        "originalArchiveMembershipProven": false,
+        "sourceRecordId": "797cb050fa3d33b24f956ebc5e2cf9ea90719661d84e4b14cd721b77ed4dd38f"
+      },
+      "confidence": "observed",
+      "applicability": {
+        "platforms": [
+          "xbox"
+        ],
+        "build": null
+      },
+      "evidence": [
+        {
+          "sourceRef": "saverift-rpf9-xml-e6f60f5500fdbac906a31b12ca215057f7c4da63e34d338033e04baadb017265",
+          "location": "/CMissions[1]/Missions[1]/Item[141]",
+          "method": "Literal MissionId observation in the recovered XML document; gameplay role and save link unvalidated"
+        }
+      ],
+      "nativeIds": {
+        "configurationId": "COM_KBOS_PLNDATE_PLANE_N_DINNER_DATE",
+        "configurationNamespace": "XML:CMissions:MissionId"
+      }
+    },
+    {
+      "id": "gta-vi:activities:rpf9-observation-9bb9634190b2f55447ae2a34fb9b5608083e16d7525a54e5c715dee7c163a6e5",
+      "name": {
+        "en": "AIR_DRONE — mission configuration"
+      },
+      "attributes": {
+        "recordRole": "mission_configuration",
+        "semanticRole": "configuration_definition",
+        "nameKind": "qualified-source-identifier",
+        "editorReady": false,
+        "runtimeAvailability": "unverified",
+        "saveMapping": "unvalidated",
+        "originalArchiveMembershipProven": false,
+        "sourceRecordId": "fdcc0e4a3745d2474289ed818e7428254c58fc4945cfa5b4a0a2586009d4c354"
+      },
+      "confidence": "observed",
+      "applicability": {
+        "platforms": [
+          "xbox"
+        ],
+        "build": null
+      },
+      "evidence": [
+        {
+          "sourceRef": "saverift-rpf9-xml-e6f60f5500fdbac906a31b12ca215057f7c4da63e34d338033e04baadb017265",
+          "location": "/CMissions[1]/Missions[1]/Item[84]",
+          "method": "Literal MissionId observation in the recovered XML document; gameplay role and save link unvalidated"
+        }
+      ],
+      "nativeIds": {
+        "configurationId": "AIR_DRONE",
+        "configurationNamespace": "XML:CMissions:MissionId"
+      }
+    },
+    {
+      "id": "gta-vi:activities:rpf9-observation-9c439bb81619bed3369494ff1f97b7921fb395156ddcf0b1e2d78433c5a038ac",
+      "name": {
+        "en": "ANT_INTRO_APARTMENT — mission configuration"
+      },
+      "attributes": {
+        "recordRole": "mission_configuration",
+        "semanticRole": "configuration_definition",
+        "nameKind": "qualified-source-identifier",
+        "editorReady": false,
+        "runtimeAvailability": "unverified",
+        "saveMapping": "unvalidated",
+        "originalArchiveMembershipProven": false,
+        "sourceRecordId": "1d7477ad331eb3247bf1512342ae8637a623edec3457961ee8eaddebc880efb5"
+      },
+      "confidence": "observed",
+      "applicability": {
+        "platforms": [
+          "xbox"
+        ],
+        "build": null
+      },
+      "evidence": [
+        {
+          "sourceRef": "saverift-rpf9-xml-e6f60f5500fdbac906a31b12ca215057f7c4da63e34d338033e04baadb017265",
+          "location": "/CMissions[1]/Missions[1]/Item[126]",
+          "method": "Literal MissionId observation in the recovered XML document; gameplay role and save link unvalidated"
+        }
+      ],
+      "nativeIds": {
+        "configurationId": "ANT_INTRO_APARTMENT",
+        "configurationNamespace": "XML:CMissions:MissionId"
+      }
+    },
+    {
+      "id": "gta-vi:activities:rpf9-observation-9f0887809d55c48f3735d26ec35e7575d4743c0569b8e29c9916deabfb965fa0",
+      "name": {
+        "en": "MNY_CAR — mission configuration"
+      },
+      "attributes": {
+        "recordRole": "mission_configuration",
+        "semanticRole": "configuration_definition",
+        "nameKind": "qualified-source-identifier",
+        "editorReady": false,
+        "runtimeAvailability": "unverified",
+        "saveMapping": "unvalidated",
+        "originalArchiveMembershipProven": false,
+        "sourceRecordId": "a43e5aa4f51bda88f048eab301c62491afbc9a4f141abc7a12d6799f83c73c40"
+      },
+      "confidence": "observed",
+      "applicability": {
+        "platforms": [
+          "xbox"
+        ],
+        "build": null
+      },
+      "evidence": [
+        {
+          "sourceRef": "saverift-rpf9-xml-e6f60f5500fdbac906a31b12ca215057f7c4da63e34d338033e04baadb017265",
+          "location": "/CMissions[1]/Missions[1]/Item[68]",
+          "method": "Literal MissionId observation in the recovered XML document; gameplay role and save link unvalidated"
+        }
+      ],
+      "nativeIds": {
+        "configurationId": "MNY_CAR",
+        "configurationNamespace": "XML:CMissions:MissionId"
+      }
+    },
+    {
+      "id": "gta-vi:activities:rpf9-observation-a332f0f3cbafdbe626b714f870b5c54824f2b2ecb026e7bed2313e03e9c50c63",
+      "name": {
+        "en": "BIL_PENT_B_BRIAN — mission configuration"
+      },
+      "attributes": {
+        "recordRole": "mission_configuration",
+        "semanticRole": "configuration_definition",
+        "nameKind": "qualified-source-identifier",
+        "editorReady": false,
+        "runtimeAvailability": "unverified",
+        "saveMapping": "unvalidated",
+        "originalArchiveMembershipProven": false,
+        "sourceRecordId": "2aa600f4ae295b2b863e634ef6e6ec4ddc5649567f0dea673943e2c30a23c3e0"
+      },
+      "confidence": "observed",
+      "applicability": {
+        "platforms": [
+          "xbox"
+        ],
+        "build": null
+      },
+      "evidence": [
+        {
+          "sourceRef": "saverift-rpf9-xml-e6f60f5500fdbac906a31b12ca215057f7c4da63e34d338033e04baadb017265",
+          "location": "/CMissions[1]/Missions[1]/Item[103]",
+          "method": "Literal MissionId observation in the recovered XML document; gameplay role and save link unvalidated"
+        }
+      ],
+      "nativeIds": {
+        "configurationId": "BIL_PENT_B_BRIAN",
+        "configurationNamespace": "XML:CMissions:MissionId"
+      }
+    },
+    {
+      "id": "gta-vi:activities:rpf9-observation-a38e15f7f12eb4f896ecf494f83e9af2b791e02c8c7d838d9365a37878efe6e1",
+      "name": {
+        "en": "AIR_FINAL_DATA_HACK_FAILED — mission configuration"
+      },
+      "attributes": {
+        "recordRole": "mission_configuration",
+        "semanticRole": "configuration_definition",
+        "nameKind": "qualified-source-identifier",
+        "editorReady": false,
+        "runtimeAvailability": "unverified",
+        "saveMapping": "unvalidated",
+        "originalArchiveMembershipProven": false,
+        "sourceRecordId": "8355af3a3d7ac4e154ca0670f2dd2d7eab12eb052f45045c2f0f9ff3429f6d58"
+      },
+      "confidence": "observed",
+      "applicability": {
+        "platforms": [
+          "xbox"
+        ],
+        "build": null
+      },
+      "evidence": [
+        {
+          "sourceRef": "saverift-rpf9-xml-e6f60f5500fdbac906a31b12ca215057f7c4da63e34d338033e04baadb017265",
+          "location": "/CMissions[1]/Missions[1]/Item[112]",
+          "method": "Literal MissionId observation in the recovered XML document; gameplay role and save link unvalidated"
+        }
+      ],
+      "nativeIds": {
+        "configurationId": "AIR_FINAL_DATA_HACK_FAILED",
+        "configurationNamespace": "XML:CMissions:MissionId"
+      }
+    },
+    {
+      "id": "gta-vi:activities:rpf9-observation-a41ff75debb352807bf8c137f56e244281303a1371f85529de9f19544a9cfbce",
+      "name": {
+        "en": "CTI_MECH_STFC — mission configuration"
+      },
+      "attributes": {
+        "recordRole": "mission_configuration",
+        "semanticRole": "configuration_definition",
+        "nameKind": "qualified-source-identifier",
+        "editorReady": false,
+        "runtimeAvailability": "unverified",
+        "saveMapping": "unvalidated",
+        "originalArchiveMembershipProven": false,
+        "sourceRecordId": "67dde336bd2ba40bdfd71dd72bb7d3ddd5c16d6a11b713731d1c3bc74ce1e800"
+      },
+      "confidence": "observed",
+      "applicability": {
+        "platforms": [
+          "xbox"
+        ],
+        "build": null
+      },
+      "evidence": [
+        {
+          "sourceRef": "saverift-rpf9-xml-e6f60f5500fdbac906a31b12ca215057f7c4da63e34d338033e04baadb017265",
+          "location": "/CMissions[1]/Missions[1]/Item[27]",
+          "method": "Literal MissionId observation in the recovered XML document; gameplay role and save link unvalidated"
+        }
+      ],
+      "nativeIds": {
+        "configurationId": "CTI_MECH_STFC",
+        "configurationNamespace": "XML:CMissions:MissionId"
+      }
+    },
+    {
+      "id": "gta-vi:activities:rpf9-observation-a4fe170811285f698f290baa05d254be32817c6fc142e9ff0c1080d5bea7b58e",
+      "name": {
+        "en": "ANT_INTRO_STORAGE — mission configuration"
+      },
+      "attributes": {
+        "recordRole": "mission_configuration",
+        "semanticRole": "configuration_definition",
+        "nameKind": "qualified-source-identifier",
+        "editorReady": false,
+        "runtimeAvailability": "unverified",
+        "saveMapping": "unvalidated",
+        "originalArchiveMembershipProven": false,
+        "sourceRecordId": "715b4d0a37737b382dbb85053036c900f0d7096093ce789bf00798d33dfcdec9"
+      },
+      "confidence": "observed",
+      "applicability": {
+        "platforms": [
+          "xbox"
+        ],
+        "build": null
+      },
+      "evidence": [
+        {
+          "sourceRef": "saverift-rpf9-xml-e6f60f5500fdbac906a31b12ca215057f7c4da63e34d338033e04baadb017265",
+          "location": "/CMissions[1]/Missions[1]/Item[127]",
+          "method": "Literal MissionId observation in the recovered XML document; gameplay role and save link unvalidated"
+        }
+      ],
+      "nativeIds": {
+        "configurationId": "ANT_INTRO_STORAGE",
+        "configurationNamespace": "XML:CMissions:MissionId"
+      }
+    },
+    {
+      "id": "gta-vi:activities:rpf9-observation-a8c162e2f1c59bf40c274b088edef6c0e87411d56793eb52b373a8adcfd30b99",
+      "name": {
+        "en": "BIL_PICK — mission configuration"
+      },
+      "attributes": {
+        "recordRole": "mission_configuration",
+        "semanticRole": "configuration_definition",
+        "nameKind": "qualified-source-identifier",
+        "editorReady": false,
+        "runtimeAvailability": "unverified",
+        "saveMapping": "unvalidated",
+        "originalArchiveMembershipProven": false,
+        "sourceRecordId": "9d7ab6d57324c5fe6a55c2366fec6c6118e13a622da54d0d8034ddaa57573b43"
+      },
+      "confidence": "observed",
+      "applicability": {
+        "platforms": [
+          "xbox"
+        ],
+        "build": null
+      },
+      "evidence": [
+        {
+          "sourceRef": "saverift-rpf9-xml-e6f60f5500fdbac906a31b12ca215057f7c4da63e34d338033e04baadb017265",
+          "location": "/CMissions[1]/Missions[1]/Item[19]",
+          "method": "Literal MissionId observation in the recovered XML document; gameplay role and save link unvalidated"
+        }
+      ],
+      "nativeIds": {
+        "configurationId": "BIL_PICK",
+        "configurationNamespace": "XML:CMissions:MissionId"
+      }
+    },
+    {
+      "id": "gta-vi:activities:rpf9-observation-a8d6ed0aa748bb0ff5ac8d8034b7a6670fc2abc4bece5f79b8ad2c489bd25db0",
+      "name": {
+        "en": "AIR_FINAL — mission configuration"
+      },
+      "attributes": {
+        "recordRole": "mission_configuration",
+        "semanticRole": "configuration_definition",
+        "nameKind": "qualified-source-identifier",
+        "editorReady": false,
+        "runtimeAvailability": "unverified",
+        "saveMapping": "unvalidated",
+        "originalArchiveMembershipProven": false,
+        "sourceRecordId": "54e014fb350a9c9e26f46dcb794fdae491771c99ec067911c18aeec842af0e33"
+      },
+      "confidence": "observed",
+      "applicability": {
+        "platforms": [
+          "xbox"
+        ],
+        "build": null
+      },
+      "evidence": [
+        {
+          "sourceRef": "saverift-rpf9-xml-e6f60f5500fdbac906a31b12ca215057f7c4da63e34d338033e04baadb017265",
+          "location": "/CMissions[1]/Missions[1]/Item[88]",
+          "method": "Literal MissionId observation in the recovered XML document; gameplay role and save link unvalidated"
+        }
+      ],
+      "nativeIds": {
+        "configurationId": "AIR_FINAL",
+        "configurationNamespace": "XML:CMissions:MissionId"
+      }
+    },
+    {
+      "id": "gta-vi:activities:rpf9-observation-a9da014bfcda4c72f1db40bdb1b5f4fdbb624bf525b9aedc4d1130466df0f0b5",
+      "name": {
+        "en": "INT_BANK — mission configuration"
+      },
+      "attributes": {
+        "recordRole": "mission_configuration",
+        "semanticRole": "configuration_definition",
+        "nameKind": "qualified-source-identifier",
+        "editorReady": false,
+        "runtimeAvailability": "unverified",
+        "saveMapping": "unvalidated",
+        "originalArchiveMembershipProven": false,
+        "sourceRecordId": "d2447829d02caa96b960bd0a5c43b17963544c6f288c1a44ac345c740d115e37"
+      },
+      "confidence": "observed",
+      "applicability": {
+        "platforms": [
+          "xbox"
+        ],
+        "build": null
+      },
+      "evidence": [
+        {
+          "sourceRef": "saverift-rpf9-xml-e6f60f5500fdbac906a31b12ca215057f7c4da63e34d338033e04baadb017265",
+          "location": "/CMissions[1]/Missions[1]/Item[11]",
+          "method": "Literal MissionId observation in the recovered XML document; gameplay role and save link unvalidated"
+        }
+      ],
+      "nativeIds": {
+        "configurationId": "INT_BANK",
+        "configurationNamespace": "XML:CMissions:MissionId"
+      }
+    },
+    {
+      "id": "gta-vi:activities:rpf9-observation-ab433427eae703e9c544853288323b74430aa89b07d30211cd6e22a66eb27217",
+      "name": {
+        "en": "BIL_MOTEL — mission configuration"
+      },
+      "attributes": {
+        "recordRole": "mission_configuration",
+        "semanticRole": "configuration_definition",
+        "nameKind": "qualified-source-identifier",
+        "editorReady": false,
+        "runtimeAvailability": "unverified",
+        "saveMapping": "unvalidated",
+        "originalArchiveMembershipProven": false,
+        "sourceRecordId": "21d5ee6e4898888d9eb745c5eab20fefe5dc6197d3379280734bcba6857df7d6"
+      },
+      "confidence": "observed",
+      "applicability": {
+        "platforms": [
+          "xbox"
+        ],
+        "build": null
+      },
+      "evidence": [
+        {
+          "sourceRef": "saverift-rpf9-xml-e6f60f5500fdbac906a31b12ca215057f7c4da63e34d338033e04baadb017265",
+          "location": "/CMissions[1]/Missions[1]/Item[34]",
+          "method": "Literal MissionId observation in the recovered XML document; gameplay role and save link unvalidated"
+        }
+      ],
+      "nativeIds": {
+        "configurationId": "BIL_MOTEL",
+        "configurationNamespace": "XML:CMissions:MissionId"
+      }
+    },
+    {
+      "id": "gta-vi:activities:rpf9-observation-ad388cbbff43415b6f342e132a6b098cc2eb8102479abbffc37d1097512bf0d0",
+      "name": {
+        "en": "CLB_VIDEO — mission configuration"
+      },
+      "attributes": {
+        "recordRole": "mission_configuration",
+        "semanticRole": "configuration_definition",
+        "nameKind": "qualified-source-identifier",
+        "editorReady": false,
+        "runtimeAvailability": "unverified",
+        "saveMapping": "unvalidated",
+        "originalArchiveMembershipProven": false,
+        "sourceRecordId": "60dc081fa9d1cb1a1a161245cb7c26524ce3394fe08853b360be7d816e62d7d7"
+      },
+      "confidence": "observed",
+      "applicability": {
+        "platforms": [
+          "xbox"
+        ],
+        "build": null
+      },
+      "evidence": [
+        {
+          "sourceRef": "saverift-rpf9-xml-e6f60f5500fdbac906a31b12ca215057f7c4da63e34d338033e04baadb017265",
+          "location": "/CMissions[1]/Missions[1]/Item[62]",
+          "method": "Literal MissionId observation in the recovered XML document; gameplay role and save link unvalidated"
+        }
+      ],
+      "nativeIds": {
+        "configurationId": "CLB_VIDEO",
+        "configurationNamespace": "XML:CMissions:MissionId"
+      }
+    },
+    {
+      "id": "gta-vi:activities:rpf9-observation-af5ae32ceddbf441682d817eaa8a6b959ffb62ce4a520417aa9d29adc69ddb41",
+      "name": {
+        "en": "ANT_SRCH — mission configuration"
+      },
+      "attributes": {
+        "recordRole": "mission_configuration",
+        "semanticRole": "configuration_definition",
+        "nameKind": "qualified-source-identifier",
+        "editorReady": false,
+        "runtimeAvailability": "unverified",
+        "saveMapping": "unvalidated",
+        "originalArchiveMembershipProven": false,
+        "sourceRecordId": "cf989f79e3cf49224422c11f17b0cf9aee44bce71f25f300fb7ff7051db04c23"
+      },
+      "confidence": "observed",
+      "applicability": {
+        "platforms": [
+          "xbox"
+        ],
+        "build": null
+      },
+      "evidence": [
+        {
+          "sourceRef": "saverift-rpf9-xml-e6f60f5500fdbac906a31b12ca215057f7c4da63e34d338033e04baadb017265",
+          "location": "/CMissions[1]/Missions[1]/Item[38]",
+          "method": "Literal MissionId observation in the recovered XML document; gameplay role and save link unvalidated"
+        }
+      ],
+      "nativeIds": {
+        "configurationId": "ANT_SRCH",
+        "configurationNamespace": "XML:CMissions:MissionId"
+      }
+    },
+    {
+      "id": "gta-vi:activities:rpf9-observation-b006ff169d34d810821e7f24dd9166f794798eac95f7ada1ab705a8b2e87eade",
+      "name": {
+        "en": "BIL_FINALE_M — mission configuration"
+      },
+      "attributes": {
+        "recordRole": "mission_configuration",
+        "semanticRole": "configuration_definition",
+        "nameKind": "qualified-source-identifier",
+        "editorReady": false,
+        "runtimeAvailability": "unverified",
+        "saveMapping": "unvalidated",
+        "originalArchiveMembershipProven": false,
+        "sourceRecordId": "be8f3a607a3cd2178fd9401cf991b3f574fa388387d7e0d1db52ceb6fd2261ef"
+      },
+      "confidence": "observed",
+      "applicability": {
+        "platforms": [
+          "xbox"
+        ],
+        "build": null
+      },
+      "evidence": [
+        {
+          "sourceRef": "saverift-rpf9-xml-e6f60f5500fdbac906a31b12ca215057f7c4da63e34d338033e04baadb017265",
+          "location": "/CMissions[1]/Missions[1]/Item[143]",
+          "method": "Literal MissionId observation in the recovered XML document; gameplay role and save link unvalidated"
+        }
+      ],
+      "nativeIds": {
+        "configurationId": "BIL_FINALE_M",
+        "configurationNamespace": "XML:CMissions:MissionId"
+      }
+    },
+    {
+      "id": "gta-vi:activities:rpf9-observation-b06ba3233e93c92a72330ad4d662c9e19b7bde4dd5c0150c8f23141d28e9cf5e",
+      "name": {
+        "en": "CLB_MEET — mission configuration"
+      },
+      "attributes": {
+        "recordRole": "mission_configuration",
+        "semanticRole": "configuration_definition",
+        "nameKind": "qualified-source-identifier",
+        "editorReady": false,
+        "runtimeAvailability": "unverified",
+        "saveMapping": "unvalidated",
+        "originalArchiveMembershipProven": false,
+        "sourceRecordId": "66bee6d4358bb2bae72e060fdbd2ea9b82ab46732e6f2d57379bbf04f091b179"
+      },
+      "confidence": "observed",
+      "applicability": {
+        "platforms": [
+          "xbox"
+        ],
+        "build": null
+      },
+      "evidence": [
+        {
+          "sourceRef": "saverift-rpf9-xml-e6f60f5500fdbac906a31b12ca215057f7c4da63e34d338033e04baadb017265",
+          "location": "/CMissions[1]/Missions[1]/Item[35]",
+          "method": "Literal MissionId observation in the recovered XML document; gameplay role and save link unvalidated"
+        }
+      ],
+      "nativeIds": {
+        "configurationId": "CLB_MEET",
+        "configurationNamespace": "XML:CMissions:MissionId"
+      }
+    },
+    {
+      "id": "gta-vi:activities:rpf9-observation-b39a686b95cb106a48229759c669311b2a42a8c57ff6adbe7873b7c6d0ebfcbf",
+      "name": {
+        "en": "MTL_MUD — mission configuration"
+      },
+      "attributes": {
+        "recordRole": "mission_configuration",
+        "semanticRole": "configuration_definition",
+        "nameKind": "qualified-source-identifier",
+        "editorReady": false,
+        "runtimeAvailability": "unverified",
+        "saveMapping": "unvalidated",
+        "originalArchiveMembershipProven": false,
+        "sourceRecordId": "4af31faf979a7f8ccc8b09090b2b66a8358876d2e4124ee71a051a9a5157fbeb"
+      },
+      "confidence": "observed",
+      "applicability": {
+        "platforms": [
+          "xbox"
+        ],
+        "build": null
+      },
+      "evidence": [
+        {
+          "sourceRef": "saverift-rpf9-xml-e6f60f5500fdbac906a31b12ca215057f7c4da63e34d338033e04baadb017265",
+          "location": "/CMissions[1]/Missions[1]/Item[32]",
+          "method": "Literal MissionId observation in the recovered XML document; gameplay role and save link unvalidated"
+        }
+      ],
+      "nativeIds": {
+        "configurationId": "MTL_MUD",
+        "configurationNamespace": "XML:CMissions:MissionId"
+      }
+    },
+    {
+      "id": "gta-vi:activities:rpf9-observation-b3d8ef266642c9a35fe93fe9a3028c8d148dbec9e8eb972010b1ea3acbab4694",
+      "name": {
+        "en": "BIL_PICK_DAY_TIME_START — mission configuration"
+      },
+      "attributes": {
+        "recordRole": "mission_configuration",
+        "semanticRole": "configuration_definition",
+        "nameKind": "qualified-source-identifier",
+        "editorReady": false,
+        "runtimeAvailability": "unverified",
+        "saveMapping": "unvalidated",
+        "originalArchiveMembershipProven": false,
+        "sourceRecordId": "9584dbe676a734411869002979416f5e578e1749bdc7aafc1d6ee4acd9f6104b"
+      },
+      "confidence": "observed",
+      "applicability": {
+        "platforms": [
+          "xbox"
+        ],
+        "build": null
+      },
+      "evidence": [
+        {
+          "sourceRef": "saverift-rpf9-xml-e6f60f5500fdbac906a31b12ca215057f7c4da63e34d338033e04baadb017265",
+          "location": "/CMissions[1]/Missions[1]/Item[117]",
+          "method": "Literal MissionId observation in the recovered XML document; gameplay role and save link unvalidated"
+        }
+      ],
+      "nativeIds": {
+        "configurationId": "BIL_PICK_DAY_TIME_START",
+        "configurationNamespace": "XML:CMissions:MissionId"
+      }
+    },
+    {
+      "id": "gta-vi:activities:rpf9-observation-b401d16f96f2c7a4920fc80d604a84a2dfb463d48174c88273c6c94785c9aef9",
+      "name": {
+        "en": "COM_KBOS_SHOP — mission configuration"
+      },
+      "attributes": {
+        "recordRole": "mission_configuration",
+        "semanticRole": "configuration_definition",
+        "nameKind": "qualified-source-identifier",
+        "editorReady": false,
+        "runtimeAvailability": "unverified",
+        "saveMapping": "unvalidated",
+        "originalArchiveMembershipProven": false,
+        "sourceRecordId": "f733cb83278283fad0dbcbaa7c3c633d40f93b10894b247e5eb8d83ba1a22b40"
+      },
+      "confidence": "observed",
+      "applicability": {
+        "platforms": [
+          "xbox"
+        ],
+        "build": null
+      },
+      "evidence": [
+        {
+          "sourceRef": "saverift-rpf9-xml-e6f60f5500fdbac906a31b12ca215057f7c4da63e34d338033e04baadb017265",
+          "location": "/CMissions[1]/Missions[1]/Item[5]",
+          "method": "Literal MissionId observation in the recovered XML document; gameplay role and save link unvalidated"
+        }
+      ],
+      "nativeIds": {
+        "configurationId": "COM_KBOS_SHOP",
+        "configurationNamespace": "XML:CMissions:MissionId"
+      }
+    },
+    {
+      "id": "gta-vi:activities:rpf9-observation-b40dd361f8631348ebda6e04a316b0b11b85f55ac90b21ddd127ef189231958f",
+      "name": {
+        "en": "COA_SHIP — mission configuration"
+      },
+      "attributes": {
+        "recordRole": "mission_configuration",
+        "semanticRole": "configuration_definition",
+        "nameKind": "qualified-source-identifier",
+        "editorReady": false,
+        "runtimeAvailability": "unverified",
+        "saveMapping": "unvalidated",
+        "originalArchiveMembershipProven": false,
+        "sourceRecordId": "be8d8c2a623705eb5c8e5486b20c708b23116e1d0c300672432599b4bf3daff1"
+      },
+      "confidence": "observed",
+      "applicability": {
+        "platforms": [
+          "xbox"
+        ],
+        "build": null
+      },
+      "evidence": [
+        {
+          "sourceRef": "saverift-rpf9-xml-e6f60f5500fdbac906a31b12ca215057f7c4da63e34d338033e04baadb017265",
+          "location": "/CMissions[1]/Missions[1]/Item[95]",
+          "method": "Literal MissionId observation in the recovered XML document; gameplay role and save link unvalidated"
+        }
+      ],
+      "nativeIds": {
+        "configurationId": "COA_SHIP",
+        "configurationNamespace": "XML:CMissions:MissionId"
+      }
+    },
+    {
+      "id": "gta-vi:activities:rpf9-observation-b61d58087b4abafbb2444198f09b6bce16eaf75a9cec5773f18b4a323202c0bb",
+      "name": {
+        "en": "MNY_HOTEL_AUTOLAUNCH — mission configuration"
+      },
+      "attributes": {
+        "recordRole": "mission_configuration",
+        "semanticRole": "configuration_definition",
+        "nameKind": "qualified-source-identifier",
+        "editorReady": false,
+        "runtimeAvailability": "unverified",
+        "saveMapping": "unvalidated",
+        "originalArchiveMembershipProven": false,
+        "sourceRecordId": "70daecb79f9cfbde4d16aaa42f303197b07008841ec9f30ef740e071ddac3be2"
+      },
+      "confidence": "observed",
+      "applicability": {
+        "platforms": [
+          "xbox"
+        ],
+        "build": null
+      },
+      "evidence": [
+        {
+          "sourceRef": "saverift-rpf9-xml-e6f60f5500fdbac906a31b12ca215057f7c4da63e34d338033e04baadb017265",
+          "location": "/CMissions[1]/Missions[1]/Item[145]",
+          "method": "Literal MissionId observation in the recovered XML document; gameplay role and save link unvalidated"
+        }
+      ],
+      "nativeIds": {
+        "configurationId": "MNY_HOTEL_AUTOLAUNCH",
+        "configurationNamespace": "XML:CMissions:MissionId"
+      }
+    },
+    {
+      "id": "gta-vi:activities:rpf9-observation-b7d96767bbcb530960338195da09f35dad73bb03fdbf26f29a50e9a45b471043",
+      "name": {
+        "en": "CLB_EVI — mission configuration"
+      },
+      "attributes": {
+        "recordRole": "mission_configuration",
+        "semanticRole": "configuration_definition",
+        "nameKind": "qualified-source-identifier",
+        "editorReady": false,
+        "runtimeAvailability": "unverified",
+        "saveMapping": "unvalidated",
+        "originalArchiveMembershipProven": false,
+        "sourceRecordId": "33061edf5d871d31828064526b868c98a493f36ff99bcc72ac62f72027585b31"
+      },
+      "confidence": "observed",
+      "applicability": {
+        "platforms": [
+          "xbox"
+        ],
+        "build": null
+      },
+      "evidence": [
+        {
+          "sourceRef": "saverift-rpf9-xml-e6f60f5500fdbac906a31b12ca215057f7c4da63e34d338033e04baadb017265",
+          "location": "/CMissions[1]/Missions[1]/Item[80]",
+          "method": "Literal MissionId observation in the recovered XML document; gameplay role and save link unvalidated"
+        }
+      ],
+      "nativeIds": {
+        "configurationId": "CLB_EVI",
+        "configurationNamespace": "XML:CMissions:MissionId"
+      }
+    },
+    {
+      "id": "gta-vi:activities:rpf9-observation-ba0cf6d4375c0a8c7a2ea09320a2602f0fadf4d9a967d78203cbe54fe5be7dbe",
+      "name": {
+        "en": "AIR_SCOPE — mission configuration"
+      },
+      "attributes": {
+        "recordRole": "mission_configuration",
+        "semanticRole": "configuration_definition",
+        "nameKind": "qualified-source-identifier",
+        "editorReady": false,
+        "runtimeAvailability": "unverified",
+        "saveMapping": "unvalidated",
+        "originalArchiveMembershipProven": false,
+        "sourceRecordId": "cf3814773308bc170c67c68af2bc57f57d41b52c0b37ee0a0cf7ec6f15779424"
+      },
+      "confidence": "observed",
+      "applicability": {
+        "platforms": [
+          "xbox"
+        ],
+        "build": null
+      },
+      "evidence": [
+        {
+          "sourceRef": "saverift-rpf9-xml-e6f60f5500fdbac906a31b12ca215057f7c4da63e34d338033e04baadb017265",
+          "location": "/CMissions[1]/Missions[1]/Item[78]",
+          "method": "Literal MissionId observation in the recovered XML document; gameplay role and save link unvalidated"
+        }
+      ],
+      "nativeIds": {
+        "configurationId": "AIR_SCOPE",
+        "configurationNamespace": "XML:CMissions:MissionId"
+      }
+    },
+    {
+      "id": "gta-vi:activities:rpf9-observation-bfa3cd7e9e7a593dec7583ff0956d7f385debebf31911cd020858d93de5f566c",
+      "name": {
+        "en": "COM_MECH_INTR — mission configuration"
+      },
+      "attributes": {
+        "recordRole": "mission_configuration",
+        "semanticRole": "configuration_definition",
+        "nameKind": "qualified-source-identifier",
+        "editorReady": false,
+        "runtimeAvailability": "unverified",
+        "saveMapping": "unvalidated",
+        "originalArchiveMembershipProven": false,
+        "sourceRecordId": "6b0824f73e85ef3abfd222763f6a2367e67c524b39e8e79538820323ab83fcfa"
+      },
+      "confidence": "observed",
+      "applicability": {
+        "platforms": [
+          "xbox"
+        ],
+        "build": null
+      },
+      "evidence": [
+        {
+          "sourceRef": "saverift-rpf9-xml-e6f60f5500fdbac906a31b12ca215057f7c4da63e34d338033e04baadb017265",
+          "location": "/CMissions[1]/Missions[1]/Item[26]",
+          "method": "Literal MissionId observation in the recovered XML document; gameplay role and save link unvalidated"
+        }
+      ],
+      "nativeIds": {
+        "configurationId": "COM_MECH_INTR",
+        "configurationNamespace": "XML:CMissions:MissionId"
+      }
+    },
+    {
+      "id": "gta-vi:activities:rpf9-observation-c1d927705d583e9fdb54c8865231152112d4e2437be00acb95b85f1a3ce3386b",
+      "name": {
+        "en": "MTL_PAIN — mission configuration"
+      },
+      "attributes": {
+        "recordRole": "mission_configuration",
+        "semanticRole": "configuration_definition",
+        "nameKind": "qualified-source-identifier",
+        "editorReady": false,
+        "runtimeAvailability": "unverified",
+        "saveMapping": "unvalidated",
+        "originalArchiveMembershipProven": false,
+        "sourceRecordId": "77d41a13e894a288c4a67c7cf9ff69d7c5ab3cdcdfdd354f2d28dac248be5490"
+      },
+      "confidence": "observed",
+      "applicability": {
+        "platforms": [
+          "xbox"
+        ],
+        "build": null
+      },
+      "evidence": [
+        {
+          "sourceRef": "saverift-rpf9-xml-e6f60f5500fdbac906a31b12ca215057f7c4da63e34d338033e04baadb017265",
+          "location": "/CMissions[1]/Missions[1]/Item[28]",
+          "method": "Literal MissionId observation in the recovered XML document; gameplay role and save link unvalidated"
+        }
+      ],
+      "nativeIds": {
+        "configurationId": "MTL_PAIN",
+        "configurationNamespace": "XML:CMissions:MissionId"
+      }
+    },
+    {
+      "id": "gta-vi:activities:rpf9-observation-c3b451a8c579f8f4f29e55496e1766edc0c0917baf77e2a8cb65d5144abf506b",
+      "name": {
+        "en": "CLB_SCUFF — mission configuration"
+      },
+      "attributes": {
+        "recordRole": "mission_configuration",
+        "semanticRole": "configuration_definition",
+        "nameKind": "qualified-source-identifier",
+        "editorReady": false,
+        "runtimeAvailability": "unverified",
+        "saveMapping": "unvalidated",
+        "originalArchiveMembershipProven": false,
+        "sourceRecordId": "014c9a9bae53d6c5b3c0fa6e846d4cd588f9f3e310770364675b6abb72cba4d6"
+      },
+      "confidence": "observed",
+      "applicability": {
+        "platforms": [
+          "xbox"
+        ],
+        "build": null
+      },
+      "evidence": [
+        {
+          "sourceRef": "saverift-rpf9-xml-e6f60f5500fdbac906a31b12ca215057f7c4da63e34d338033e04baadb017265",
+          "location": "/CMissions[1]/Missions[1]/Item[47]",
+          "method": "Literal MissionId observation in the recovered XML document; gameplay role and save link unvalidated"
+        }
+      ],
+      "nativeIds": {
+        "configurationId": "CLB_SCUFF",
+        "configurationNamespace": "XML:CMissions:MissionId"
+      }
+    },
+    {
+      "id": "gta-vi:activities:rpf9-observation-c4cc38fe13f30396de0411f41dd6491b98d10022208f03f5460c53d3be9714b1",
+      "name": {
+        "en": "AIR_CATER_DHS — mission configuration"
+      },
+      "attributes": {
+        "recordRole": "mission_configuration",
+        "semanticRole": "configuration_definition",
+        "nameKind": "qualified-source-identifier",
+        "editorReady": false,
+        "runtimeAvailability": "unverified",
+        "saveMapping": "unvalidated",
+        "originalArchiveMembershipProven": false,
+        "sourceRecordId": "599664cb19c667fd38570eb0de239b4b537a9f73a1d9c9622398b881eeffb8d3"
+      },
+      "confidence": "observed",
+      "applicability": {
+        "platforms": [
+          "xbox"
+        ],
+        "build": null
+      },
+      "evidence": [
+        {
+          "sourceRef": "saverift-rpf9-xml-e6f60f5500fdbac906a31b12ca215057f7c4da63e34d338033e04baadb017265",
+          "location": "/CMissions[1]/Missions[1]/Item[111]",
+          "method": "Literal MissionId observation in the recovered XML document; gameplay role and save link unvalidated"
+        }
+      ],
+      "nativeIds": {
+        "configurationId": "AIR_CATER_DHS",
+        "configurationNamespace": "XML:CMissions:MissionId"
+      }
+    },
+    {
+      "id": "gta-vi:activities:rpf9-observation-c51e4af2a3d4f39f97491d855a0c7521b0d4c009a5251f8bf00fc5b9ad5a7e61",
+      "name": {
+        "en": "ROB_VEH — mission configuration"
+      },
+      "attributes": {
+        "recordRole": "mission_configuration",
+        "semanticRole": "configuration_definition",
+        "nameKind": "qualified-source-identifier",
+        "editorReady": false,
+        "runtimeAvailability": "unverified",
+        "saveMapping": "unvalidated",
+        "originalArchiveMembershipProven": false,
+        "sourceRecordId": "cc31ca65d53bb81eb5d8c1fb9c38475759c3b4e3b138f7e6201e4b38f39eb8ad"
+      },
+      "confidence": "observed",
+      "applicability": {
+        "platforms": [
+          "xbox"
+        ],
+        "build": null
+      },
+      "evidence": [
+        {
+          "sourceRef": "saverift-rpf9-xml-e6f60f5500fdbac906a31b12ca215057f7c4da63e34d338033e04baadb017265",
+          "location": "/CMissions[1]/Missions[1]/Item[37]",
+          "method": "Literal MissionId observation in the recovered XML document; gameplay role and save link unvalidated"
+        }
+      ],
+      "nativeIds": {
+        "configurationId": "ROB_VEH",
+        "configurationNamespace": "XML:CMissions:MissionId"
+      }
+    },
+    {
+      "id": "gta-vi:activities:rpf9-observation-c7cb96a8a4b632ebf6134a1a8bae9f18ebba4e823abf5538e66627d7c6ea7e00",
+      "name": {
+        "en": "COM_DLR_COOK — mission configuration"
+      },
+      "attributes": {
+        "recordRole": "mission_configuration",
+        "semanticRole": "configuration_definition",
+        "nameKind": "qualified-source-identifier",
+        "editorReady": false,
+        "runtimeAvailability": "unverified",
+        "saveMapping": "unvalidated",
+        "originalArchiveMembershipProven": false,
+        "sourceRecordId": "de9f312fcd5e18aed7fad43be549a37801f54cae1a887a45758e77cf290e64e2"
+      },
+      "confidence": "observed",
+      "applicability": {
+        "platforms": [
+          "xbox"
+        ],
+        "build": null
+      },
+      "evidence": [
+        {
+          "sourceRef": "saverift-rpf9-xml-e6f60f5500fdbac906a31b12ca215057f7c4da63e34d338033e04baadb017265",
+          "location": "/CMissions[1]/Missions[1]/Item[45]",
+          "method": "Literal MissionId observation in the recovered XML document; gameplay role and save link unvalidated"
+        }
+      ],
+      "nativeIds": {
+        "configurationId": "COM_DLR_COOK",
+        "configurationNamespace": "XML:CMissions:MissionId"
+      }
+    },
+    {
+      "id": "gta-vi:activities:rpf9-observation-cc7f62f3dc6773aef9206279fe0ca4153d059296dc2adf04c31f636100a3dbcc",
+      "name": {
+        "en": "CTI_PIL_RD_BC_PARENT — mission configuration"
+      },
+      "attributes": {
+        "recordRole": "mission_configuration",
+        "semanticRole": "configuration_definition",
+        "nameKind": "qualified-source-identifier",
+        "editorReady": false,
+        "runtimeAvailability": "unverified",
+        "saveMapping": "unvalidated",
+        "originalArchiveMembershipProven": false,
+        "sourceRecordId": "a66e8fdea808b2af5b219688b708cc9197a013851e9e85cbd9a5dffcf5ca6ae9"
+      },
+      "confidence": "observed",
+      "applicability": {
+        "platforms": [
+          "xbox"
+        ],
+        "build": null
+      },
+      "evidence": [
+        {
+          "sourceRef": "saverift-rpf9-xml-e6f60f5500fdbac906a31b12ca215057f7c4da63e34d338033e04baadb017265",
+          "location": "/CMissions[1]/Missions[1]/Item[12]",
+          "method": "Literal MissionId observation in the recovered XML document; gameplay role and save link unvalidated"
+        }
+      ],
+      "nativeIds": {
+        "configurationId": "CTI_PIL_RD_BC_PARENT",
+        "configurationNamespace": "XML:CMissions:MissionId"
+      }
+    },
+    {
+      "id": "gta-vi:activities:rpf9-observation-ce99edea5795e624a76fbf9fd9d9750dcdff0ca818ad18303a270732a6e430ca",
+      "name": {
+        "en": "BIL_FINAL_B — mission configuration"
+      },
+      "attributes": {
+        "recordRole": "mission_configuration",
+        "semanticRole": "configuration_definition",
+        "nameKind": "qualified-source-identifier",
+        "editorReady": false,
+        "runtimeAvailability": "unverified",
+        "saveMapping": "unvalidated",
+        "originalArchiveMembershipProven": false,
+        "sourceRecordId": "76f18298284185cee237235f68ac7df5476eb9be154bedd193a12beb9afb5cd3"
+      },
+      "confidence": "observed",
+      "applicability": {
+        "platforms": [
+          "xbox"
+        ],
+        "build": null
+      },
+      "evidence": [
+        {
+          "sourceRef": "saverift-rpf9-xml-e6f60f5500fdbac906a31b12ca215057f7c4da63e34d338033e04baadb017265",
+          "location": "/CMissions[1]/Missions[1]/Item[144]",
+          "method": "Literal MissionId observation in the recovered XML document; gameplay role and save link unvalidated"
+        }
+      ],
+      "nativeIds": {
+        "configurationId": "BIL_FINAL_B",
+        "configurationNamespace": "XML:CMissions:MissionId"
+      }
+    },
+    {
+      "id": "gta-vi:activities:rpf9-observation-d00d896f80283bfb0cc9812dfeee208ca3f824c56ce413ccb1bbb75d1700104a",
+      "name": {
+        "en": "RecoverDropTipShackDonnieDeadUnknown — mission configuration"
+      },
+      "attributes": {
+        "recordRole": "mission_configuration",
+        "semanticRole": "configuration_definition",
+        "nameKind": "qualified-source-identifier",
+        "editorReady": false,
+        "runtimeAvailability": "unverified",
+        "saveMapping": "unvalidated",
+        "originalArchiveMembershipProven": false,
+        "sourceRecordId": "f59df63dcc2b0b7ca2c915e804596729b47c70b970de949d14ed8a6063840c71"
+      },
+      "confidence": "observed",
+      "applicability": {
+        "platforms": [
+          "xbox"
+        ],
+        "build": null
+      },
+      "evidence": [
+        {
+          "sourceRef": "saverift-rpf9-xml-e6f60f5500fdbac906a31b12ca215057f7c4da63e34d338033e04baadb017265",
+          "location": "/CMissions[1]/Missions[1]/Item[107]",
+          "method": "Literal MissionId observation in the recovered XML document; gameplay role and save link unvalidated"
+        }
+      ],
+      "nativeIds": {
+        "configurationId": "RecoverDropTipShackDonnieDeadUnknown",
+        "configurationNamespace": "XML:CMissions:MissionId"
+      }
+    },
+    {
+      "id": "gta-vi:activities:rpf9-observation-d233d240ba134ef48093c88b0bf81ceb6b88d3bd6b4119b0de5368428b5d75cd",
+      "name": {
+        "en": "UP_MLSPM — mission configuration"
+      },
+      "attributes": {
+        "recordRole": "mission_configuration",
+        "semanticRole": "configuration_definition",
+        "nameKind": "qualified-source-identifier",
+        "editorReady": false,
+        "runtimeAvailability": "unverified",
+        "saveMapping": "unvalidated",
+        "originalArchiveMembershipProven": false,
+        "sourceRecordId": "0bdd87c6c867497e28d47ce7ea4f28aff257cf2d99b663fd6548ad8350adc4f4"
+      },
+      "confidence": "observed",
+      "applicability": {
+        "platforms": [
+          "xbox"
+        ],
+        "build": null
+      },
+      "evidence": [
+        {
+          "sourceRef": "saverift-rpf9-xml-e6f60f5500fdbac906a31b12ca215057f7c4da63e34d338033e04baadb017265",
+          "location": "/CMissions[1]/Missions[1]/Item[131]",
+          "method": "Literal MissionId observation in the recovered XML document; gameplay role and save link unvalidated"
+        }
+      ],
+      "nativeIds": {
+        "configurationId": "UP_MLSPM",
+        "configurationNamespace": "XML:CMissions:MissionId"
+      }
+    },
+    {
+      "id": "gta-vi:activities:rpf9-observation-d2c8ee7331441b3e2233556840604410a89595c2acb6aec7abca06b77a66ab1c",
+      "name": {
+        "en": "FT_UP_MMRENT_MANAGER_CONFRONTED — mission configuration"
+      },
+      "attributes": {
+        "recordRole": "mission_configuration",
+        "semanticRole": "configuration_definition",
+        "nameKind": "qualified-source-identifier",
+        "editorReady": false,
+        "runtimeAvailability": "unverified",
+        "saveMapping": "unvalidated",
+        "originalArchiveMembershipProven": false,
+        "sourceRecordId": "b8b16b8310f0526b28ce9e4478bff6caeef9aa9bd00cb9514725fa265584c4a5"
+      },
+      "confidence": "observed",
+      "applicability": {
+        "platforms": [
+          "xbox"
+        ],
+        "build": null
+      },
+      "evidence": [
+        {
+          "sourceRef": "saverift-rpf9-xml-e6f60f5500fdbac906a31b12ca215057f7c4da63e34d338033e04baadb017265",
+          "location": "/CMissions[1]/Missions[1]/Item[137]",
+          "method": "Literal MissionId observation in the recovered XML document; gameplay role and save link unvalidated"
+        }
+      ],
+      "nativeIds": {
+        "configurationId": "FT_UP_MMRENT_MANAGER_CONFRONTED",
+        "configurationNamespace": "XML:CMissions:MissionId"
+      }
+    },
+    {
+      "id": "gta-vi:activities:rpf9-observation-d4823aada605e137c5364b1acbe552749c116335cb101c45e8fcf42d9b5f306e",
+      "name": {
+        "en": "AIR_CATER_DHF — mission configuration"
+      },
+      "attributes": {
+        "recordRole": "mission_configuration",
+        "semanticRole": "configuration_definition",
+        "nameKind": "qualified-source-identifier",
+        "editorReady": false,
+        "runtimeAvailability": "unverified",
+        "saveMapping": "unvalidated",
+        "originalArchiveMembershipProven": false,
+        "sourceRecordId": "93cca82e3be1a0585f07d68fc26f91ce4fd26057592f50ba996b4f468f431d3d"
+      },
+      "confidence": "observed",
+      "applicability": {
+        "platforms": [
+          "xbox"
+        ],
+        "build": null
+      },
+      "evidence": [
+        {
+          "sourceRef": "saverift-rpf9-xml-e6f60f5500fdbac906a31b12ca215057f7c4da63e34d338033e04baadb017265",
+          "location": "/CMissions[1]/Missions[1]/Item[109]",
+          "method": "Literal MissionId observation in the recovered XML document; gameplay role and save link unvalidated"
+        }
+      ],
+      "nativeIds": {
+        "configurationId": "AIR_CATER_DHF",
+        "configurationNamespace": "XML:CMissions:MissionId"
+      }
+    },
+    {
+      "id": "gta-vi:activities:rpf9-observation-d706e3e7372d42ec17cc74be8c9968dcd973974c25d7d2d43905ec76b539f14c",
+      "name": {
+        "en": "BIL_PENT — mission configuration"
+      },
+      "attributes": {
+        "recordRole": "mission_configuration",
+        "semanticRole": "configuration_definition",
+        "nameKind": "qualified-source-identifier",
+        "editorReady": false,
+        "runtimeAvailability": "unverified",
+        "saveMapping": "unvalidated",
+        "originalArchiveMembershipProven": false,
+        "sourceRecordId": "00abe6ebaba260426f25ec2bf48bb75df523f242ed2a64b15447cc3241cfe98d"
+      },
+      "confidence": "observed",
+      "applicability": {
+        "platforms": [
+          "xbox"
+        ],
+        "build": null
+      },
+      "evidence": [
+        {
+          "sourceRef": "saverift-rpf9-xml-e6f60f5500fdbac906a31b12ca215057f7c4da63e34d338033e04baadb017265",
+          "location": "/CMissions[1]/Missions[1]/Item[97]",
+          "method": "Literal MissionId observation in the recovered XML document; gameplay role and save link unvalidated"
+        }
+      ],
+      "nativeIds": {
+        "configurationId": "BIL_PENT",
+        "configurationNamespace": "XML:CMissions:MissionId"
+      }
+    },
+    {
+      "id": "gta-vi:activities:rpf9-observation-db09c0bb0f569a40e579f86e929ce1daa015e7c23eadec4e1c430eab0277c689",
+      "name": {
+        "en": "BIL_MOTEL_NON_VIOLENT — mission configuration"
+      },
+      "attributes": {
+        "recordRole": "mission_configuration",
+        "semanticRole": "configuration_definition",
+        "nameKind": "qualified-source-identifier",
+        "editorReady": false,
+        "runtimeAvailability": "unverified",
+        "saveMapping": "unvalidated",
+        "originalArchiveMembershipProven": false,
+        "sourceRecordId": "ab0a56d860538275a0908172002ce89f59b7093ca573cfb414e9f0c16a7ab091"
+      },
+      "confidence": "observed",
+      "applicability": {
+        "platforms": [
+          "xbox"
+        ],
+        "build": null
+      },
+      "evidence": [
+        {
+          "sourceRef": "saverift-rpf9-xml-e6f60f5500fdbac906a31b12ca215057f7c4da63e34d338033e04baadb017265",
+          "location": "/CMissions[1]/Missions[1]/Item[115]",
+          "method": "Literal MissionId observation in the recovered XML document; gameplay role and save link unvalidated"
+        }
+      ],
+      "nativeIds": {
+        "configurationId": "BIL_MOTEL_NON_VIOLENT",
+        "configurationNamespace": "XML:CMissions:MissionId"
+      }
+    },
+    {
+      "id": "gta-vi:activities:rpf9-observation-db6f3ac0a84ceca1f3db1de16588371dcb30d1d5a05356f19e5073c3853f2f48",
+      "name": {
+        "en": "BIL_BOSS — mission configuration"
+      },
+      "attributes": {
+        "recordRole": "mission_configuration",
+        "semanticRole": "configuration_definition",
+        "nameKind": "qualified-source-identifier",
+        "editorReady": false,
+        "runtimeAvailability": "unverified",
+        "saveMapping": "unvalidated",
+        "originalArchiveMembershipProven": false,
+        "sourceRecordId": "c37d83416c80a94c96e1fc159d607809e2007bfa9013aa471bdcec4208302c6d"
+      },
+      "confidence": "observed",
+      "applicability": {
+        "platforms": [
+          "xbox"
+        ],
+        "build": null
+      },
+      "evidence": [
+        {
+          "sourceRef": "saverift-rpf9-xml-e6f60f5500fdbac906a31b12ca215057f7c4da63e34d338033e04baadb017265",
+          "location": "/CMissions[1]/Missions[1]/Item[92]",
+          "method": "Literal MissionId observation in the recovered XML document; gameplay role and save link unvalidated"
+        }
+      ],
+      "nativeIds": {
+        "configurationId": "BIL_BOSS",
+        "configurationNamespace": "XML:CMissions:MissionId"
+      }
+    },
+    {
+      "id": "gta-vi:activities:rpf9-observation-dc0efbe42da877b98a47845df42bcfeaf785f49171a19a26f3f0a7b7fa8e3b25",
+      "name": {
+        "en": "CTI_SHOW_HATH — mission configuration"
+      },
+      "attributes": {
+        "recordRole": "mission_configuration",
+        "semanticRole": "configuration_definition",
+        "nameKind": "qualified-source-identifier",
+        "editorReady": false,
+        "runtimeAvailability": "unverified",
+        "saveMapping": "unvalidated",
+        "originalArchiveMembershipProven": false,
+        "sourceRecordId": "b1d33d1aef8cab62efcf49bc379e320a10c824ffd2f75cd44dc30bd9ea0167b3"
+      },
+      "confidence": "observed",
+      "applicability": {
+        "platforms": [
+          "xbox"
+        ],
+        "build": null
+      },
+      "evidence": [
+        {
+          "sourceRef": "saverift-rpf9-xml-e6f60f5500fdbac906a31b12ca215057f7c4da63e34d338033e04baadb017265",
+          "location": "/CMissions[1]/Missions[1]/Item[53]",
+          "method": "Literal MissionId observation in the recovered XML document; gameplay role and save link unvalidated"
+        }
+      ],
+      "nativeIds": {
+        "configurationId": "CTI_SHOW_HATH",
+        "configurationNamespace": "XML:CMissions:MissionId"
+      }
+    },
+    {
+      "id": "gta-vi:activities:rpf9-observation-dd102c4830ae66b457899881612c859adeb99b2eb30ae2f316b480049cabbd3e",
+      "name": {
+        "en": "ANT_RECOV — mission configuration"
+      },
+      "attributes": {
+        "recordRole": "mission_configuration",
+        "semanticRole": "configuration_definition",
+        "nameKind": "qualified-source-identifier",
+        "editorReady": false,
+        "runtimeAvailability": "unverified",
+        "saveMapping": "unvalidated",
+        "originalArchiveMembershipProven": false,
+        "sourceRecordId": "a247dbe7dce6f543fa360e5e35fb6a96450c7ca8c4ad2caecfd87b668cfd19f6"
+      },
+      "confidence": "observed",
+      "applicability": {
+        "platforms": [
+          "xbox"
+        ],
+        "build": null
+      },
+      "evidence": [
+        {
+          "sourceRef": "saverift-rpf9-xml-e6f60f5500fdbac906a31b12ca215057f7c4da63e34d338033e04baadb017265",
+          "location": "/CMissions[1]/Missions[1]/Item[98]",
+          "method": "Literal MissionId observation in the recovered XML document; gameplay role and save link unvalidated"
+        }
+      ],
+      "nativeIds": {
+        "configurationId": "ANT_RECOV",
+        "configurationNamespace": "XML:CMissions:MissionId"
+      }
+    },
+    {
+      "id": "gta-vi:activities:rpf9-observation-ded55bd9d5db82706700b0f1e5fdffdedfaad09479f917f37b7cf6bcfb534778",
+      "name": {
+        "en": "BAN_FINAL — mission configuration"
+      },
+      "attributes": {
+        "recordRole": "mission_configuration",
+        "semanticRole": "configuration_definition",
+        "nameKind": "qualified-source-identifier",
+        "editorReady": false,
+        "runtimeAvailability": "unverified",
+        "saveMapping": "unvalidated",
+        "originalArchiveMembershipProven": false,
+        "sourceRecordId": "36273041c28a11620c4dcc00a9a8d73c55b4829e58e754da13f2e0e247b828ca"
+      },
+      "confidence": "observed",
+      "applicability": {
+        "platforms": [
+          "xbox"
+        ],
+        "build": null
+      },
+      "evidence": [
+        {
+          "sourceRef": "saverift-rpf9-xml-e6f60f5500fdbac906a31b12ca215057f7c4da63e34d338033e04baadb017265",
+          "location": "/CMissions[1]/Missions[1]/Item[65]",
+          "method": "Literal MissionId observation in the recovered XML document; gameplay role and save link unvalidated"
+        }
+      ],
+      "nativeIds": {
+        "configurationId": "BAN_FINAL",
+        "configurationNamespace": "XML:CMissions:MissionId"
+      }
+    },
+    {
+      "id": "gta-vi:activities:rpf9-observation-dfb6bfdde88a9ac9f820121055a6c873fdd4fd4a5769e3a3e8f27a25b214fa8c",
+      "name": {
+        "en": "CSC_TRH_CHART — mission configuration"
+      },
+      "attributes": {
+        "recordRole": "mission_configuration",
+        "semanticRole": "configuration_definition",
+        "nameKind": "qualified-source-identifier",
+        "editorReady": false,
+        "runtimeAvailability": "unverified",
+        "saveMapping": "unvalidated",
+        "originalArchiveMembershipProven": false,
+        "sourceRecordId": "b24ac8a50354a7917ec3869d2b7654b02819283e90fc6005095e9b05512878c1"
+      },
+      "confidence": "observed",
+      "applicability": {
+        "platforms": [
+          "xbox"
+        ],
+        "build": null
+      },
+      "evidence": [
+        {
+          "sourceRef": "saverift-rpf9-xml-e6f60f5500fdbac906a31b12ca215057f7c4da63e34d338033e04baadb017265",
+          "location": "/CMissions[1]/Missions[1]/Item[101]",
+          "method": "Literal MissionId observation in the recovered XML document; gameplay role and save link unvalidated"
+        }
+      ],
+      "nativeIds": {
+        "configurationId": "CSC_TRH_CHART",
+        "configurationNamespace": "XML:CMissions:MissionId"
+      }
+    },
+    {
+      "id": "gta-vi:activities:rpf9-observation-e15701d29eb170ddfd2ca3e9942bda6abb7ebe8625d390c2bc0fc89ba9f1a1e3",
+      "name": {
+        "en": "COM_CBO_CBINT — mission configuration"
+      },
+      "attributes": {
+        "recordRole": "mission_configuration",
+        "semanticRole": "configuration_definition",
+        "nameKind": "qualified-source-identifier",
+        "editorReady": false,
+        "runtimeAvailability": "unverified",
+        "saveMapping": "unvalidated",
+        "originalArchiveMembershipProven": false,
+        "sourceRecordId": "a6c239f37bdef18fdb00f9e17ad4e698984fa0675c2bd5e72f8e5d729a74acdb"
+      },
+      "confidence": "observed",
+      "applicability": {
+        "platforms": [
+          "xbox"
+        ],
+        "build": null
+      },
+      "evidence": [
+        {
+          "sourceRef": "saverift-rpf9-xml-e6f60f5500fdbac906a31b12ca215057f7c4da63e34d338033e04baadb017265",
+          "location": "/CMissions[1]/Missions[1]/Item[48]",
+          "method": "Literal MissionId observation in the recovered XML document; gameplay role and save link unvalidated"
+        }
+      ],
+      "nativeIds": {
+        "configurationId": "COM_CBO_CBINT",
+        "configurationNamespace": "XML:CMissions:MissionId"
+      }
+    },
+    {
+      "id": "gta-vi:activities:rpf9-observation-e1b8387e5ae109b599b2120ddec0deb08b50689a042484c1b1499f4a45e81103",
+      "name": {
+        "en": "FT_KMODSHP_FIRST — mission configuration"
+      },
+      "attributes": {
+        "recordRole": "mission_configuration",
+        "semanticRole": "configuration_definition",
+        "nameKind": "qualified-source-identifier",
+        "editorReady": false,
+        "runtimeAvailability": "unverified",
+        "saveMapping": "unvalidated",
+        "originalArchiveMembershipProven": false,
+        "sourceRecordId": "edd8a69b614a06c04124d1ef24e5c1c0d6c4e61406db8f34399a8960aaab4aa0"
+      },
+      "confidence": "observed",
+      "applicability": {
+        "platforms": [
+          "xbox"
+        ],
+        "build": null
+      },
+      "evidence": [
+        {
+          "sourceRef": "saverift-rpf9-xml-e6f60f5500fdbac906a31b12ca215057f7c4da63e34d338033e04baadb017265",
+          "location": "/CMissions[1]/Missions[1]/Item[121]",
+          "method": "Literal MissionId observation in the recovered XML document; gameplay role and save link unvalidated"
+        }
+      ],
+      "nativeIds": {
+        "configurationId": "FT_KMODSHP_FIRST",
+        "configurationNamespace": "XML:CMissions:MissionId"
+      }
+    },
+    {
+      "id": "gta-vi:activities:rpf9-observation-e265230c13c2e911c4792fe4e91ceb8d93bfb520873178302a57af17e4269354",
+      "name": {
+        "en": "COM_KBOS_PLNDATE — mission configuration"
+      },
+      "attributes": {
+        "recordRole": "mission_configuration",
+        "semanticRole": "configuration_definition",
+        "nameKind": "qualified-source-identifier",
+        "editorReady": false,
+        "runtimeAvailability": "unverified",
+        "saveMapping": "unvalidated",
+        "originalArchiveMembershipProven": false,
+        "sourceRecordId": "b8d80c6f86c945c42c29ee33f303460014a4176b812a916714d5da4138ad15b2"
+      },
+      "confidence": "observed",
+      "applicability": {
+        "platforms": [
+          "xbox"
+        ],
+        "build": null
+      },
+      "evidence": [
+        {
+          "sourceRef": "saverift-rpf9-xml-e6f60f5500fdbac906a31b12ca215057f7c4da63e34d338033e04baadb017265",
+          "location": "/CMissions[1]/Missions[1]/Item[13]",
+          "method": "Literal MissionId observation in the recovered XML document; gameplay role and save link unvalidated"
+        }
+      ],
+      "nativeIds": {
+        "configurationId": "COM_KBOS_PLNDATE",
+        "configurationNamespace": "XML:CMissions:MissionId"
+      }
+    },
+    {
+      "id": "gta-vi:activities:rpf9-observation-e4a50c55c9d40371d19fca387cff0e5adbe1770ab2343770cb57e539415723d9",
+      "name": {
+        "en": "robbergetawaydriverprep — mission configuration"
+      },
+      "attributes": {
+        "recordRole": "mission_configuration",
+        "semanticRole": "configuration_definition",
+        "nameKind": "qualified-source-identifier",
+        "editorReady": false,
+        "runtimeAvailability": "unverified",
+        "saveMapping": "unvalidated",
+        "originalArchiveMembershipProven": false,
+        "sourceRecordId": "d981f24f0af4631872c0471f5fa2779aebd9f2744650898cbea22f075648f043"
+      },
+      "confidence": "observed",
+      "applicability": {
+        "platforms": [
+          "xbox"
+        ],
+        "build": null
+      },
+      "evidence": [
+        {
+          "sourceRef": "saverift-rpf9-xml-e6f60f5500fdbac906a31b12ca215057f7c4da63e34d338033e04baadb017265",
+          "location": "/CMissions[1]/Missions[1]/Item[23]",
+          "method": "Literal MissionId observation in the recovered XML document; gameplay role and save link unvalidated"
+        }
+      ],
+      "nativeIds": {
+        "configurationId": "robbergetawaydriverprep",
+        "configurationNamespace": "XML:CMissions:MissionId"
+      }
+    },
+    {
+      "id": "gta-vi:activities:rpf9-observation-e52f31b370db4f6b34f2993b3d8a7a708663034594e12a31d8d0fb64dd645f0d",
+      "name": {
+        "en": "COM_DLR_MISS — mission configuration"
+      },
+      "attributes": {
+        "recordRole": "mission_configuration",
+        "semanticRole": "configuration_definition",
+        "nameKind": "qualified-source-identifier",
+        "editorReady": false,
+        "runtimeAvailability": "unverified",
+        "saveMapping": "unvalidated",
+        "originalArchiveMembershipProven": false,
+        "sourceRecordId": "f4ba959e36b1a1c1541fe33a43132cc74b0a2249f6537c176b47a3a63b4e09b3"
+      },
+      "confidence": "observed",
+      "applicability": {
+        "platforms": [
+          "xbox"
+        ],
+        "build": null
+      },
+      "evidence": [
+        {
+          "sourceRef": "saverift-rpf9-xml-e6f60f5500fdbac906a31b12ca215057f7c4da63e34d338033e04baadb017265",
+          "location": "/CMissions[1]/Missions[1]/Item[43]",
+          "method": "Literal MissionId observation in the recovered XML document; gameplay role and save link unvalidated"
+        }
+      ],
+      "nativeIds": {
+        "configurationId": "COM_DLR_MISS",
+        "configurationNamespace": "XML:CMissions:MissionId"
+      }
+    },
+    {
+      "id": "gta-vi:activities:rpf9-observation-e543983c26703240515bfe45ffc060a55069664d77d4e7a37176be548160845c",
+      "name": {
+        "en": "AIR_RECRU — mission configuration"
+      },
+      "attributes": {
+        "recordRole": "mission_configuration",
+        "semanticRole": "configuration_definition",
+        "nameKind": "qualified-source-identifier",
+        "editorReady": false,
+        "runtimeAvailability": "unverified",
+        "saveMapping": "unvalidated",
+        "originalArchiveMembershipProven": false,
+        "sourceRecordId": "40a7a0229158d77b7c46bf531c2694f1d43b89254a1a61c5451608ce3dc2f36a"
+      },
+      "confidence": "observed",
+      "applicability": {
+        "platforms": [
+          "xbox"
+        ],
+        "build": null
+      },
+      "evidence": [
+        {
+          "sourceRef": "saverift-rpf9-xml-e6f60f5500fdbac906a31b12ca215057f7c4da63e34d338033e04baadb017265",
+          "location": "/CMissions[1]/Missions[1]/Item[86]",
+          "method": "Literal MissionId observation in the recovered XML document; gameplay role and save link unvalidated"
+        }
+      ],
+      "nativeIds": {
+        "configurationId": "AIR_RECRU",
+        "configurationNamespace": "XML:CMissions:MissionId"
+      }
+    },
+    {
+      "id": "gta-vi:activities:rpf9-observation-eaa7f2f937e82b87a25c5b4268ce7c605f8ba3b385711a2e16aae2a1faa87bba",
+      "name": {
+        "en": "FT_MOTEL_SHOP — mission configuration"
+      },
+      "attributes": {
+        "recordRole": "mission_configuration",
+        "semanticRole": "configuration_definition",
+        "nameKind": "qualified-source-identifier",
+        "editorReady": false,
+        "runtimeAvailability": "unverified",
+        "saveMapping": "unvalidated",
+        "originalArchiveMembershipProven": false,
+        "sourceRecordId": "87a12be3e465b3e6944f8404be1fac85bb7e834b85d659bb3f47c2fe2737d3df"
+      },
+      "confidence": "observed",
+      "applicability": {
+        "platforms": [
+          "xbox"
+        ],
+        "build": null
+      },
+      "evidence": [
+        {
+          "sourceRef": "saverift-rpf9-xml-e6f60f5500fdbac906a31b12ca215057f7c4da63e34d338033e04baadb017265",
+          "location": "/CMissions[1]/Missions[1]/Item[24]",
+          "method": "Literal MissionId observation in the recovered XML document; gameplay role and save link unvalidated"
+        }
+      ],
+      "nativeIds": {
+        "configurationId": "FT_MOTEL_SHOP",
+        "configurationNamespace": "XML:CMissions:MissionId"
+      }
+    },
+    {
+      "id": "gta-vi:activities:rpf9-observation-ebedf26366e3cfdfe28bc7c707f51651eed6b9a56c52c04bc0f650994eb46c16",
+      "name": {
+        "en": "ANT_INTRO — mission configuration"
+      },
+      "attributes": {
+        "recordRole": "mission_configuration",
+        "semanticRole": "configuration_definition",
+        "nameKind": "qualified-source-identifier",
+        "editorReady": false,
+        "runtimeAvailability": "unverified",
+        "saveMapping": "unvalidated",
+        "originalArchiveMembershipProven": false,
+        "sourceRecordId": "92e25a16f59b308d12d341dd21792cbf164b31d4e145d25cec8f86c5c3ae90f9"
+      },
+      "confidence": "observed",
+      "applicability": {
+        "platforms": [
+          "xbox"
+        ],
+        "build": null
+      },
+      "evidence": [
+        {
+          "sourceRef": "saverift-rpf9-xml-e6f60f5500fdbac906a31b12ca215057f7c4da63e34d338033e04baadb017265",
+          "location": "/CMissions[1]/Missions[1]/Item[99]",
+          "method": "Literal MissionId observation in the recovered XML document; gameplay role and save link unvalidated"
+        }
+      ],
+      "nativeIds": {
+        "configurationId": "ANT_INTRO",
+        "configurationNamespace": "XML:CMissions:MissionId"
+      }
+    },
+    {
+      "id": "gta-vi:activities:rpf9-observation-ec2c10de7acac8b836203615748a52583a5a3b0dd5b48a8adea8591903f5242b",
+      "name": {
+        "en": "FT_KMODSHP_SECOND — mission configuration"
+      },
+      "attributes": {
+        "recordRole": "mission_configuration",
+        "semanticRole": "configuration_definition",
+        "nameKind": "qualified-source-identifier",
+        "editorReady": false,
+        "runtimeAvailability": "unverified",
+        "saveMapping": "unvalidated",
+        "originalArchiveMembershipProven": false,
+        "sourceRecordId": "2af4ebebe919794779c6b3476a1dc539d7c8cd653bcf932f145d7a9c597b6bae"
+      },
+      "confidence": "observed",
+      "applicability": {
+        "platforms": [
+          "xbox"
+        ],
+        "build": null
+      },
+      "evidence": [
+        {
+          "sourceRef": "saverift-rpf9-xml-e6f60f5500fdbac906a31b12ca215057f7c4da63e34d338033e04baadb017265",
+          "location": "/CMissions[1]/Missions[1]/Item[122]",
+          "method": "Literal MissionId observation in the recovered XML document; gameplay role and save link unvalidated"
+        }
+      ],
+      "nativeIds": {
+        "configurationId": "FT_KMODSHP_SECOND",
+        "configurationNamespace": "XML:CMissions:MissionId"
+      }
+    },
+    {
+      "id": "gta-vi:activities:rpf9-observation-ed4b081e08af24b9ca40c2cfe0b379b2835a38f3e74c240df79de35dcbccc1bc",
+      "name": {
+        "en": "AO_DEAL_T_SYNTH — mission configuration"
+      },
+      "attributes": {
+        "recordRole": "mission_configuration",
+        "semanticRole": "configuration_definition",
+        "nameKind": "qualified-source-identifier",
+        "editorReady": false,
+        "runtimeAvailability": "unverified",
+        "saveMapping": "unvalidated",
+        "originalArchiveMembershipProven": false,
+        "sourceRecordId": "5037f7ac0a72b712ec85273e5796341bac291b143f2200deece7b2bfadfd614b"
+      },
+      "confidence": "observed",
+      "applicability": {
+        "platforms": [
+          "xbox"
+        ],
+        "build": null
+      },
+      "evidence": [
+        {
+          "sourceRef": "saverift-rpf9-xml-e6f60f5500fdbac906a31b12ca215057f7c4da63e34d338033e04baadb017265",
+          "location": "/CMissions[1]/Missions[1]/Item[44]",
+          "method": "Literal MissionId observation in the recovered XML document; gameplay role and save link unvalidated"
+        }
+      ],
+      "nativeIds": {
+        "configurationId": "AO_DEAL_T_SYNTH",
+        "configurationNamespace": "XML:CMissions:MissionId"
+      }
+    },
+    {
+      "id": "gta-vi:activities:rpf9-observation-ee9e6cca505696f6c14e7073e53d0f06c9bf989fe72a651b7cdb78d48e6adc0e",
+      "name": {
+        "en": "ANT_GIVE — mission configuration"
+      },
+      "attributes": {
+        "recordRole": "mission_configuration",
+        "semanticRole": "configuration_definition",
+        "nameKind": "qualified-source-identifier",
+        "editorReady": false,
+        "runtimeAvailability": "unverified",
+        "saveMapping": "unvalidated",
+        "originalArchiveMembershipProven": false,
+        "sourceRecordId": "342f1f91973fa7b78a326d8929a1a71e23d97918490c4bfdb58786dba70b5a39"
+      },
+      "confidence": "observed",
+      "applicability": {
+        "platforms": [
+          "xbox"
+        ],
+        "build": null
+      },
+      "evidence": [
+        {
+          "sourceRef": "saverift-rpf9-xml-e6f60f5500fdbac906a31b12ca215057f7c4da63e34d338033e04baadb017265",
+          "location": "/CMissions[1]/Missions[1]/Item[134]",
+          "method": "Literal MissionId observation in the recovered XML document; gameplay role and save link unvalidated"
+        }
+      ],
+      "nativeIds": {
+        "configurationId": "ANT_GIVE",
+        "configurationNamespace": "XML:CMissions:MissionId"
+      }
+    },
+    {
+      "id": "gta-vi:activities:rpf9-observation-efc008fe1fc6364f143b76e87260984ff84bcb9422cd22584968264aa58c526c",
+      "name": {
+        "en": "MNY_PARTY — mission configuration"
+      },
+      "attributes": {
+        "recordRole": "mission_configuration",
+        "semanticRole": "configuration_definition",
+        "nameKind": "qualified-source-identifier",
+        "editorReady": false,
+        "runtimeAvailability": "unverified",
+        "saveMapping": "unvalidated",
+        "originalArchiveMembershipProven": false,
+        "sourceRecordId": "38a1ffc595e96d20bcddd96cbd1c48fee10c5995f1c2ec20ba908459c7f8fe87"
+      },
+      "confidence": "observed",
+      "applicability": {
+        "platforms": [
+          "xbox"
+        ],
+        "build": null
+      },
+      "evidence": [
+        {
+          "sourceRef": "saverift-rpf9-xml-e6f60f5500fdbac906a31b12ca215057f7c4da63e34d338033e04baadb017265",
+          "location": "/CMissions[1]/Missions[1]/Item[70]",
+          "method": "Literal MissionId observation in the recovered XML document; gameplay role and save link unvalidated"
+        }
+      ],
+      "nativeIds": {
+        "configurationId": "MNY_PARTY",
+        "configurationNamespace": "XML:CMissions:MissionId"
+      }
+    },
+    {
+      "id": "gta-vi:activities:rpf9-observation-f301f967d12a078dbbc29e044ab29c610f3f94dd9ac20e54d0d685bd5276e99d",
+      "name": {
+        "en": "CLB_PROMO — mission configuration"
+      },
+      "attributes": {
+        "recordRole": "mission_configuration",
+        "semanticRole": "configuration_definition",
+        "nameKind": "qualified-source-identifier",
+        "editorReady": false,
+        "runtimeAvailability": "unverified",
+        "saveMapping": "unvalidated",
+        "originalArchiveMembershipProven": false,
+        "sourceRecordId": "5412274cb8468c0b80859dfa3d8b6c508f9e5ee5bf5f692f41ce149859218548"
+      },
+      "confidence": "observed",
+      "applicability": {
+        "platforms": [
+          "xbox"
+        ],
+        "build": null
+      },
+      "evidence": [
+        {
+          "sourceRef": "saverift-rpf9-xml-e6f60f5500fdbac906a31b12ca215057f7c4da63e34d338033e04baadb017265",
+          "location": "/CMissions[1]/Missions[1]/Item[74]",
+          "method": "Literal MissionId observation in the recovered XML document; gameplay role and save link unvalidated"
+        }
+      ],
+      "nativeIds": {
+        "configurationId": "CLB_PROMO",
+        "configurationNamespace": "XML:CMissions:MissionId"
+      }
+    },
+    {
+      "id": "gta-vi:activities:rpf9-observation-f5bac35000651dcf0e738914e56857766a8caca21fdee68d5fc3794b75ea0f56",
+      "name": {
+        "en": "BIL_PRECI — mission configuration"
+      },
+      "attributes": {
+        "recordRole": "mission_configuration",
+        "semanticRole": "configuration_definition",
+        "nameKind": "qualified-source-identifier",
+        "editorReady": false,
+        "runtimeAvailability": "unverified",
+        "saveMapping": "unvalidated",
+        "originalArchiveMembershipProven": false,
+        "sourceRecordId": "17086e364ee9ae8bff2fdf7000029ba2c426a84d421c47769b1a95c0c2fe273c"
+      },
+      "confidence": "observed",
+      "applicability": {
+        "platforms": [
+          "xbox"
+        ],
+        "build": null
+      },
+      "evidence": [
+        {
+          "sourceRef": "saverift-rpf9-xml-e6f60f5500fdbac906a31b12ca215057f7c4da63e34d338033e04baadb017265",
+          "location": "/CMissions[1]/Missions[1]/Item[96]",
+          "method": "Literal MissionId observation in the recovered XML document; gameplay role and save link unvalidated"
+        }
+      ],
+      "nativeIds": {
+        "configurationId": "BIL_PRECI",
+        "configurationNamespace": "XML:CMissions:MissionId"
+      }
+    },
+    {
+      "id": "gta-vi:activities:rpf9-observation-f627f16c8e10997bd92e435b3b04155eb089638ed59440685706d77a02405362",
+      "name": {
+        "en": "FT_AMUCO_SECOND_INTERACTION — mission configuration"
+      },
+      "attributes": {
+        "recordRole": "mission_configuration",
+        "semanticRole": "configuration_definition",
+        "nameKind": "qualified-source-identifier",
+        "editorReady": false,
+        "runtimeAvailability": "unverified",
+        "saveMapping": "unvalidated",
+        "originalArchiveMembershipProven": false,
+        "sourceRecordId": "3efbeb8c0761c2980ccb9ca0f4bd237c843c778326a7b9bcb97d869dd592f529"
+      },
+      "confidence": "observed",
+      "applicability": {
+        "platforms": [
+          "xbox"
+        ],
+        "build": null
+      },
+      "evidence": [
+        {
+          "sourceRef": "saverift-rpf9-xml-e6f60f5500fdbac906a31b12ca215057f7c4da63e34d338033e04baadb017265",
+          "location": "/CMissions[1]/Missions[1]/Item[120]",
+          "method": "Literal MissionId observation in the recovered XML document; gameplay role and save link unvalidated"
+        }
+      ],
+      "nativeIds": {
+        "configurationId": "FT_AMUCO_SECOND_INTERACTION",
+        "configurationNamespace": "XML:CMissions:MissionId"
+      }
+    },
+    {
+      "id": "gta-vi:activities:rpf9-observation-f6ce180c4daad70ffad570ead60f1d995f0bd45954ff0a80d3f52993b8ef03e8",
+      "name": {
+        "en": "AIR_FINAL_DATA_HACK_PASSED — mission configuration"
+      },
+      "attributes": {
+        "recordRole": "mission_configuration",
+        "semanticRole": "configuration_definition",
+        "nameKind": "qualified-source-identifier",
+        "editorReady": false,
+        "runtimeAvailability": "unverified",
+        "saveMapping": "unvalidated",
+        "originalArchiveMembershipProven": false,
+        "sourceRecordId": "2efb3148841b976d746b1c94f07cf992500e7f55337a26e0c6403d7f0d2c33b8"
+      },
+      "confidence": "observed",
+      "applicability": {
+        "platforms": [
+          "xbox"
+        ],
+        "build": null
+      },
+      "evidence": [
+        {
+          "sourceRef": "saverift-rpf9-xml-e6f60f5500fdbac906a31b12ca215057f7c4da63e34d338033e04baadb017265",
+          "location": "/CMissions[1]/Missions[1]/Item[113]",
+          "method": "Literal MissionId observation in the recovered XML document; gameplay role and save link unvalidated"
+        }
+      ],
+      "nativeIds": {
+        "configurationId": "AIR_FINAL_DATA_HACK_PASSED",
+        "configurationNamespace": "XML:CMissions:MissionId"
+      }
+    },
+    {
+      "id": "gta-vi:activities:rpf9-observation-fd3f9569236264adbc7ce289a6dfb2b48102d12ee60edb6594810e38ca5294c8",
+      "name": {
+        "en": "FT_UP_MMRENT — mission configuration"
+      },
+      "attributes": {
+        "recordRole": "mission_configuration",
+        "semanticRole": "configuration_definition",
+        "nameKind": "qualified-source-identifier",
+        "editorReady": false,
+        "runtimeAvailability": "unverified",
+        "saveMapping": "unvalidated",
+        "originalArchiveMembershipProven": false,
+        "sourceRecordId": "e980ee9080f1aad2af147bcf6a691636d45e73876027c9d6b7f326769f01f768"
+      },
+      "confidence": "observed",
+      "applicability": {
+        "platforms": [
+          "xbox"
+        ],
+        "build": null
+      },
+      "evidence": [
+        {
+          "sourceRef": "saverift-rpf9-xml-e6f60f5500fdbac906a31b12ca215057f7c4da63e34d338033e04baadb017265",
+          "location": "/CMissions[1]/Missions[1]/Item[135]",
+          "method": "Literal MissionId observation in the recovered XML document; gameplay role and save link unvalidated"
+        }
+      ],
+      "nativeIds": {
+        "configurationId": "FT_UP_MMRENT",
+        "configurationNamespace": "XML:CMissions:MissionId"
+      }
+    },
+    {
+      "id": "gta-vi:activities:rpf9-observation-fd78bca2861ffc3eb3ff9583bcc2a20f18984b056513659583ee4525b57e5a2a",
+      "name": {
+        "en": "COM_KBOS_NEIGHB — mission configuration"
+      },
+      "attributes": {
+        "recordRole": "mission_configuration",
+        "semanticRole": "configuration_definition",
+        "nameKind": "qualified-source-identifier",
+        "editorReady": false,
+        "runtimeAvailability": "unverified",
+        "saveMapping": "unvalidated",
+        "originalArchiveMembershipProven": false,
+        "sourceRecordId": "0b27365337eb3e92d0acea33283622a63558d829982aa070c9da5689e3a1bc6a"
+      },
+      "confidence": "observed",
+      "applicability": {
+        "platforms": [
+          "xbox"
+        ],
+        "build": null
+      },
+      "evidence": [
+        {
+          "sourceRef": "saverift-rpf9-xml-e6f60f5500fdbac906a31b12ca215057f7c4da63e34d338033e04baadb017265",
+          "location": "/CMissions[1]/Missions[1]/Item[8]",
+          "method": "Literal MissionId observation in the recovered XML document; gameplay role and save link unvalidated"
+        }
+      ],
+      "nativeIds": {
+        "configurationId": "COM_KBOS_NEIGHB",
+        "configurationNamespace": "XML:CMissions:MissionId"
+      }
+    }
+  ]
+}

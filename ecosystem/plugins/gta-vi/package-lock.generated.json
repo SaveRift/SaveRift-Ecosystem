@@ -1,7 +1,7 @@
 {
   "schema": "saverift.package-build.v1",
-  "packageDigest": "13e568f30f5656de42e9fbb8952e5e9dc8e0ba2fd29702290741908ba9d680da",
-  "byteLength": 369059,
+  "packageDigest": "345ed870833f405b6fda8fe5d0769f5a2eb5ceba540fadf43094064a1ad76f14",
+  "byteLength": 6525101,
   "files": [
     {
       "path": "data/catalog.json",
@@ -10,8 +10,8 @@
     },
     {
       "path": "data/entities/activities.json",
-      "byteLength": 85,
-      "sha256": "8c5f19b5d9c200517ae5651d61496d98b5fdb07080c9d5cf96a04e1c772c3a76"
+      "byteLength": 182629,
+      "sha256": "dd819a00e7d496d6d44704e3dc558169bb7e2d97e7482b34d5980dd6ced4ec6f"
     },
     {
       "path": "data/entities/characters.json",
@@ -30,8 +30,8 @@
     },
     {
       "path": "data/entities/items.json",
-      "byteLength": 80,
-      "sha256": "227007b2e6f5fef96a1f40bdc02ce807faa7e7a4040b419464ae9a9384abf40a"
+      "byteLength": 750440,
+      "sha256": "e1e3b0818a8736d4fe122f9ded4a0282f203cbf8ef730a4a23bc706979f06092"
     },
     {
       "path": "data/entities/locations.json",
@@ -40,18 +40,18 @@
     },
     {
       "path": "data/entities/systems.json",
-      "byteLength": 8614,
-      "sha256": "905228da3da70167cd8e329288c4e1e4e710b04a69aceabbae411cccb19d7d0c"
+      "byteLength": 357421,
+      "sha256": "df5a7bd05864ea3e1474e0677ad2a7407b8abb99e444846781de81739141f014"
     },
     {
       "path": "data/entities/vehicles.json",
-      "byteLength": 83,
-      "sha256": "b5ecfe56015661710fcfe423f116009e3a0716849dbb532ed632997a4899be9a"
+      "byteLength": 691452,
+      "sha256": "d363e555ed837e7ea7bb1f8edb3f17456d58873ad2b5cce004f142664df9cf8c"
     },
     {
       "path": "data/entities/weapons.json",
-      "byteLength": 82,
-      "sha256": "13ed09e6a839a1160d9bee7a3fd937c975d1fb88085ce9a2a4af0a5815f05951"
+      "byteLength": 1143751,
+      "sha256": "70140d524db5eb872d66450d677391df09b1d2209bfa5e9728e5afa990ae4c6e"
     },
     {
       "path": "data/save-mappings/ps5.json",
@@ -70,8 +70,8 @@
     },
     {
       "path": "data/sources.json",
-      "byteLength": 1529,
-      "sha256": "926d792f87b44a19a8c321ce9ab4a6454302d25abb0a6d5c5a855e88f2de2a94"
+      "byteLength": 23395,
+      "sha256": "b4f61706104522e9a308c0889f39e0035af4cf1cfd748ba9d3c2620ed116b3d8"
     },
     {
       "path": "DEVELOPER_API.md",
@@ -90,13 +90,13 @@
     },
     {
       "path": "README.md",
-      "byteLength": 2875,
-      "sha256": "87743690dd8e831bfbe09d3bbf930dac1eefd94ecfce272968cda08cb1ac38d6"
+      "byteLength": 3125,
+      "sha256": "c83fa9a50b68904de7722c42bf51089e3feb839083b62a873d262dca71b8f787"
     },
     {
       "path": "runtime/connector.mjs",
-      "byteLength": 110554,
-      "sha256": "136c989eb0f766134808a4e13ddad4f14220a0bf7b526431ea23a9b2c725bbf5"
+      "byteLength": 3127731,
+      "sha256": "a20ff961e4f4621b199fab00903ad07dfdc52447201225498bb3750fba110039"
     },
     {
       "path": "ui/dist/entry.js",

@@ -1,0 +1,64 @@
+{
+  "schema": "saverift.gta-vi.reviewed-export.v1",
+  "revision": "2026-11-20",
+  "exporterVersion": "1.0.0",
+  "exporterSha256": "7ffdd9af1882d2922409f9c48815a6010b3f591af77f6f6c454be3abc9cd4844",
+  "sourceCatalogueSha256": "2d5476d81779585fdacd2759b28df4dc52bb8f7576eedac0a760d936588880d2",
+  "sourceCatalogueUnchanged": true,
+  "sourceRecords": 2280,
+  "sourceDocuments": 8,
+  "categoryCounts": {
+    "activities": 145,
+    "items": 569,
+    "systems": 260,
+    "vehicles": 537,
+    "weapons": 769
+  },
+  "recordRoleCounts": {
+    "body_profile_configuration": 67,
+    "energy_configuration_map_entry": 192,
+    "health_singleton_configuration": 1,
+    "loadout_weapon_preset_reference": 447,
+    "loadout_weapon_recipe_reference": 308,
+    "loadout_weapon_spec_reference": 14,
+    "mission_configuration": 145,
+    "ped_loadout_configuration": 569,
+    "vehicle_base_ratings_and_estimates_entry": 252,
+    "vehicle_performance_map_entry": 285
+  },
+  "newSaveLinks": 0,
+  "identity": "SHA-256 of compact UTF-8 JSON [rpf9-observation-v1, archive SHA-256, recovered XML SHA-256, record role, native namespace or null, exact native identifier or null, XML occurrence path]; source-observation identity, not cross-build entity identity",
+  "scope": "Reviewed identifier observations only; no master database, original archives, payloads, full field trees or player data",
+  "files": [
+    {
+      "path": "entities/activities.json",
+      "bytes": 182629,
+      "sha256": "dd819a00e7d496d6d44704e3dc558169bb7e2d97e7482b34d5980dd6ced4ec6f"
+    },
+    {
+      "path": "entities/items.json",
+      "bytes": 750440,
+      "sha256": "e1e3b0818a8736d4fe122f9ded4a0282f203cbf8ef730a4a23bc706979f06092"
+    },
+    {
+      "path": "entities/systems.json",
+      "bytes": 348888,
+      "sha256": "3ccc64812df28ff4c5fd0d8f9f34e74ca09ebc7a19fe5907ade6b09860051936"
+    },
+    {
+      "path": "entities/vehicles.json",
+      "bytes": 691452,
+      "sha256": "d363e555ed837e7ea7bb1f8edb3f17456d58873ad2b5cce004f142664df9cf8c"
+    },
+    {
+      "path": "entities/weapons.json",
+      "bytes": 1143751,
+      "sha256": "70140d524db5eb872d66450d677391df09b1d2209bfa5e9728e5afa990ae4c6e"
+    },
+    {
+      "path": "sources.json",
+      "bytes": 21930,
+      "sha256": "09bc019cbc06ea14106af920b67f35f1d0d085f523214d66f0b0418d7fd25a04"
+    }
+  ]
+}

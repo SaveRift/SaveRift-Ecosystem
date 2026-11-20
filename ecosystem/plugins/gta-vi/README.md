@@ -13,6 +13,14 @@ save-container extraction remain in their respective local preparation paths.
 This package does not request an account token, decode an encrypted cloud save,
 claim a working edit/encode route, or restore a save to either console.
 
+The reviewed RPF9 contribution adds 2,280 identifier/configuration observations
+from eight recovered XML documents in the owner-supplied Xbox `common.rpf`.
+Each observation is Xbox-only, has an unknown game build, and retains its exact
+source identity and research role. Weapon references are unresolved references;
+loadouts and vehicle-map records do not establish player inventory or available
+vehicles. The 18 existing candidate save links remain separate and unchanged.
+See `docs/CATALOG.md` for counts, provenance and the bounded export command.
+
 ## Local development
 
 From the repository root, install the `ecosystem` dependencies with Node 22+,
@@ -35,13 +43,9 @@ must bind the exact game and platform identity before invoking this connector.
 The runtime also requires explicit GTA VI and Xbox/PS5 bundle hints and refuses
 ambiguous input.
 
-Private local compatibility checks on uncommitted, previously decoded files
-observed a PS5 `PPSA01547` / `SARC0015` JSAV v3 image and an Xbox backup whose
-metadata reported title ID `2035456122` with `SARC0000`, `SARC0001` and
-`SARC0015` JSAV v3 images. Each inspected image reported 82 blocks and nine
-currently labeled fields; many more hash keys remain unidentified. This is a
-parser observation, not public fixture coverage, verified host title binding,
-edit safety or in-game acceptance. No player file is included in this project.
+Public compatibility tests use synthetic fixtures. Parser observations do not
+establish verified host title binding, edit safety or in-game acceptance. No
+private fixture identifiers or player files are included in this documentation.
 
 ## Contribution boundaries
 
