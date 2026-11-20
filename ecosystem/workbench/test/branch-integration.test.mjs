@@ -140,10 +140,11 @@ test('package roots, canonical bindings and private ownership remain exact', asy
   }
 });
 
-test('hosted worker enables per-game access but defaults to disconnected GitHub with no external mutations', async () => {
+test('hosted worker keeps the synthetic project disconnected with no external mutations', async () => {
   const store = createMemoryStore(), pending = [], worker = createDeveloperWorker({authenticate: async () => alice, createStore: async () => store, assetFetch: async () => new Response('asset'), allowedHosts: ['studio.test'], allowedOrigins: ['https://studio.test']});
   const call = async (name, args = {}) => { const response = await worker.fetch(new Request('https://studio.test/api/developer/call', {method: 'POST', headers: {Origin: 'https://studio.test', 'Content-Type': 'application/json'}, body: JSON.stringify({name: 'saverift_' + name, arguments: args})}), {}, {waitUntil: promise => pending.push(promise)}); return {status: response.status, value: await response.json()}; };
-  const listed = await call('project_list'); assert.equal(listed.value.hostedEnrollment, true); assert.ok(listed.value.projects.every(project => project.repository === null));
+  const listed = await call('project_list'); assert.equal(listed.value.hostedEnrollment, true);
+  assert.equal(listed.value.projects.find(project => project.id === 'synthetic')?.repository, null);
   await call('developer_enrollment_set', {gameId: 'synthetic', expectedRevision: 0, state: 'enabled'});
   const discovery = await call('project_discover', {gameId: 'synthetic'}); assert.equal(discovery.value.state, 'setup_required'); assert.equal(discovery.value.github.state, 'not_configured');
   const blocked = await call('branch_workspace_create', {gameId: 'synthetic', discoveryId: discovery.value.discoveryId, issueNumber: 27, featureKey: 'fixture.roundtrip', expectedRevision: 0, expectedGitHead: BASE});

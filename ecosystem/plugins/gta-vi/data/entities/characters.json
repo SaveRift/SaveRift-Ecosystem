@@ -1,0 +1,8 @@
+{
+  "schema": "saverift.gta-vi.entities.v1",
+  "category": "characters",
+  "entries": [
+    { "id": "gta-vi:characters:jason-duval", "name": { "en": "Jason Duval" }, "confidence": "verified", "applicability": { "platforms": ["ps5", "xbox"], "build": null }, "evidence": [{ "sourceRef": "rockstar-official-vi-people-places", "location": "Jason Duval heading", "method": "official published character name" }] },
+    { "id": "gta-vi:characters:lucia-caminos", "name": { "en": "Lucia Caminos" }, "confidence": "verified", "applicability": { "platforms": ["ps5", "xbox"], "build": null }, "evidence": [{ "sourceRef": "rockstar-official-vi-people-places", "location": "Lucia Caminos heading", "method": "official published character name" }] }
+  ]
+}

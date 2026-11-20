@@ -1,0 +1,397 @@
+{
+  "schema": "saverift.gta-vi.sources.v1",
+  "sources": [
+    {
+      "id": "rockstar-official-vi-people-places",
+      "kind": "official-public-page",
+      "title": "Grand Theft Auto VI - Only in Leonida",
+      "locator": "https://www.rockstargames.com/VI/only-in-leonida",
+      "revision": "accessed-2026-11-20",
+      "license": "facts-and-names-only; no artwork or copied prose",
+      "attribution": "Rockstar Games",
+      "allowedUse": "short factual catalog entries with citation"
+    },
+    {
+      "id": "saverift-anonymized-jsav-analysis-2026-11-19",
+      "kind": "maintainer-research-summary",
+      "title": "Anonymized GTA VI PS5 JSAV field analysis",
+      "locator": "maintainer-held analysis; raw player saves excluded",
+      "revision": "2026-11-19",
+      "license": "SaveRift original observations; no underlying save redistribution",
+      "attribution": "SaveRift research",
+      "allowedUse": "hash and type observations only; gameplay meaning remains candidate"
+    },
+    {
+      "id": "saverift-anonymized-xbox-jsav-analysis-2026-11-20",
+      "kind": "maintainer-research-summary",
+      "title": "Anonymized GTA VI Xbox decoded JSAV comparison",
+      "locator": "maintainer-held read-only comparison; raw player saves excluded",
+      "revision": "2026-11-20",
+      "license": "SaveRift original observations; no underlying save redistribution",
+      "attribution": "SaveRift research",
+      "allowedUse": "hash and format observations only; gameplay meaning remains candidate"
+    },
+    {
+      "id": "saverift-rpf9-xml-24e03de5335ac9d50bdd8a6e0aa1fab23399e2ba3b012b16ec0411dd3f041927",
+      "kind": "maintainer-research-summary",
+      "title": "Reviewed Xbox RPF9 CHealthConfigInfo identifier observations",
+      "locator": "maintainer-held common.rpf; recovered XML sha256:24e03de5335ac9d50bdd8a6e0aa1fab23399e2ba3b012b16ec0411dd3f041927",
+      "revision": "2026-11-20; payload-catalogue-sha256:2d5476d81779585fdacd2759b28df4dc52bb8f7576eedac0a760d936588880d2",
+      "license": "SaveRift original research metadata; no license to underlying game files or assets is granted",
+      "attribution": "SaveRift research; identifiers observed in the owner-supplied Xbox file set",
+      "allowedUse": "Reviewed factual identifiers, research classifications and structural provenance; no payloads, XML field trees, artwork or player state",
+      "provenance": {
+        "archive": "common.rpf",
+        "archiveSha256": "31dc6aa5394dd8cd3c83b90c9661f37325f22851cc6d5d7150e11041c7618ced",
+        "archiveBytes": "6642192",
+        "xmlSha256": "24e03de5335ac9d50bdd8a6e0aa1fab23399e2ba3b012b16ec0411dd3f041927",
+        "rootTag": "CHealthConfigInfo",
+        "recoveryKind": "single_stream_xml",
+        "compressedStreams": [
+          {
+            "offset": "2279360",
+            "packedBytes": "503",
+            "packedSha256": "59c35588c843d4a34650587df03bc34bcc0d6c02833c854e0ba1498bfc33c321",
+            "decodedSha256": "24e03de5335ac9d50bdd8a6e0aa1fab23399e2ba3b012b16ec0411dd3f041927"
+          }
+        ],
+        "analysisDatabaseSha256": "9ad5c115c8a95f3b4502457b09ff14ddafb8bfebfdc89370219b7dfa69a9e5d0",
+        "catalogueDatabaseSha256": "2d5476d81779585fdacd2759b28df4dc52bb8f7576eedac0a760d936588880d2",
+        "exporter": "scripts/export-reviewed-rpf9.py",
+        "exporterVersion": "1.0.0",
+        "exporterSha256": "7ffdd9af1882d2922409f9c48815a6010b3f591af77f6f6c454be3abc9cd4844",
+        "gameBuild": null,
+        "originalDirectoryMembershipProven": false,
+        "method": "Checksum-valid RFC1950 stream recovery; bounded candidate-page joining where needed; complete XML parse; reviewed literal-identifier selection"
+      }
+    },
+    {
+      "id": "saverift-rpf9-xml-2dc2ce1323e3787527a697db94ea8ad989cf8ba22c79fb06eebba29c1352e044",
+      "kind": "maintainer-research-summary",
+      "title": "Reviewed Xbox RPF9 CVehiclePerformanceMaps identifier observations",
+      "locator": "maintainer-held common.rpf; recovered XML sha256:2dc2ce1323e3787527a697db94ea8ad989cf8ba22c79fb06eebba29c1352e044",
+      "revision": "2026-11-20; payload-catalogue-sha256:2d5476d81779585fdacd2759b28df4dc52bb8f7576eedac0a760d936588880d2",
+      "license": "SaveRift original research metadata; no license to underlying game files or assets is granted",
+      "attribution": "SaveRift research; identifiers observed in the owner-supplied Xbox file set",
+      "allowedUse": "Reviewed factual identifiers, research classifications and structural provenance; no payloads, XML field trees, artwork or player state",
+      "provenance": {
+        "archive": "common.rpf",
+        "archiveSha256": "31dc6aa5394dd8cd3c83b90c9661f37325f22851cc6d5d7150e11041c7618ced",
+        "archiveBytes": "6642192",
+        "xmlSha256": "2dc2ce1323e3787527a697db94ea8ad989cf8ba22c79fb06eebba29c1352e044",
+        "rootTag": "CVehiclePerformanceMaps",
+        "recoveryKind": "candidate_xml_chain",
+        "compressedStreams": [
+          {
+            "offset": "6365184",
+            "packedBytes": "5611",
+            "packedSha256": "61cdf392d5bc78186900bca529c91ce0cd19f692f956d31c058e370ce1b52cd1",
+            "decodedSha256": "331b30a7e124e184ca360470402546d5fda429ec2d323a881ff4531182919557"
+          },
+          {
+            "offset": "6370800",
+            "packedBytes": "4631",
+            "packedSha256": "bf1bb690542ce82401dea1d64a2121e1148ffd723aa24009f32b2a9bc1e4f014",
+            "decodedSha256": "72a4a337660e3bc29d6e862c5aac0a413689a81191553d678dcf89f43e114fa6"
+          }
+        ],
+        "analysisDatabaseSha256": "9ad5c115c8a95f3b4502457b09ff14ddafb8bfebfdc89370219b7dfa69a9e5d0",
+        "catalogueDatabaseSha256": "2d5476d81779585fdacd2759b28df4dc52bb8f7576eedac0a760d936588880d2",
+        "exporter": "scripts/export-reviewed-rpf9.py",
+        "exporterVersion": "1.0.0",
+        "exporterSha256": "7ffdd9af1882d2922409f9c48815a6010b3f591af77f6f6c454be3abc9cd4844",
+        "gameBuild": null,
+        "originalDirectoryMembershipProven": false,
+        "method": "Checksum-valid RFC1950 stream recovery; bounded candidate-page joining where needed; complete XML parse; reviewed literal-identifier selection"
+      }
+    },
+    {
+      "id": "saverift-rpf9-xml-a795258c15a2a2a3c6f3a1fe23854402ddb73d7e9192b96df4758a545f074447",
+      "kind": "maintainer-research-summary",
+      "title": "Reviewed Xbox RPF9 CVehicleBaseRatingsAndEstimatesMap identifier observations",
+      "locator": "maintainer-held common.rpf; recovered XML sha256:a795258c15a2a2a3c6f3a1fe23854402ddb73d7e9192b96df4758a545f074447",
+      "revision": "2026-11-20; payload-catalogue-sha256:2d5476d81779585fdacd2759b28df4dc52bb8f7576eedac0a760d936588880d2",
+      "license": "SaveRift original research metadata; no license to underlying game files or assets is granted",
+      "attribution": "SaveRift research; identifiers observed in the owner-supplied Xbox file set",
+      "allowedUse": "Reviewed factual identifiers, research classifications and structural provenance; no payloads, XML field trees, artwork or player state",
+      "provenance": {
+        "archive": "common.rpf",
+        "archiveSha256": "31dc6aa5394dd8cd3c83b90c9661f37325f22851cc6d5d7150e11041c7618ced",
+        "archiveBytes": "6642192",
+        "xmlSha256": "a795258c15a2a2a3c6f3a1fe23854402ddb73d7e9192b96df4758a545f074447",
+        "rootTag": "CVehicleBaseRatingsAndEstimatesMap",
+        "recoveryKind": "candidate_xml_chain",
+        "compressedStreams": [
+          {
+            "offset": "6381568",
+            "packedBytes": "6746",
+            "packedSha256": "9d35f7290c2ad81325c01ed2e95a67a30a77d2a3f36189a227060cff995d7ee4",
+            "decodedSha256": "621aa08c5d4843e9a021354f24200f5f681a4091ca52ed185d326168004ae27a"
+          },
+          {
+            "offset": "6388320",
+            "packedBytes": "6272",
+            "packedSha256": "fc97b679046414f6c19e32dfbf6c030f46c0e127bd6f3059588bbf984ea645f7",
+            "decodedSha256": "34392d27388dcf017c7e184eba446b6c68167feedae81f690fadec1ae44be1bc"
+          },
+          {
+            "offset": "6394592",
+            "packedBytes": "6556",
+            "packedSha256": "b18a0e7b2d32317dd1167698c364c83bd98f411633a1928a58188b1bf64dff3b",
+            "decodedSha256": "8b0a492b56ad684ed724b74390b4492cec57e9cea72c22e1f6a72f77ae04b9c9"
+          },
+          {
+            "offset": "6401152",
+            "packedBytes": "6776",
+            "packedSha256": "78e6c5e9f94c3860639ab89c22cec815345b78b95c14f0422a49f1963bbddabb",
+            "decodedSha256": "8f3a199867285f1cf7da993153c02ced26166849241ba1ccfe3dd6c69c0cf0db"
+          },
+          {
+            "offset": "6407936",
+            "packedBytes": "6529",
+            "packedSha256": "07b75725f9490a0f79db6e8787db767a544aa6e27935ee05039685ef2f01de4a",
+            "decodedSha256": "3ed6a67ca98be6604f42295d4c98eb2581fed2112797b0b58195d1bb71c279d1"
+          },
+          {
+            "offset": "6414480",
+            "packedBytes": "2852",
+            "packedSha256": "355d03930c4c828e06700e659e786051769e5883ca43be18065751d0623c67da",
+            "decodedSha256": "d7824c26037e79b0edb08f7bb4843f4c560c79bee42f7ee59d92603452dddae4"
+          }
+        ],
+        "analysisDatabaseSha256": "9ad5c115c8a95f3b4502457b09ff14ddafb8bfebfdc89370219b7dfa69a9e5d0",
+        "catalogueDatabaseSha256": "2d5476d81779585fdacd2759b28df4dc52bb8f7576eedac0a760d936588880d2",
+        "exporter": "scripts/export-reviewed-rpf9.py",
+        "exporterVersion": "1.0.0",
+        "exporterSha256": "7ffdd9af1882d2922409f9c48815a6010b3f591af77f6f6c454be3abc9cd4844",
+        "gameBuild": null,
+        "originalDirectoryMembershipProven": false,
+        "method": "Checksum-valid RFC1950 stream recovery; bounded candidate-page joining where needed; complete XML parse; reviewed literal-identifier selection"
+      }
+    },
+    {
+      "id": "saverift-rpf9-xml-c06cdac3eec8c9bf2484c10b40e30f69a8caadb06f287a48ed11235fa5b6c9ad",
+      "kind": "maintainer-research-summary",
+      "title": "Reviewed Xbox RPF9 CPedVariationBodyTypeManager identifier observations",
+      "locator": "maintainer-held common.rpf; recovered XML sha256:c06cdac3eec8c9bf2484c10b40e30f69a8caadb06f287a48ed11235fa5b6c9ad",
+      "revision": "2026-11-20; payload-catalogue-sha256:2d5476d81779585fdacd2759b28df4dc52bb8f7576eedac0a760d936588880d2",
+      "license": "SaveRift original research metadata; no license to underlying game files or assets is granted",
+      "attribution": "SaveRift research; identifiers observed in the owner-supplied Xbox file set",
+      "allowedUse": "Reviewed factual identifiers, research classifications and structural provenance; no payloads, XML field trees, artwork or player state",
+      "provenance": {
+        "archive": "common.rpf",
+        "archiveSha256": "31dc6aa5394dd8cd3c83b90c9661f37325f22851cc6d5d7150e11041c7618ced",
+        "archiveBytes": "6642192",
+        "xmlSha256": "c06cdac3eec8c9bf2484c10b40e30f69a8caadb06f287a48ed11235fa5b6c9ad",
+        "rootTag": "CPedVariationBodyTypeManager",
+        "recoveryKind": "candidate_xml_chain",
+        "compressedStreams": [
+          {
+            "offset": "2252800",
+            "packedBytes": "2025",
+            "packedSha256": "9dab86248a0d38b835e35cb53b40822d48979741913ac1ad6998bfe6b60e763b",
+            "decodedSha256": "a7ab2be34bb547365b45c230150be0ed9679bb9ed8df71e5514c2a0f1c14e9f5"
+          },
+          {
+            "offset": "2254832",
+            "packedBytes": "621",
+            "packedSha256": "6b7f5d2f6c11df4cf317e29c524393182eb4e15dfa5b590a174a23b1cc8e6004",
+            "decodedSha256": "e3f23e5b42b1f7758cd0493ef095067c40b01a0d2fc78942c698839cbf47fea0"
+          }
+        ],
+        "analysisDatabaseSha256": "9ad5c115c8a95f3b4502457b09ff14ddafb8bfebfdc89370219b7dfa69a9e5d0",
+        "catalogueDatabaseSha256": "2d5476d81779585fdacd2759b28df4dc52bb8f7576eedac0a760d936588880d2",
+        "exporter": "scripts/export-reviewed-rpf9.py",
+        "exporterVersion": "1.0.0",
+        "exporterSha256": "7ffdd9af1882d2922409f9c48815a6010b3f591af77f6f6c454be3abc9cd4844",
+        "gameBuild": null,
+        "originalDirectoryMembershipProven": false,
+        "method": "Checksum-valid RFC1950 stream recovery; bounded candidate-page joining where needed; complete XML parse; reviewed literal-identifier selection"
+      }
+    },
+    {
+      "id": "saverift-rpf9-xml-e6f60f5500fdbac906a31b12ca215057f7c4da63e34d338033e04baadb017265",
+      "kind": "maintainer-research-summary",
+      "title": "Reviewed Xbox RPF9 CMissions identifier observations",
+      "locator": "maintainer-held common.rpf; recovered XML sha256:e6f60f5500fdbac906a31b12ca215057f7c4da63e34d338033e04baadb017265",
+      "revision": "2026-11-20; payload-catalogue-sha256:2d5476d81779585fdacd2759b28df4dc52bb8f7576eedac0a760d936588880d2",
+      "license": "SaveRift original research metadata; no license to underlying game files or assets is granted",
+      "attribution": "SaveRift research; identifiers observed in the owner-supplied Xbox file set",
+      "allowedUse": "Reviewed factual identifiers, research classifications and structural provenance; no payloads, XML field trees, artwork or player state",
+      "provenance": {
+        "archive": "common.rpf",
+        "archiveSha256": "31dc6aa5394dd8cd3c83b90c9661f37325f22851cc6d5d7150e11041c7618ced",
+        "archiveBytes": "6642192",
+        "xmlSha256": "e6f60f5500fdbac906a31b12ca215057f7c4da63e34d338033e04baadb017265",
+        "rootTag": "CMissions",
+        "recoveryKind": "single_stream_xml",
+        "compressedStreams": [
+          {
+            "offset": "2199552",
+            "packedBytes": "2566",
+            "packedSha256": "0c9190641bcd6bf1e1fbd6297ea8851ae53d120d2c010e01496d3b179d57f280",
+            "decodedSha256": "e6f60f5500fdbac906a31b12ca215057f7c4da63e34d338033e04baadb017265"
+          }
+        ],
+        "analysisDatabaseSha256": "9ad5c115c8a95f3b4502457b09ff14ddafb8bfebfdc89370219b7dfa69a9e5d0",
+        "catalogueDatabaseSha256": "2d5476d81779585fdacd2759b28df4dc52bb8f7576eedac0a760d936588880d2",
+        "exporter": "scripts/export-reviewed-rpf9.py",
+        "exporterVersion": "1.0.0",
+        "exporterSha256": "7ffdd9af1882d2922409f9c48815a6010b3f591af77f6f6c454be3abc9cd4844",
+        "gameBuild": null,
+        "originalDirectoryMembershipProven": false,
+        "method": "Checksum-valid RFC1950 stream recovery; bounded candidate-page joining where needed; complete XML parse; reviewed literal-identifier selection"
+      }
+    },
+    {
+      "id": "saverift-rpf9-xml-eb3aebb5066fa66333e11582fccb20949dc336372aa9e4b3e86d40e0b09e8d63",
+      "kind": "maintainer-research-summary",
+      "title": "Reviewed Xbox RPF9 CVehiclePerformanceMaps identifier observations",
+      "locator": "maintainer-held common.rpf; recovered XML sha256:eb3aebb5066fa66333e11582fccb20949dc336372aa9e4b3e86d40e0b09e8d63",
+      "revision": "2026-11-20; payload-catalogue-sha256:2d5476d81779585fdacd2759b28df4dc52bb8f7576eedac0a760d936588880d2",
+      "license": "SaveRift original research metadata; no license to underlying game files or assets is granted",
+      "attribution": "SaveRift research; identifiers observed in the owner-supplied Xbox file set",
+      "allowedUse": "Reviewed factual identifiers, research classifications and structural provenance; no payloads, XML field trees, artwork or player state",
+      "provenance": {
+        "archive": "common.rpf",
+        "archiveSha256": "31dc6aa5394dd8cd3c83b90c9661f37325f22851cc6d5d7150e11041c7618ced",
+        "archiveBytes": "6642192",
+        "xmlSha256": "eb3aebb5066fa66333e11582fccb20949dc336372aa9e4b3e86d40e0b09e8d63",
+        "rootTag": "CVehiclePerformanceMaps",
+        "recoveryKind": "single_stream_xml",
+        "compressedStreams": [
+          {
+            "offset": "6377472",
+            "packedBytes": "1288",
+            "packedSha256": "9e6d4966c212908dc16125b911268dd7a1e2bd2536fd36b739960336513c66be",
+            "decodedSha256": "eb3aebb5066fa66333e11582fccb20949dc336372aa9e4b3e86d40e0b09e8d63"
+          }
+        ],
+        "analysisDatabaseSha256": "9ad5c115c8a95f3b4502457b09ff14ddafb8bfebfdc89370219b7dfa69a9e5d0",
+        "catalogueDatabaseSha256": "2d5476d81779585fdacd2759b28df4dc52bb8f7576eedac0a760d936588880d2",
+        "exporter": "scripts/export-reviewed-rpf9.py",
+        "exporterVersion": "1.0.0",
+        "exporterSha256": "7ffdd9af1882d2922409f9c48815a6010b3f591af77f6f6c454be3abc9cd4844",
+        "gameBuild": null,
+        "originalDirectoryMembershipProven": false,
+        "method": "Checksum-valid RFC1950 stream recovery; bounded candidate-page joining where needed; complete XML parse; reviewed literal-identifier selection"
+      }
+    },
+    {
+      "id": "saverift-rpf9-xml-f3df973dea09d6ac06d9e49321600e16624b29657f83e0c6fefc4ec8ed87fd15",
+      "kind": "maintainer-research-summary",
+      "title": "Reviewed Xbox RPF9 CEnergyConfigInfos identifier observations",
+      "locator": "maintainer-held common.rpf; recovered XML sha256:f3df973dea09d6ac06d9e49321600e16624b29657f83e0c6fefc4ec8ed87fd15",
+      "revision": "2026-11-20; payload-catalogue-sha256:2d5476d81779585fdacd2759b28df4dc52bb8f7576eedac0a760d936588880d2",
+      "license": "SaveRift original research metadata; no license to underlying game files or assets is granted",
+      "attribution": "SaveRift research; identifiers observed in the owner-supplied Xbox file set",
+      "allowedUse": "Reviewed factual identifiers, research classifications and structural provenance; no payloads, XML field trees, artwork or player state",
+      "provenance": {
+        "archive": "common.rpf",
+        "archiveSha256": "31dc6aa5394dd8cd3c83b90c9661f37325f22851cc6d5d7150e11041c7618ced",
+        "archiveBytes": "6642192",
+        "xmlSha256": "f3df973dea09d6ac06d9e49321600e16624b29657f83e0c6fefc4ec8ed87fd15",
+        "rootTag": "CEnergyConfigInfos",
+        "recoveryKind": "candidate_xml_chain",
+        "compressedStreams": [
+          {
+            "offset": "2273280",
+            "packedBytes": "1920",
+            "packedSha256": "e9d4aa19f17629d0915361481dfbcbc574ad19d187b5d4f7986b7678ba7f7088",
+            "decodedSha256": "ff0125bb736881d0f48d09db12ddcc78ef30b14b797926d607742dc78b00dbb3"
+          },
+          {
+            "offset": "2275200",
+            "packedBytes": "2950",
+            "packedSha256": "de96cd0c1c38ceb506ff3fdfe8ba030570a5cc00edeb5b7cc7b05ca5d2818ddf",
+            "decodedSha256": "1c44be079c1f96d2159ce95eeb28e60994617cb3a432a203d982c737394b8072"
+          },
+          {
+            "offset": "2278160",
+            "packedBytes": "1195",
+            "packedSha256": "b69a8a4d791d63d32571840d98d5b9ccc765a7834817b187163d6e1c790e8600",
+            "decodedSha256": "5364426c2abd30d54da2f281639d1c8e847be79546fca70330ab45ea9acf7e65"
+          }
+        ],
+        "analysisDatabaseSha256": "9ad5c115c8a95f3b4502457b09ff14ddafb8bfebfdc89370219b7dfa69a9e5d0",
+        "catalogueDatabaseSha256": "2d5476d81779585fdacd2759b28df4dc52bb8f7576eedac0a760d936588880d2",
+        "exporter": "scripts/export-reviewed-rpf9.py",
+        "exporterVersion": "1.0.0",
+        "exporterSha256": "7ffdd9af1882d2922409f9c48815a6010b3f591af77f6f6c454be3abc9cd4844",
+        "gameBuild": null,
+        "originalDirectoryMembershipProven": false,
+        "method": "Checksum-valid RFC1950 stream recovery; bounded candidate-page joining where needed; complete XML parse; reviewed literal-identifier selection"
+      }
+    },
+    {
+      "id": "saverift-rpf9-xml-febe2aa5c792c61798e6b0f03bfe16e582a4c126f0e6d79cc5f421f0e984e6ae",
+      "kind": "maintainer-research-summary",
+      "title": "Reviewed Xbox RPF9 CPedInventoryLoadOutManager identifier observations",
+      "locator": "maintainer-held common.rpf; recovered XML sha256:febe2aa5c792c61798e6b0f03bfe16e582a4c126f0e6d79cc5f421f0e984e6ae",
+      "revision": "2026-11-20; payload-catalogue-sha256:2d5476d81779585fdacd2759b28df4dc52bb8f7576eedac0a760d936588880d2",
+      "license": "SaveRift original research metadata; no license to underlying game files or assets is granted",
+      "attribution": "SaveRift research; identifiers observed in the owner-supplied Xbox file set",
+      "allowedUse": "Reviewed factual identifiers, research classifications and structural provenance; no payloads, XML field trees, artwork or player state",
+      "provenance": {
+        "archive": "common.rpf",
+        "archiveSha256": "31dc6aa5394dd8cd3c83b90c9661f37325f22851cc6d5d7150e11041c7618ced",
+        "archiveBytes": "6642192",
+        "xmlSha256": "febe2aa5c792c61798e6b0f03bfe16e582a4c126f0e6d79cc5f421f0e984e6ae",
+        "rootTag": "CPedInventoryLoadOutManager",
+        "recoveryKind": "candidate_xml_chain",
+        "compressedStreams": [
+          {
+            "offset": "249856",
+            "packedBytes": "2821",
+            "packedSha256": "54e38f4b2bb7bcd6c0821319ff346adfca7cc74492b2601cc8c52775c7264cda",
+            "decodedSha256": "3aad2177df278dabe84d78f5b7883777c57cb9b7dcc5e44a8f43b50395741345"
+          },
+          {
+            "offset": "252688",
+            "packedBytes": "2920",
+            "packedSha256": "c25f3c40bd8e6e1ee0651f703ddc8af86e1f71f5c4b309bc0777cb391529c3df",
+            "decodedSha256": "785a27cf64e3eeff41ca49be1fd5b87c2fefa27e1c612708f2dcbfb6681d7542"
+          },
+          {
+            "offset": "255616",
+            "packedBytes": "3389",
+            "packedSha256": "2f67a5a236bd94e5fda50f940ba8db32759b0fdb044e12e45a8eb843d974f529",
+            "decodedSha256": "108867668dec8ec6d584b1ac0d08b4d0eb4f221400aee12300db2b6144e6beb4"
+          },
+          {
+            "offset": "259008",
+            "packedBytes": "3057",
+            "packedSha256": "e26077aa97b43cede2c8ef0012b299a3a9a66697b76c4647e7ec7a43916410b7",
+            "decodedSha256": "48f1d9f59a63defff7e908dedf2838d0b240f0abe47d56126c3080e752c15091"
+          },
+          {
+            "offset": "262080",
+            "packedBytes": "3040",
+            "packedSha256": "fb6a34bf12c598338486d5c0739ec99e8f7ffec55517116a2f51e91ad0d2cdf6",
+            "decodedSha256": "5ee6e849b826d76285ccc0b79a925a32a3d1a2490ac208021012c3ed14592303"
+          },
+          {
+            "offset": "265120",
+            "packedBytes": "2791",
+            "packedSha256": "b9130543c656e7c5a252ec0f6cb516b43776621755ddae1fef1f3954017735c7",
+            "decodedSha256": "9634140dfd6d5985b62978efd32be98e6bc2de2ba40cf4c7072cf136a97f52f4"
+          },
+          {
+            "offset": "267920",
+            "packedBytes": "1166",
+            "packedSha256": "91c1083853ec0fa56d653bdf5cddbeb4303ee29f8cf3461f8edb80e32f64f023",
+            "decodedSha256": "0cf6a891166102f791c4da3f9623b4e73283005ea9ad233f228b1831c6891815"
+          }
+        ],
+        "analysisDatabaseSha256": "9ad5c115c8a95f3b4502457b09ff14ddafb8bfebfdc89370219b7dfa69a9e5d0",
+        "catalogueDatabaseSha256": "2d5476d81779585fdacd2759b28df4dc52bb8f7576eedac0a760d936588880d2",
+        "exporter": "scripts/export-reviewed-rpf9.py",
+        "exporterVersion": "1.0.0",
+        "exporterSha256": "7ffdd9af1882d2922409f9c48815a6010b3f591af77f6f6c454be3abc9cd4844",
+        "gameBuild": null,
+        "originalDirectoryMembershipProven": false,
+        "method": "Checksum-valid RFC1950 stream recovery; bounded candidate-page joining where needed; complete XML parse; reviewed literal-identifier selection"
+      }
+    }
+  ]
+}

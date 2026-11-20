@@ -1,0 +1,10 @@
+{
+  "schema": "saverift.gta-vi.catalog.v1",
+  "id": "saverift:gta-vi:game-catalog",
+  "version": "0.1.0",
+  "title": "Grand Theft Auto VI",
+  "platforms": ["ps5", "xbox"],
+  "categories": ["characters", "vehicles", "weapons", "clothing", "items", "currencies", "locations", "activities", "systems"],
+  "defaultLocale": "en",
+  "scope": "game definitions and separately evidenced save-field links; no player state or game assets"
+}

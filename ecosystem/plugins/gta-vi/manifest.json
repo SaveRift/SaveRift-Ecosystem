@@ -1,0 +1,39 @@
+{
+  "manifestVersion": "0.1",
+  "id": "saverift.gta-vi",
+  "kind": "game",
+  "version": "0.1.0-dev.1",
+  "displayName": "Grand Theft Auto VI",
+  "license": "Apache-2.0",
+  "hostApi": ">=0.1.0 <0.2.0",
+  "entrypoints": {"runtime": "runtime/connector.mjs", "runtimeProfile": "isolated-js-v1", "ui": "ui/index.html"},
+  "uiMode": "custom",
+  "gameTargets": [
+    {"platform": "xbox", "identityRef": "grand-theft-auto-vi:xbox", "saveFamilies": ["gta-vi-decoded-jsav-v3"]},
+    {"platform": "ps5", "identityRef": "grand-theft-auto-vi:ps5", "saveFamilies": ["gta-vi-decoded-jsav-v3"]}
+  ],
+  "extensionApis": {"gtavi.inspect": "0.1.0", "gtavi.catalog": "0.1.0"},
+  "permissions": ["bundle.read-selected", "ui.register-views"],
+  "operations": [],
+  "entitlementPolicy": "host-enforced-no-bypass",
+  "dataDistribution": "public-community-catalog-with-source-evidence",
+  "workbench": {"defaultQuery": {"method": "gtavi.inspect"}},
+  "ui": {"script": "ui/dist/entry.js", "css": "ui/dist/style.css", "body": "ui/index.html"},
+  "views": [{"id": "gtavi.overview", "title": "GTA VI save and game catalog", "kind": "custom", "entrypoint": "ui/index.html"}],
+  "extensionApiDefinitions": {
+    "gtavi.catalog": {
+      "apiVersion": "0.1.0",
+      "queries": ["gtavi.catalog.categories", "gtavi.catalog.list"],
+      "operations": [],
+      "scope": "bounded read-only review of the source-evidenced public game catalog",
+      "stability": "experimental; entries retain their individual confidence and source labels"
+    },
+    "gtavi.inspect": {
+      "apiVersion": "0.1.0",
+      "queries": ["gtavi.inspect", "gtavi.fields.list"],
+      "operations": [],
+      "scope": "read-only inspection of an explicitly selected, decoded GTA VI JSAV memory artifact on Xbox or PS5",
+      "stability": "experimental; unsupported identities and formats fail closed"
+    }
+  }
+}

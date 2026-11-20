@@ -1,0 +1,8 @@
+{
+  "schema": "saverift.gta-vi.entities.v1",
+  "category": "locations",
+  "entries": [
+    { "id": "gta-vi:locations:vice-city", "name": { "en": "Vice City" }, "confidence": "verified", "applicability": { "platforms": ["ps5", "xbox"], "build": null }, "evidence": [{ "sourceRef": "rockstar-official-vi-people-places", "location": "Only in Leonida introduction", "method": "official published place name" }] },
+    { "id": "gta-vi:locations:leonida", "name": { "en": "Leonida" }, "confidence": "verified", "applicability": { "platforms": ["ps5", "xbox"], "build": null }, "evidence": [{ "sourceRef": "rockstar-official-vi-people-places", "location": "Only in Leonida heading", "method": "official published place name" }] }
+  ]
+}

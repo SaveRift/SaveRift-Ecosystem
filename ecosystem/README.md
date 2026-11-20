@@ -42,7 +42,15 @@ implemented CLI/stdio/local-server commands and their exact limitations.
 | `plugins/synthetic-extension/` | Separate custom-system extension; uses the connector's public API |
 | `plugins/crimson-desert/` | Extracted game-specific implementation and declared external data-provider requirements |
 | `plugins/ac-shadows/` | Experimental prepared-PC-v54 existing-inventory connector; raw decoding, hosted admission and game/console acceptance remain separate |
+| `plugins/gta-vi/` | One GTA VI project with shared game catalog and separate Xbox/PS5 decoded-save adapters; local inspection does not establish console acceptance |
 | `registry/` | Immutable package review/submission metadata and policy |
+
+The GTA VI catalog covers the game as a whole, including systems and entities
+that may never appear in a save. Its platform-specific save mappings are
+separate evidence records. Contributors can add sourced game data without
+asserting that the associated save field is editable. See the
+[GTA VI catalog guide](plugins/gta-vi/docs/CATALOG.md) and
+[public contribution rules](../docs/ecosystem/public/CONTRIBUTING.md).
 
 The reviewed Crimson runtime/source integration, editor form/staging fixes and
 current-layout quantity fix are merged. Hosted results are artifact- and
