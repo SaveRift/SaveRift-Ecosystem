@@ -1,0 +1,145 @@
+{
+  "schema": "saverift.package-build.v1",
+  "packageDigest": "13e568f30f5656de42e9fbb8952e5e9dc8e0ba2fd29702290741908ba9d680da",
+  "byteLength": 369059,
+  "files": [
+    {
+      "path": "data/catalog.json",
+      "byteLength": 431,
+      "sha256": "fa19ce8d58ffed4c263603250ef4f9520084e38fd60a844c43dcfc03c328dfb0"
+    },
+    {
+      "path": "data/entities/activities.json",
+      "byteLength": 85,
+      "sha256": "8c5f19b5d9c200517ae5651d61496d98b5fdb07080c9d5cf96a04e1c772c3a76"
+    },
+    {
+      "path": "data/entities/characters.json",
+      "byteLength": 745,
+      "sha256": "d69e416eb27983c94b61c55c44a455ada7c87ad8f5459814868d8cac82fcbd1b"
+    },
+    {
+      "path": "data/entities/clothing.json",
+      "byteLength": 83,
+      "sha256": "b447be3b2242b9b273d5dcdaa6936dc2e37253d96b94c691ea060c17b4c46d59"
+    },
+    {
+      "path": "data/entities/currencies.json",
+      "byteLength": 85,
+      "sha256": "900d009cd8b2e8188414323c64b40bea6f12b7a72ae0beea0205cc8505775940"
+    },
+    {
+      "path": "data/entities/items.json",
+      "byteLength": 80,
+      "sha256": "227007b2e6f5fef96a1f40bdc02ce807faa7e7a4040b419464ae9a9384abf40a"
+    },
+    {
+      "path": "data/entities/locations.json",
+      "byteLength": 729,
+      "sha256": "fb9753e24aeb52a63e3e5b18aa1db2885953d0ac0a9855ac9bb256a6c3fc6879"
+    },
+    {
+      "path": "data/entities/systems.json",
+      "byteLength": 8614,
+      "sha256": "905228da3da70167cd8e329288c4e1e4e710b04a69aceabbae411cccb19d7d0c"
+    },
+    {
+      "path": "data/entities/vehicles.json",
+      "byteLength": 83,
+      "sha256": "b5ecfe56015661710fcfe423f116009e3a0716849dbb532ed632997a4899be9a"
+    },
+    {
+      "path": "data/entities/weapons.json",
+      "byteLength": 82,
+      "sha256": "13ed09e6a839a1160d9bee7a3fd937c975d1fb88085ce9a2a4af0a5815f05951"
+    },
+    {
+      "path": "data/save-mappings/ps5.json",
+      "byteLength": 4215,
+      "sha256": "1c739efc30a831c8aa00bb43a098b833516509f9336090ee6f19498c021e418d"
+    },
+    {
+      "path": "data/save-mappings/xbox.json",
+      "byteLength": 6416,
+      "sha256": "db18422830cbacff53bc6cbd5d5b216caef28dbae10fcc14b65f0bb027605dc3"
+    },
+    {
+      "path": "data/schema.json",
+      "byteLength": 1488,
+      "sha256": "3b7dcdb780fde5dba26d140dfd4ad7b43503d096192b4ba4a0187db2ab7fb4ad"
+    },
+    {
+      "path": "data/sources.json",
+      "byteLength": 1529,
+      "sha256": "926d792f87b44a19a8c321ce9ab4a6454302d25abb0a6d5c5a855e88f2de2a94"
+    },
+    {
+      "path": "DEVELOPER_API.md",
+      "byteLength": 1579,
+      "sha256": "7d1bae7bb443394fb83c48cf562cd6c57b823b9a9c75a970dd8242f14d96f273"
+    },
+    {
+      "path": "LICENSE",
+      "byteLength": 11357,
+      "sha256": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4"
+    },
+    {
+      "path": "NOTICE",
+      "byteLength": 498,
+      "sha256": "97454ec837153441719d7329786325cc30bdebe6d625e59b6b617f8c99f34a18"
+    },
+    {
+      "path": "README.md",
+      "byteLength": 2875,
+      "sha256": "87743690dd8e831bfbe09d3bbf930dac1eefd94ecfce272968cda08cb1ac38d6"
+    },
+    {
+      "path": "runtime/connector.mjs",
+      "byteLength": 110554,
+      "sha256": "136c989eb0f766134808a4e13ddad4f14220a0bf7b526431ea23a9b2c725bbf5"
+    },
+    {
+      "path": "ui/dist/entry.js",
+      "byteLength": 211628,
+      "sha256": "5cbac77cec828b1a631c6e725881cdc55e224c6b53ebe9f992172e68ca7edfde"
+    },
+    {
+      "path": "ui/dist/style.css",
+      "byteLength": 5881,
+      "sha256": "9350cff6551e41447027d02800127d7d61aac7a8a3d0d4400b2126fdf6166811"
+    },
+    {
+      "path": "ui/index.html",
+      "byteLength": 22,
+      "sha256": "2873cbefe5c2b785808c7f0e9f1ebe16666b6b40f82f4e2aa169cc89964f34f5"
+    }
+  ],
+  "inputs": [
+    "../../sdk/buffer.mjs",
+    "../../sdk/crypto.mjs",
+    "../../sdk/node_modules/@noble/hashes/esm/_md.js",
+    "../../sdk/node_modules/@noble/hashes/esm/_u64.js",
+    "../../sdk/node_modules/@noble/hashes/esm/crypto.js",
+    "../../sdk/node_modules/@noble/hashes/esm/hmac.js",
+    "../../sdk/node_modules/@noble/hashes/esm/sha2.js",
+    "../../sdk/node_modules/@noble/hashes/esm/sha256.js",
+    "../../sdk/node_modules/@noble/hashes/esm/utils.js",
+    "../../sdk/node_modules/base64-js/index.js",
+    "../../sdk/node_modules/buffer/index.js",
+    "../../sdk/node_modules/ieee754/index.js",
+    "../../sdk/text-encoding.mjs",
+    "connector.mjs",
+    "data/entities/activities.json",
+    "data/entities/characters.json",
+    "data/entities/clothing.json",
+    "data/entities/currencies.json",
+    "data/entities/items.json",
+    "data/entities/locations.json",
+    "data/entities/systems.json",
+    "data/entities/vehicles.json",
+    "data/entities/weapons.json",
+    "src/connector.mjs",
+    "src/shared/field-names.mjs",
+    "src/shared/gta-vi-jsav.mjs"
+  ]
+}

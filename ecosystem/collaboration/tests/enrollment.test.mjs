@@ -13,11 +13,13 @@ const create = (options = {}) => createGameAccess({store: createMemoryStore(), n
 const enable = (access, principal = alice, gameId = 'synthetic', expectedRevision = 0) => access.enroll(principal, {gameId, expectedRevision});
 const denied = (promise, code) => assert.rejects(promise, {code});
 
-test('public discovery is independent of Xbox and defaults to an honestly disconnected GitHub project', async () => {
+test('public discovery is independent of Xbox and preserves exact repository configuration', async () => {
   const access = create(), projects = access.listProjects();
-  assert.equal(projects.length, 2);
-  assert.deepEqual(projects.map(project => project.repository), [null, null]);
-  assert.ok(projects.every(project => project.repositoryState === 'unconfigured'));
+  assert.deepEqual(projects.map(project => project.id), ['crimson-desert', 'synthetic', 'gta-vi']);
+  assert.deepEqual(projects.slice(0, 2).map(project => project.repository), [null, null]);
+  assert.ok(projects.slice(0, 2).every(project => project.repositoryState === 'unconfigured'));
+  assert.equal(projects[2].repository.id, '1442896703');
+  assert.equal(projects[2].repositoryState, 'configured');
   assert.equal(access.getProject('crimson-desert').issueLabel, 'game:crimson-desert');
   assert.equal(access.getProject('crimson-desert').branchPrefix, 'saverift/crimson-desert/');
   await access.assertAccess(null, {gameId: 'crimson-desert', action: 'discovery'});

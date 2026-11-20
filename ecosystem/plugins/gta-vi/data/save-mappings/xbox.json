@@ -1,0 +1,204 @@
+{
+  "schema": "saverift.gta-vi.save-mappings.v1",
+  "platform": "xbox",
+  "entries": [
+    {
+      "id": "gta-vi:save-field:xbox:fhealth",
+      "format": "JSAV-v3",
+      "fieldHash": "0x0834e1d0",
+      "preimage": "fHealth",
+      "targetId": "gta-vi:systems:health-candidate",
+      "confidence": "candidate",
+      "editable": false,
+      "applicability": {
+        "platforms": [
+          "xbox"
+        ],
+        "build": null
+      },
+      "evidence": [
+        {
+          "sourceRef": "saverift-anonymized-xbox-jsav-analysis-2026-11-20",
+          "location": "SARC0000, SARC0001, and SARC0015 decoded JSAV slots",
+          "method": "read-only structure comparison; name preimage carried from shared hash mapping; gameplay meaning unverified"
+        }
+      ]
+    },
+    {
+      "id": "gta-vi:save-field:xbox:farmour",
+      "format": "JSAV-v3",
+      "fieldHash": "0x45b925e3",
+      "preimage": "fArmour",
+      "targetId": "gta-vi:systems:armour-candidate",
+      "confidence": "candidate",
+      "editable": false,
+      "applicability": {
+        "platforms": [
+          "xbox"
+        ],
+        "build": null
+      },
+      "evidence": [
+        {
+          "sourceRef": "saverift-anonymized-xbox-jsav-analysis-2026-11-20",
+          "location": "SARC0000, SARC0001, and SARC0015 decoded JSAV slots",
+          "method": "read-only structure comparison; name preimage carried from shared hash mapping; gameplay meaning unverified"
+        }
+      ]
+    },
+    {
+      "id": "gta-vi:save-field:xbox:position",
+      "format": "JSAV-v3",
+      "fieldHash": "0x0c928991",
+      "preimage": "Position",
+      "targetId": "gta-vi:systems:position-candidate",
+      "confidence": "candidate",
+      "editable": false,
+      "applicability": {
+        "platforms": [
+          "xbox"
+        ],
+        "build": null
+      },
+      "evidence": [
+        {
+          "sourceRef": "saverift-anonymized-xbox-jsav-analysis-2026-11-20",
+          "location": "SARC0000, SARC0001, and SARC0015 decoded JSAV slots",
+          "method": "read-only structure comparison; name preimage carried from shared hash mapping; gameplay meaning unverified"
+        }
+      ]
+    },
+    {
+      "id": "gta-vi:save-field:xbox:items",
+      "format": "JSAV-v3",
+      "fieldHash": "0xabb1e011",
+      "preimage": "Items",
+      "targetId": "gta-vi:systems:items-candidate",
+      "confidence": "candidate",
+      "editable": false,
+      "applicability": {
+        "platforms": [
+          "xbox"
+        ],
+        "build": null
+      },
+      "evidence": [
+        {
+          "sourceRef": "saverift-anonymized-xbox-jsav-analysis-2026-11-20",
+          "location": "SARC0000, SARC0001, and SARC0015 decoded JSAV slots",
+          "method": "read-only structure comparison; name preimage carried from shared hash mapping; gameplay meaning unverified"
+        }
+      ]
+    },
+    {
+      "id": "gta-vi:save-field:xbox:properties",
+      "format": "JSAV-v3",
+      "fieldHash": "0xb4ca9f4d",
+      "preimage": "Properties",
+      "targetId": "gta-vi:systems:properties-candidate",
+      "confidence": "candidate",
+      "editable": false,
+      "applicability": {
+        "platforms": [
+          "xbox"
+        ],
+        "build": null
+      },
+      "evidence": [
+        {
+          "sourceRef": "saverift-anonymized-xbox-jsav-analysis-2026-11-20",
+          "location": "SARC0000, SARC0001, and SARC0015 decoded JSAV slots",
+          "method": "read-only structure comparison; name preimage carried from shared hash mapping; gameplay meaning unverified"
+        }
+      ]
+    },
+    {
+      "id": "gta-vi:save-field:xbox:vehicles",
+      "format": "JSAV-v3",
+      "fieldHash": "0x7e56d644",
+      "preimage": "Vehicles",
+      "targetId": "gta-vi:systems:vehicles-candidate",
+      "confidence": "candidate",
+      "editable": false,
+      "applicability": {
+        "platforms": [
+          "xbox"
+        ],
+        "build": null
+      },
+      "evidence": [
+        {
+          "sourceRef": "saverift-anonymized-xbox-jsav-analysis-2026-11-20",
+          "location": "SARC0000, SARC0001, and SARC0015 decoded JSAV slots",
+          "method": "read-only structure comparison; name preimage carried from shared hash mapping; gameplay meaning unverified"
+        }
+      ]
+    },
+    {
+      "id": "gta-vi:save-field:xbox:balance",
+      "format": "JSAV-v3",
+      "fieldHash": "0x818f6f6d",
+      "preimage": "Balance",
+      "targetId": "gta-vi:systems:balance-candidate",
+      "confidence": "candidate",
+      "editable": false,
+      "applicability": {
+        "platforms": [
+          "xbox"
+        ],
+        "build": null
+      },
+      "evidence": [
+        {
+          "sourceRef": "saverift-anonymized-xbox-jsav-analysis-2026-11-20",
+          "location": "SARC0000, SARC0001, and SARC0015 decoded JSAV slots",
+          "method": "read-only structure comparison; name preimage carried from shared hash mapping; gameplay meaning unverified"
+        }
+      ]
+    },
+    {
+      "id": "gta-vi:save-field:xbox:progress",
+      "format": "JSAV-v3",
+      "fieldHash": "0x928c3ffd",
+      "preimage": "Progress",
+      "targetId": "gta-vi:systems:progress-candidate",
+      "confidence": "candidate",
+      "editable": false,
+      "applicability": {
+        "platforms": [
+          "xbox"
+        ],
+        "build": null
+      },
+      "evidence": [
+        {
+          "sourceRef": "saverift-anonymized-xbox-jsav-analysis-2026-11-20",
+          "location": "SARC0000, SARC0001, and SARC0015 decoded JSAV slots",
+          "method": "read-only structure comparison; name preimage carried from shared hash mapping; gameplay meaning unverified"
+        }
+      ]
+    },
+    {
+      "id": "gta-vi:save-field:xbox:relationship-level",
+      "format": "JSAV-v3",
+      "fieldHash": "0x650b110b",
+      "preimage": "relationshipLevel",
+      "targetId": "gta-vi:systems:relationship-level-candidate",
+      "confidence": "candidate",
+      "editable": false,
+      "applicability": {
+        "platforms": [
+          "xbox"
+        ],
+        "build": null
+      },
+      "evidence": [
+        {
+          "sourceRef": "saverift-anonymized-xbox-jsav-analysis-2026-11-20",
+          "location": "SARC0000, SARC0001, and SARC0015 decoded JSAV slots",
+          "method": "read-only structure comparison; name preimage carried from shared hash mapping; gameplay meaning unverified"
+        }
+      ]
+    }
+  ]
+}

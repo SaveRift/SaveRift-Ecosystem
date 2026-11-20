@@ -1,0 +1,269 @@
+{
+  "schema": "saverift.gta-vi.entities.v1",
+  "category": "systems",
+  "entries": [
+    {
+      "id": "gta-vi:systems:health-candidate",
+      "name": {
+        "en": "Health field candidate"
+      },
+      "attributes": {
+        "editorReady": false
+      },
+      "confidence": "candidate",
+      "applicability": {
+        "platforms": [
+          "ps5",
+          "xbox"
+        ],
+        "build": null
+      },
+      "evidence": [
+        {
+          "sourceRef": "saverift-anonymized-jsav-analysis-2026-11-19",
+          "location": "CodeSaveBlocks[10], hash 0x0834e1d0",
+          "method": "exact case-sensitive joaat preimage fHealth; gameplay behavior untested"
+        },
+        {
+          "sourceRef": "saverift-anonymized-xbox-jsav-analysis-2026-11-20",
+          "location": "SARC0000, SARC0001, and SARC0015 decoded JSAV slots, hash 0x0834e1d0",
+          "method": "read-only matching hash and structure in decoded Xbox JSAV slots; gameplay meaning and edit safety unverified"
+        }
+      ],
+      "notes": "A save-field name match is not an edit-safe health definition."
+    },
+    {
+      "id": "gta-vi:systems:armour-candidate",
+      "name": {
+        "en": "Armour field candidate"
+      },
+      "attributes": {
+        "editorReady": false
+      },
+      "confidence": "candidate",
+      "applicability": {
+        "platforms": [
+          "ps5",
+          "xbox"
+        ],
+        "build": null
+      },
+      "evidence": [
+        {
+          "sourceRef": "saverift-anonymized-jsav-analysis-2026-11-19",
+          "location": "repeated JSAV records, hash 0x45b925e3",
+          "method": "exact case-sensitive joaat preimage fArmour; gameplay behavior untested"
+        },
+        {
+          "sourceRef": "saverift-anonymized-xbox-jsav-analysis-2026-11-20",
+          "location": "SARC0000, SARC0001, and SARC0015 decoded JSAV slots, hash 0x45b925e3",
+          "method": "read-only matching hash and structure in decoded Xbox JSAV slots; gameplay meaning and edit safety unverified"
+        }
+      ],
+      "notes": "Repeated observations do not establish which record controls player armour."
+    },
+    {
+      "id": "gta-vi:systems:position-candidate",
+      "name": {
+        "en": "Position field candidate"
+      },
+      "attributes": {
+        "editorReady": false
+      },
+      "confidence": "candidate",
+      "applicability": {
+        "platforms": [
+          "ps5",
+          "xbox"
+        ],
+        "build": null
+      },
+      "evidence": [
+        {
+          "sourceRef": "saverift-anonymized-jsav-analysis-2026-11-19",
+          "location": "CodeSaveBlocks[10] and ScriptSaveBlocks[25], hash 0x0c928991",
+          "method": "exact joaat preimage Position; matching coordinate triples observed"
+        },
+        {
+          "sourceRef": "saverift-anonymized-xbox-jsav-analysis-2026-11-20",
+          "location": "SARC0000, SARC0001, and SARC0015 decoded JSAV slots, hash 0x0c928991",
+          "method": "read-only matching hash and structure in decoded Xbox JSAV slots; gameplay meaning and edit safety unverified"
+        }
+      ]
+    },
+    {
+      "id": "gta-vi:systems:items-candidate",
+      "name": {
+        "en": "Items field candidate"
+      },
+      "attributes": {
+        "editorReady": false
+      },
+      "confidence": "candidate",
+      "applicability": {
+        "platforms": [
+          "ps5",
+          "xbox"
+        ],
+        "build": null
+      },
+      "evidence": [
+        {
+          "sourceRef": "saverift-anonymized-jsav-analysis-2026-11-19",
+          "location": "JSAV hash 0xabb1e011",
+          "method": "exact joaat preimage Items; contained IDs not identified"
+        },
+        {
+          "sourceRef": "saverift-anonymized-xbox-jsav-analysis-2026-11-20",
+          "location": "SARC0000, SARC0001, and SARC0015 decoded JSAV slots, hash 0xabb1e011",
+          "method": "read-only matching hash and structure in decoded Xbox JSAV slots; gameplay meaning and edit safety unverified"
+        }
+      ]
+    },
+    {
+      "id": "gta-vi:systems:properties-candidate",
+      "name": {
+        "en": "Properties field candidate"
+      },
+      "attributes": {
+        "editorReady": false
+      },
+      "confidence": "candidate",
+      "applicability": {
+        "platforms": [
+          "ps5",
+          "xbox"
+        ],
+        "build": null
+      },
+      "evidence": [
+        {
+          "sourceRef": "saverift-anonymized-jsav-analysis-2026-11-19",
+          "location": "JSAV hash 0xb4ca9f4d",
+          "method": "exact joaat preimage Properties; ownership not established"
+        },
+        {
+          "sourceRef": "saverift-anonymized-xbox-jsav-analysis-2026-11-20",
+          "location": "SARC0000, SARC0001, and SARC0015 decoded JSAV slots, hash 0xb4ca9f4d",
+          "method": "read-only matching hash and structure in decoded Xbox JSAV slots; gameplay meaning and edit safety unverified"
+        }
+      ]
+    },
+    {
+      "id": "gta-vi:systems:vehicles-candidate",
+      "name": {
+        "en": "Vehicles field candidate"
+      },
+      "attributes": {
+        "editorReady": false
+      },
+      "confidence": "candidate",
+      "applicability": {
+        "platforms": [
+          "ps5",
+          "xbox"
+        ],
+        "build": null
+      },
+      "evidence": [
+        {
+          "sourceRef": "saverift-anonymized-jsav-analysis-2026-11-19",
+          "location": "JSAV hash 0x7e56d644",
+          "method": "exact joaat preimage Vehicles; garage ownership not established"
+        },
+        {
+          "sourceRef": "saverift-anonymized-xbox-jsav-analysis-2026-11-20",
+          "location": "SARC0000, SARC0001, and SARC0015 decoded JSAV slots, hash 0x7e56d644",
+          "method": "read-only matching hash and structure in decoded Xbox JSAV slots; gameplay meaning and edit safety unverified"
+        }
+      ]
+    },
+    {
+      "id": "gta-vi:systems:balance-candidate",
+      "name": {
+        "en": "Balance field candidate"
+      },
+      "attributes": {
+        "editorReady": false
+      },
+      "confidence": "candidate",
+      "applicability": {
+        "platforms": [
+          "ps5",
+          "xbox"
+        ],
+        "build": null
+      },
+      "evidence": [
+        {
+          "sourceRef": "saverift-anonymized-jsav-analysis-2026-11-19",
+          "location": "JSAV hash 0x818f6f6d",
+          "method": "exact joaat preimage Balance; player cash not established"
+        },
+        {
+          "sourceRef": "saverift-anonymized-xbox-jsav-analysis-2026-11-20",
+          "location": "SARC0000, SARC0001, and SARC0015 decoded JSAV slots, hash 0x818f6f6d",
+          "method": "read-only matching hash and structure in decoded Xbox JSAV slots; gameplay meaning and edit safety unverified"
+        }
+      ]
+    },
+    {
+      "id": "gta-vi:systems:progress-candidate",
+      "name": {
+        "en": "Progress field candidate"
+      },
+      "attributes": {
+        "editorReady": false
+      },
+      "confidence": "candidate",
+      "applicability": {
+        "platforms": [
+          "ps5",
+          "xbox"
+        ],
+        "build": null
+      },
+      "evidence": [
+        {
+          "sourceRef": "saverift-anonymized-jsav-analysis-2026-11-19",
+          "location": "JSAV hash 0x928c3ffd",
+          "method": "exact joaat preimage Progress; distinct from overall completion"
+        },
+        {
+          "sourceRef": "saverift-anonymized-xbox-jsav-analysis-2026-11-20",
+          "location": "SARC0000, SARC0001, and SARC0015 decoded JSAV slots, hash 0x928c3ffd",
+          "method": "read-only matching hash and structure in decoded Xbox JSAV slots; gameplay meaning and edit safety unverified"
+        }
+      ]
+    },
+    {
+      "id": "gta-vi:systems:relationship-level-candidate",
+      "name": {
+        "en": "Relationship level field candidate"
+      },
+      "attributes": {
+        "editorReady": false
+      },
+      "confidence": "candidate",
+      "applicability": {
+        "platforms": [
+          "ps5",
+          "xbox"
+        ],
+        "build": null
+      },
+      "evidence": [
+        {
+          "sourceRef": "saverift-anonymized-jsav-analysis-2026-11-19",
+          "location": "JSAV hash 0x650b110b",
+          "method": "exact joaat preimage relationshipLevel; not a player level"
+        },
+        {
+          "sourceRef": "saverift-anonymized-xbox-jsav-analysis-2026-11-20",
+          "location": "SARC0000, SARC0001, and SARC0015 decoded JSAV slots, hash 0x650b110b",
+          "method": "read-only matching hash and structure in decoded Xbox JSAV slots; gameplay meaning and edit safety unverified"
+        }
+      ]
+    }
+  ]
+}

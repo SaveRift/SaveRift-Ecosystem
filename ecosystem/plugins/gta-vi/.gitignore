@@ -1,0 +1,11 @@
+# Keep private research and copyrighted game payloads out of this public plugin.
+private/
+dumps/
+raw-saves/
+*.zip
+*.rar
+*.rpf
+*.ttpf
+*.xvd
+*.ps5b
+*.ps4b

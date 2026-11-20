@@ -1,0 +1,35 @@
+{
+  "schema": "saverift.gta-vi.sources.v1",
+  "sources": [
+    {
+      "id": "rockstar-official-vi-people-places",
+      "kind": "official-public-page",
+      "title": "Grand Theft Auto VI - Only in Leonida",
+      "locator": "https://www.rockstargames.com/VI/only-in-leonida",
+      "revision": "accessed-2026-11-20",
+      "license": "facts-and-names-only; no artwork or copied prose",
+      "attribution": "Rockstar Games",
+      "allowedUse": "short factual catalog entries with citation"
+    },
+    {
+      "id": "saverift-anonymized-jsav-analysis-2026-11-19",
+      "kind": "maintainer-research-summary",
+      "title": "Anonymized GTA VI PS5 JSAV field analysis",
+      "locator": "maintainer-held analysis; raw player saves excluded",
+      "revision": "2026-11-19",
+      "license": "SaveRift original observations; no underlying save redistribution",
+      "attribution": "SaveRift research",
+      "allowedUse": "hash and type observations only; gameplay meaning remains candidate"
+    },
+    {
+      "id": "saverift-anonymized-xbox-jsav-analysis-2026-11-20",
+      "kind": "maintainer-research-summary",
+      "title": "Anonymized GTA VI Xbox decoded JSAV comparison",
+      "locator": "maintainer-held read-only comparison; raw player saves excluded",
+      "revision": "2026-11-20",
+      "license": "SaveRift original observations; no underlying save redistribution",
+      "attribution": "SaveRift research",
+      "allowedUse": "hash and format observations only; gameplay meaning remains candidate"
+    }
+  ]
+}
