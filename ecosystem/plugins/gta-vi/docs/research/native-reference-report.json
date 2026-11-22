@@ -1,0 +1,52 @@
+{
+  "schema": "saverift.gta-vi.native-reference-augmentation-report.v1",
+  "tool": "saverift-native-reference-augmentation/0.1.0",
+  "status": "completed",
+  "exporterSha256": "6d4f671a3aa51ccb0f14af0d02c85e8de8cae3da544001fe487e77f838e7c69c",
+  "baseFileSha256": {
+    "entities/vehicles.json": "40d10a0435de9f26bfe21dbba505e94dd32820d2cf54baa4706a52c70965b25a",
+    "entities/weapons.json": "496f98fc05d60f7564b4030ad4fee2b8d71fc61e4b36734b5af378648f32f489",
+    "entities/items.json": "35417e0a2fd5b4c247191fb976e0a3e7f95fdbb7feafde05bd9c7560b8de17b8",
+    "sources.json": "489c3263d142d7fd077461a15b9b68807e04bf36c96f57e41530e6f62c4b34ef",
+    "crosswalk-report.json": "f5a98d701c755c3d92ce5f021d437b0f8a17cf2e8b61eaf11cc7acfd8d6d186b",
+    "web-augmentation-report.json": "d702f22b051d6a6a194dbf07d9110ea45b16dcaffdc50af025b86604ebb1f7cf"
+  },
+  "categories": {
+    "weapon": {
+      "verifiedInputOccurrences": 348,
+      "selectedOccurrences": 174,
+      "excludedOtherSelectorOccurrences": 174,
+      "nonzeroSelectedOccurrences": 174,
+      "distinctNonzeroNativeValues": 17,
+      "zeroSelectedOccurrences": 0,
+      "augmentedEntries": 13,
+      "corroboratedDistinctValues": 13,
+      "corroboratingNativeOccurrences": 162,
+      "corroboratingContentLocations": 162,
+      "nativeValuesRemainingOnlyInStaging": 4
+    },
+    "item": {
+      "verifiedInputOccurrences": 316,
+      "selectedOccurrences": 316,
+      "excludedOtherSelectorOccurrences": 0,
+      "nonzeroSelectedOccurrences": 316,
+      "distinctNonzeroNativeValues": 37,
+      "zeroSelectedOccurrences": 0,
+      "augmentedEntries": 9,
+      "corroboratedDistinctValues": 9,
+      "corroboratingNativeOccurrences": 61,
+      "corroboratingContentLocations": 61,
+      "nativeValuesRemainingOnlyInStaging": 28
+    }
+  },
+  "newEntities": 0,
+  "newSources": 2,
+  "newSaveLinks": 0,
+  "editabilityChanges": 0,
+  "interpretation": [
+    "Only existing website-reported hexadecimal spec/item candidates with equal native scalar values are augmented.",
+    "Observation counts retain repeated document occurrences; content-location counts deduplicate repeated native content.",
+    "WeaponName, computed hashes, other reference domains and unmatched numeric values do not create identifiers or entities.",
+    "Candidate labels, unknown native game build, runtime availability and save mapping remain unvalidated."
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "schema": "saverift.gta-vi.native-lookup-selectors.v1",
+  "selection_basis": {
+    "upstream_commit": "5a5a9761663315cdf61cec8b219ae5b808e556ae",
+    "source": "Completed PSIN Name-field probe over packs.rpf inclusive decimal offsets 202600000 through 205700000; source field acec22be is the exact Name preimage",
+    "note": "Three exact full structures whose Name/u32 values have candidate lowercase or exact JOAAT relationships to website WeaponSpec, WeaponPreset and WeaponRecipe tokens. Owning definition roles and save domains remain unverified. This plan does not include either WeaponType-associated structure, and its frozen extractor may find additional occurrences of these exact structures outside the probe range."
+  },
+  "selectors": [
+    {"id":"weapon-spec-psin-name-candidate","category":"weapons","namespace":"weapon.psinName.473f474cbc92474a.Name","role":"name_reference_candidate","format":"psin","struct_hash":"473f474cbc92474a","struct_sizes":[144],"field_index":0,"field_hash":"acec22be","field_type":"4a","field_subtype":"00","reference_index":0,"extra_hex":"00000000","encoding":"u32"},
+    {"id":"weapon-preset-psin-name-candidate","category":"weapons","namespace":"weapon.psinName.165141788d690ccf.Name","role":"name_reference_candidate","format":"psin","struct_hash":"165141788d690ccf","struct_sizes":[80],"field_index":0,"field_hash":"acec22be","field_type":"4a","field_subtype":"00","reference_index":0,"extra_hex":"00000000","encoding":"u32"},
+    {"id":"weapon-recipe-psin-name-candidate","category":"weapons","namespace":"weapon.psinName.adb0a97cdaa66e06.Name","role":"name_reference_candidate","format":"psin","struct_hash":"adb0a97cdaa66e06","struct_sizes":[112],"field_index":0,"field_hash":"acec22be","field_type":"4a","field_subtype":"00","reference_index":0,"extra_hex":"00000000","encoding":"u32"}
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "schema": "saverift.gta-vi.native-lookup-selectors.v1",
+  "selection_basis": {
+    "upstream_commit": "5a5a9761663315cdf61cec8b219ae5b808e556ae",
+    "source": "Maintainer-held completed R2 schema inventory: PSIN full structure 3f7f2239c0458831, 40 bytes, five schema documents and 316 stored instances before latest-attempt selection",
+    "note": "Explicit ItemId field observation at index 0, expected source offset 16, hash f50c1b43, type 4a. ItemId is a case-sensitive field preimage; lowercase itemId fields in vehicle configurations are different domains and are not selected. Reference meaning and website label joins remain candidates; no save mapping or inventory-definition claim is made."
+  },
+  "selectors": [
+    {"id":"item-reference-table-item-id","category":"items","namespace":"item.referenceTable.ItemId","role":"item_reference_candidate","format":"psin","struct_hash":"3f7f2239c0458831","struct_sizes":[40],"field_index":0,"field_hash":"f50c1b43","field_type":"4a","field_subtype":"00","reference_index":0,"extra_hex":"00000000","encoding":"u32"}
+  ]
+}

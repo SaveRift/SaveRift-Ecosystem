@@ -1,0 +1,141 @@
+{
+  "schema": "saverift.gta-vi.weapon-name-evidence-report.v1",
+  "tool": "saverift-weapon-name-evidence/0.1.0",
+  "status": "completed",
+  "provenance": {
+    "probe": "saverift-weapon-psin-name-probe/0.2.0",
+    "probeSha256": "b791523a331a652094776ee71a91a3a8f1f6f7f7ddcd6346676eab4cb58e3eb3",
+    "tokenPoolHelperSha256": "ed8a89c489c69d4597427a9fa4885b58f1288387890d2c55e271140b6cd9c98b",
+    "extractorHelperSha256": "7b3e568cab97e427f5e92b3223e86ad01fa1afcfc5925fc1cae84eaf71665402",
+    "upstreamCommit": "5a5a9761663315cdf61cec8b219ae5b808e556ae",
+    "decoderWorkerSha256": "f8c7c4c66be270c671a33289d52ef82be25ad769dd690cb84e8cced555979b1d",
+    "summarySha256": "462e2b89d7097f414f5d0cc7af698cb6bc5b7f54233a6002808883ee2d083831",
+    "matchesSha256": "89258982a3a037e4dee8799b4fa09a87f45c4f418d2892a4a7ba1b66cb1ea4c5",
+    "matchesBytes": 956027,
+    "websiteFactsSha256": "bccf556847a1417d2c21a00bcf26332528cadc0f88f46b2850d18c3d90eb2188",
+    "websiteDatasetSha256": "85933f5fb560162602f3948121cebc5788f72d0de1cb52c9ff0aa0b4664ecfdd",
+    "scope": {
+      "wrapperStructHash": "51e5454170a06c31",
+      "selectedFieldHash": "acec22be",
+      "selectedFieldPreimage": "Name",
+      "selectedFieldType": "4a",
+      "archive": "packs.rpf",
+      "archiveOffsetUnit": "decimal bytes",
+      "inclusiveRange": [
+        202600000,
+        205700000
+      ]
+    },
+    "rawByteVerification": {
+      "selectorPlanSha256": "457d6c685c79366dba084733b604859752fd4a2529a4967af445f310204b53a2",
+      "extractorSha256": "7b3e568cab97e427f5e92b3223e86ad01fa1afcfc5925fc1cae84eaf71665402",
+      "extractorSummarySha256": "dd0eec6740e2433efb66938461e9d881d9a645c4b67ad5624370675332195b81",
+      "observationsSha256": "abd6746b88e5f4fbc21719213b0c7d2a9bfdf6f2fe5b063ca3bd803de7081213",
+      "observationsBytes": 2496586,
+      "byteVerifierSha256": "28e798951f047fceaed3298b00ace31e4a2ad26eee5d6c4f25450853ff330f0f",
+      "byteVerifierVersion": "saverift-native-lookup-byte-verification/0.2.0",
+      "byteVerificationReceiptSha256": "03a0c192a6e1d6367ccc8e94a1504cd6b069cb650a843c18e76c3ec7042b7d94",
+      "byteVerificationSha256": "f8ce68159dae2ae54a50bf8f697913c583067c8704d42c2d804f863f49ea9c0a",
+      "verifiedInputOccurrences": 1060
+    },
+    "fullScalarByteCoverageEstablished": true,
+    "scalarByteVerificationScope": [
+      "WeaponSpec",
+      "WeaponPreset",
+      "WeaponRecipe"
+    ],
+    "excludedFromScalarByteCoverage": [
+      "WeaponType"
+    ],
+    "definitionIdentityVerified": false,
+    "nativeLiteralStringsObserved": false,
+    "saveMappingEstablished": false,
+    "platforms": [
+      "xbox"
+    ],
+    "gameBuild": null,
+    "exporter": "saverift-weapon-name-evidence/0.1.0",
+    "exporterSha256": "dd381452621a84c336a76bbc36ca980965bf54e5d528e9a98036397190c36c6d"
+  },
+  "sourceProbeCounts": {
+    "excluded_outside_archive_or_inclusive_range": 25,
+    "matching_scalar_observations": 587,
+    "name_field_schema_observations": 1524,
+    "range_wrapper_documents": 131,
+    "range_wrapper_documents_without_name_u32": 2,
+    "selected_instance_field_opportunities": 16771,
+    "valid_scalar_observations": 16771,
+    "wrapper_structure_documents": 156
+  },
+  "sourceProbeDomains": {
+    "WeaponPreset": {
+      "matchedNativeValues": 207,
+      "matchedTokens": 207,
+      "matchingContentLocations": 207,
+      "matchingDistinctPayloads": 53,
+      "matchingDocumentObservations": 53,
+      "matchingInstanceObservations": 207,
+      "sourceTokens": 227
+    },
+    "WeaponRecipe": {
+      "matchedNativeValues": 147,
+      "matchedTokens": 147,
+      "matchingContentLocations": 147,
+      "matchingDistinctPayloads": 28,
+      "matchingDocumentObservations": 28,
+      "matchingInstanceObservations": 147,
+      "sourceTokens": 176
+    },
+    "WeaponSpec": {
+      "matchedNativeValues": 126,
+      "matchedTokens": 126,
+      "matchingContentLocations": 126,
+      "matchingDistinctPayloads": 92,
+      "matchingDocumentObservations": 92,
+      "matchingInstanceObservations": 126,
+      "sourceTokens": 137
+    },
+    "WeaponType": {
+      "matchedNativeValues": 105,
+      "matchedTokens": 105,
+      "matchingContentLocations": 107,
+      "matchingDistinctPayloads": 105,
+      "matchingDocumentObservations": 105,
+      "matchingInstanceObservations": 107,
+      "sourceTokens": 112
+    }
+  },
+  "matchedWebsiteTokensByDomain": {
+    "spec": 126,
+    "preset": 207,
+    "recipe": 147
+  },
+  "augmentedRowsByDomain": {
+    "preset": 207,
+    "recipe": 147,
+    "spec": 126
+  },
+  "augmentedRows": 480,
+  "nativeObservationCount": 480,
+  "nativeContentLocations": 480,
+  "excludedWeaponTypeGroups": 117,
+  "newEntities": 0,
+  "newNativeIds": 0,
+  "newSources": 1,
+  "newSaveLinks": 0,
+  "editabilityChanges": 0,
+  "interpretation": [
+    "Matched tokens are candidate correlations with numeric Name fields, not recovered native literal strings or newly established definition IDs.",
+    "Exact/lowercase groups sharing an owner/layout/descriptor/value bucket count once; different owning namespaces remain separate.",
+    "WeaponType results remain in the probe summary and do not create or augment independent public identity rows."
+  ],
+  "baseFileSha256": {
+    "entities/vehicles.json": "40d10a0435de9f26bfe21dbba505e94dd32820d2cf54baa4706a52c70965b25a",
+    "entities/weapons.json": "ac0558ae262b93cb14593b0d6c8b40299dc58bd6e90059591a8e3431c76efba5",
+    "entities/items.json": "b4661df81f383b35673a3ae38b277ff1eaba13429de59d6c68715e3301e780b5",
+    "sources.json": "447b9e1ba643057dcbcbddda2adbaf2ff6f47510be24b6722cb2a15ade1a09d9",
+    "crosswalk-report.json": "f5a98d701c755c3d92ce5f021d437b0f8a17cf2e8b61eaf11cc7acfd8d6d186b",
+    "native-reference-report.json": "467e43ce12129d7cf70223c5251fefedadf006e073329fdf78ab8a2723b3adfa",
+    "web-augmentation-report.json": "d702f22b051d6a6a194dbf07d9110ea45b16dcaffdc50af025b86604ebb1f7cf"
+  }
+}

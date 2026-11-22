@@ -3,6 +3,8 @@
 // the isolated runner until a complete, independently verified round trip exists.
 import {hash} from '../../../sdk/crypto.mjs';
 import {inspectGtaViJsav} from './shared/gta-vi-jsav.mjs';
+import {listCatalogEntries} from './shared/gta-vi-catalog.mjs';
+import {getCatalogDetails} from './shared/gta-vi-details.mjs';
 import characters from '../data/entities/characters.json';
 import vehicles from '../data/entities/vehicles.json';
 import weapons from '../data/entities/weapons.json';
@@ -12,9 +14,14 @@ import currencies from '../data/entities/currencies.json';
 import locations from '../data/entities/locations.json';
 import activities from '../data/entities/activities.json';
 import systems from '../data/entities/systems.json';
+import vehicleDetails from '../data/details/vehicles.json';
+import weaponDetails from '../data/details/weapons.json';
+import itemDetails from '../data/details/items.json';
+import detailSources from '../data/details/sources.json';
 
 const states = new Map();
 const catalog = Object.freeze({characters, vehicles, weapons, clothing, items, currencies, locations, activities, systems});
+const presentations = Object.freeze({vehicles: vehicleDetails, weapons: weaponDetails, items: itemDetails});
 const error = (code, message = code) => { throw Object.assign(new Error(message), {code}); };
 const identity = value => typeof value === 'string' && ['grand-theft-auto-vi', 'gta-vi', 'saverift.gta-vi'].includes(value.toLowerCase());
 const platform = value => typeof value === 'string' ? value.toLowerCase() : '';
@@ -92,12 +99,10 @@ export default {
     if (request?.method === 'gtavi.catalog.categories') return {categories: Object.entries(catalog).map(([category, data]) => ({category, count: data.entries.length}))};
     if (request?.method === 'gtavi.catalog.list') {
       const input = request.params || request.args || {};
-      const category = typeof input.category === 'string' ? input.category : '';
-      const selected = catalog[category];
-      if (!Object.hasOwn(catalog, category) || !selected) error('GTAVI_CATALOG_CATEGORY_UNKNOWN');
-      const offset = Number.isSafeInteger(input.offset) && input.offset >= 0 ? input.offset : 0;
-      const limit = Number.isSafeInteger(input.limit) ? Math.max(1, Math.min(25, input.limit)) : 25;
-      return {category, entries: selected.entries.slice(offset, offset + limit), total: selected.entries.length, offset, limit};
+      return listCatalogEntries(catalog, input);
+    }
+    if (request?.method === 'gtavi.catalog.details') {
+      return getCatalogDetails(catalog, presentations, detailSources, request.params || request.args || {});
     }
     if (request?.method === 'gtavi.fields.list') {
       const input = request.params || request.args || {};

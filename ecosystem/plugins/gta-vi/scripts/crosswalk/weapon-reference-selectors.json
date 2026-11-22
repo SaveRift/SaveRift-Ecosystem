@@ -1,0 +1,12 @@
+{
+  "schema": "saverift.gta-vi.native-lookup-selectors.v1",
+  "selection_basis": {
+    "upstream_commit": "5a5a9761663315cdf61cec8b219ae5b808e556ae",
+    "source": "Maintainer-held completed R2 schema inventory: meta7a structure 74bd18f6, 96 bytes, three document observations and 174 stored instances",
+    "note": "Explicit direct 4a field observations only. WeaponName and WeaponSpec labels are retained as candidate field preimages; their value domains remain distinct. This plan does not claim a weapon definition, spawnable weapon, or save-array ID. Literal-token matching is a separate review step."
+  },
+  "selectors": [
+    {"id":"weapon-reference-table-name","category":"weapons","namespace":"weapon.referenceTable.WeaponName","role":"weapon_name_reference_candidate","format":"meta7a","struct_hash":"74bd18f6","struct_sizes":[96],"field_index":0,"field_hash":"6005b689","field_type":"4a","field_subtype":"00","reference_index":0,"extra_hex":"00000000","encoding":"u32"},
+    {"id":"weapon-reference-table-spec","category":"weapons","namespace":"weapon.referenceTable.WeaponSpec","role":"weapon_spec_reference_candidate","format":"meta7a","struct_hash":"74bd18f6","struct_sizes":[96],"field_index":1,"field_hash":"1aba12c5","field_type":"4a","field_subtype":"00","reference_index":0,"extra_hex":"00000000","encoding":"u32"}
+  ]
+}

@@ -1,0 +1,296 @@
+{
+  "schema": "saverift.native-preview-verification.v1",
+  "reviewedOn": "2026-11-22",
+  "decoder": {
+    "project": "https://github.com/holdmysocks/SixNG",
+    "revision": "606faf782c9e2fb01c5d67dc8d6c415fe9320128",
+    "release": "v0.5.0",
+    "releaseArchiveSha256": "573299335cf0e2c5d89d5d2449c91775454cc5a77f8889ce27fb0b4bcdb95af7",
+    "executableSha256": "65ff11448518b78292c9b6f3306988878d4f0f9c6a2e234c6822db226dcfc918"
+  },
+  "member": "data/ttdb/ui/ttdb_ui.ttpf",
+  "historicalWholeMemberSha256": "dc983ed7f6b78d1693fa5757f17c03bafb790e851594fdf4d412579b61d867f6",
+  "wholeMemberHashRecomputedThisRun": false,
+  "wholeTextureCount": 10013,
+  "selectedTextures": 9,
+  "rangeBytesIncludingTwoPrefixChecks": 1331418,
+  "decodeCounts": {
+    "complete": 9,
+    "partial": 0,
+    "failed": 0
+  },
+  "sparseMirrorsAreCompleteFiles": false,
+  "textureChecks": [
+    {
+      "textureHash64": "004ef76ff74d061f",
+      "width": 512,
+      "height": 256,
+      "format": "BC7_UNORM",
+      "pngSha256": "6a49b6c9d99a3e17328cc0a16dae76f4574fffd5471981437adfe22c34853c73",
+      "pngBytes": 165605,
+      "allRequiredSpansFetched": true,
+      "chunkCodecs": [
+        32
+      ],
+      "decoderPartial": false,
+      "undecodedBytes": 0,
+      "outputHashAndDimensionsVerified": true,
+      "visuallyReviewed": true,
+      "saveMappingEstablished": false
+    },
+    {
+      "textureHash64": "00ad573676eea1d9",
+      "width": 512,
+      "height": 256,
+      "format": "BC7_UNORM",
+      "pngSha256": "8fd77d0f1e9527d7bbd0a3310f13be6d378800ed6af1a102eb8e422d2820f87c",
+      "pngBytes": 160970,
+      "allRequiredSpansFetched": true,
+      "chunkCodecs": [
+        32
+      ],
+      "decoderPartial": false,
+      "undecodedBytes": 0,
+      "outputHashAndDimensionsVerified": true,
+      "visuallyReviewed": true,
+      "saveMappingEstablished": false
+    },
+    {
+      "textureHash64": "00e4d44b9673e9bb",
+      "width": 512,
+      "height": 256,
+      "format": "BC7_UNORM",
+      "pngSha256": "73d9e1002b813c41378d23d265c7aca5a6e48296eab84b2d49c125e766076e34",
+      "pngBytes": 169003,
+      "allRequiredSpansFetched": true,
+      "chunkCodecs": [
+        32
+      ],
+      "decoderPartial": false,
+      "undecodedBytes": 0,
+      "outputHashAndDimensionsVerified": true,
+      "visuallyReviewed": true,
+      "saveMappingEstablished": false
+    },
+    {
+      "textureHash64": "003e52728a6b40a5",
+      "width": 512,
+      "height": 256,
+      "format": "BC7_UNORM",
+      "pngSha256": "1fe0cb26a5b625994c6642dcfe5aa9c8b3444c8d749e1b74a3999e147ce1201c",
+      "pngBytes": 24245,
+      "allRequiredSpansFetched": true,
+      "chunkCodecs": [
+        32
+      ],
+      "decoderPartial": false,
+      "undecodedBytes": 0,
+      "outputHashAndDimensionsVerified": true,
+      "visuallyReviewed": true,
+      "saveMappingEstablished": false
+    },
+    {
+      "textureHash64": "006e46ec196a4acc",
+      "width": 256,
+      "height": 256,
+      "format": "BC3_UNORM",
+      "pngSha256": "0df220e901cca9576e3e46df62ec782eb9b44e2fac684a5bf0ad21434b1977ac",
+      "pngBytes": 28549,
+      "allRequiredSpansFetched": true,
+      "chunkCodecs": [
+        32
+      ],
+      "decoderPartial": false,
+      "undecodedBytes": 0,
+      "outputHashAndDimensionsVerified": true,
+      "visuallyReviewed": true,
+      "saveMappingEstablished": false
+    },
+    {
+      "textureHash64": "01b94a1a124468f2",
+      "width": 512,
+      "height": 128,
+      "format": "BC7_UNORM",
+      "pngSha256": "c66ac354aa2ee05da83a28c71bd4fdb5c30adce11e3054761445fde2a473903d",
+      "pngBytes": 18664,
+      "allRequiredSpansFetched": true,
+      "chunkCodecs": [
+        32
+      ],
+      "decoderPartial": false,
+      "undecodedBytes": 0,
+      "outputHashAndDimensionsVerified": true,
+      "visuallyReviewed": true,
+      "saveMappingEstablished": false
+    },
+    {
+      "textureHash64": "28c4c20d17bacb7f",
+      "width": 512,
+      "height": 256,
+      "format": "BC7_UNORM",
+      "pngSha256": "7a63adfa566cf91094252a928343a3205c8eb498f097b56a55cdab8daa4b862a",
+      "pngBytes": 170343,
+      "allRequiredSpansFetched": true,
+      "chunkCodecs": [
+        32
+      ],
+      "decoderPartial": false,
+      "undecodedBytes": 0,
+      "outputHashAndDimensionsVerified": true,
+      "visuallyReviewed": true,
+      "saveMappingEstablished": false,
+      "websiteVehicleToken": "thrax",
+      "catalogId": "gta-vi:vehicles:model-hash-3e3d1f59",
+      "nameAssociationMethod": "Exact named-card versus hash-gallery WebP equality, followed by same-hash native texture extraction and visual review; no native literal filename recovered"
+    },
+    {
+      "textureHash64": "bb19b32e7e3ee2f5",
+      "width": 512,
+      "height": 256,
+      "format": "BC7_UNORM",
+      "pngSha256": "75650782036e347a578c1ae4044417dd0cedd14800be52e72512d463e539fb1f",
+      "pngBytes": 171120,
+      "allRequiredSpansFetched": true,
+      "chunkCodecs": [
+        32
+      ],
+      "decoderPartial": false,
+      "undecodedBytes": 0,
+      "outputHashAndDimensionsVerified": true,
+      "visuallyReviewed": true,
+      "saveMappingEstablished": false,
+      "websiteVehicleToken": "emerus",
+      "catalogId": "gta-vi:vehicles:model-hash-4ee74355",
+      "nameAssociationMethod": "Exact named-card versus hash-gallery WebP equality, followed by same-hash native texture extraction and visual review; no native literal filename recovered"
+    },
+    {
+      "textureHash64": "f58a649e2e0d28e3",
+      "width": 512,
+      "height": 256,
+      "format": "BC7_UNORM",
+      "pngSha256": "19106bf61e39f0f9f3f74e37e5926c32a1a38d9a10d0766273b91f17810fc743",
+      "pngBytes": 167694,
+      "allRequiredSpansFetched": true,
+      "chunkCodecs": [
+        32
+      ],
+      "decoderPartial": false,
+      "undecodedBytes": 0,
+      "outputHashAndDimensionsVerified": true,
+      "visuallyReviewed": true,
+      "saveMappingEstablished": false,
+      "websiteVehicleToken": "vitello",
+      "catalogId": "gta-vi:vehicles:model-hash-78529595",
+      "nameAssociationMethod": "Exact named-card versus hash-gallery WebP equality, followed by same-hash native texture extraction and visual review; no native literal filename recovered"
+    }
+  ],
+  "metadataByteProof": {
+    "schema": "saverift.native-texture-metadata-byte-proof.v2",
+    "checks": [
+      {
+        "hash": "004ef76ff74d061f",
+        "descriptorIndex": 11,
+        "descriptorBytesMatch": true,
+        "hashBytesMatch": true,
+        "priorDescriptorBinding": null,
+        "chunks": [
+          {
+            "sixngIndex": 14,
+            "legacyIndex": 15,
+            "rawBoundaryBytesMatch": true,
+            "normalizedExtentMatch": true
+          }
+        ]
+      },
+      {
+        "hash": "00ad573676eea1d9",
+        "descriptorIndex": 34,
+        "descriptorBytesMatch": true,
+        "hashBytesMatch": true,
+        "priorDescriptorBinding": null,
+        "chunks": [
+          {
+            "sixngIndex": 42,
+            "legacyIndex": 43,
+            "rawBoundaryBytesMatch": true,
+            "normalizedExtentMatch": true
+          }
+        ]
+      },
+      {
+        "hash": "00e4d44b9673e9bb",
+        "descriptorIndex": 41,
+        "descriptorBytesMatch": true,
+        "hashBytesMatch": true,
+        "priorDescriptorBinding": null,
+        "chunks": [
+          {
+            "sixngIndex": 52,
+            "legacyIndex": 53,
+            "rawBoundaryBytesMatch": true,
+            "normalizedExtentMatch": true
+          }
+        ]
+      },
+      {
+        "hash": "003e52728a6b40a5",
+        "descriptorIndex": 10,
+        "descriptorBytesMatch": true,
+        "hashBytesMatch": true,
+        "priorDescriptorBinding": null,
+        "chunks": [
+          {
+            "sixngIndex": 13,
+            "legacyIndex": 14,
+            "rawBoundaryBytesMatch": true,
+            "normalizedExtentMatch": true
+          }
+        ]
+      },
+      {
+        "hash": "006e46ec196a4acc",
+        "descriptorIndex": 18,
+        "descriptorBytesMatch": true,
+        "hashBytesMatch": true,
+        "priorDescriptorBinding": null,
+        "chunks": [
+          {
+            "sixngIndex": 22,
+            "legacyIndex": 23,
+            "rawBoundaryBytesMatch": true,
+            "normalizedExtentMatch": true
+          }
+        ]
+      },
+      {
+        "hash": "01b94a1a124468f2",
+        "descriptorIndex": 82,
+        "descriptorBytesMatch": true,
+        "hashBytesMatch": true,
+        "priorDescriptorBinding": null,
+        "chunks": [
+          {
+            "sixngIndex": 99,
+            "legacyIndex": 100,
+            "rawBoundaryBytesMatch": true,
+            "normalizedExtentMatch": true
+          }
+        ]
+      }
+    ],
+    "legacyNormalization": {
+      "spanIndex": "SixNG index + 1 (legacy includes metadata span)",
+      "virtualOffset": "legacy logical_offset + 4096",
+      "codec": "legacy codec_code * 4",
+      "hashBinding": "Legacy descriptor_index deliberately null; compare key bytes at recorded ordinal without claiming a prior binding"
+    },
+    "wholeHashArrayMatched": true,
+    "allPassed": true
+  },
+  "interpretation": "These nine game UI images were directly decoded. Named website card mappings do not establish a native literal filename or a save-field binding. Samples used only zlib chunks, so fitted BCPack preset quality does not affect these nine images.",
+  "sampler": {
+    "observedRunScriptSha256": "a8d69758e301619c63161857546b0287ad363267b399c8d2c3445375f02e7451",
+    "publishedHardenedScriptSha256": "fe0b940784f888ab2cadc75682b7740f7ef7b506bc0455dd6e575a30144ee61a",
+    "note": "The nine existing samples were produced before sampler hardening. Root separately verified every original per-hash decoder result, output SHA-256, dimensions and visual appearance; the hardened producer did not generate these original outputs."
+  }
+}

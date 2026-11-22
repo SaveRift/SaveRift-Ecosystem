@@ -1,0 +1,301 @@
+{
+  "schema": "saverift.gta-vi.price-coverage-check.v1",
+  "sources": [
+    {
+      "sectionUrl": "https://negentropy.studio/tunables/",
+      "sectionSha256": "1a743de72641da96af50e941de4bc2289f93edcd234792dfe6d0fde77072e8ad",
+      "url": "https://negentropy.studio/assets/data/en/tunables.a04d914841.json",
+      "sha256": "51d342d2d2ca87bf74eda70bb622b17ca49aefecd8234924b6413eeaab27745a",
+      "rows": 1115,
+      "fieldDescriptors": [
+        {
+          "k": "value",
+          "l": "Value",
+          "t": "number"
+        },
+        {
+          "k": "unit",
+          "l": "Inferred unit",
+          "t": "id",
+          "i": 1
+        },
+        {
+          "k": "flag",
+          "l": "Value (yes or no)",
+          "t": "boolean"
+        },
+        {
+          "k": "text",
+          "l": "Value (text)",
+          "t": "id"
+        },
+        {
+          "k": "vector",
+          "l": "Value (vector)",
+          "t": "vec"
+        },
+        {
+          "k": "dataType",
+          "l": "Data type",
+          "t": "enum"
+        },
+        {
+          "k": "param",
+          "l": "Parameter",
+          "t": "id"
+        },
+        {
+          "k": "path",
+          "l": "Full path",
+          "t": "list"
+        },
+        {
+          "k": "owner",
+          "l": "System",
+          "t": "enum"
+        },
+        {
+          "k": "file",
+          "l": "File",
+          "t": "id"
+        }
+      ],
+      "candidateRows": [
+        {
+          "row": 168,
+          "recordId": "cplayerfocusspecialability-experimental-tunables-entitymaskconfig-entitymaskprofiles-focus-hvt-money-maskvalue",
+          "label": "Focus_HVT_Money/MaskValue",
+          "identifier": "Focus_HVT_Money/MaskValue",
+          "values": [
+            null,
+            null,
+            null,
+            "x=0.75 y=0 z=0 w=0.25",
+            null,
+            "Texto",
+            "MaskValue",
+            [
+              "CPlayerFocusSpecialAbility",
+              "EntityMaskConfig",
+              "EntityMaskProfiles",
+              "Focus_HVT_Money",
+              "MaskValue"
+            ],
+            "CPlayerFocusSpecialAbility__Experimental__Tunables",
+            "common/00000043E000.xml"
+          ]
+        },
+        {
+          "row": 169,
+          "recordId": "cplayerfocusspecialability-experimental-tunables-entitymaskconfig-entitymaskprofiles-focus-hvt-money-maskvalueextras",
+          "label": "Focus_HVT_Money/MaskValueExtras",
+          "identifier": "Focus_HVT_Money/MaskValueExtras",
+          "values": [
+            null,
+            null,
+            null,
+            null,
+            [
+              0,
+              0
+            ],
+            "Vector",
+            "MaskValueExtras",
+            [
+              "CPlayerFocusSpecialAbility",
+              "EntityMaskConfig",
+              "EntityMaskProfiles",
+              "Focus_HVT_Money",
+              "MaskValueExtras"
+            ],
+            "CPlayerFocusSpecialAbility__Experimental__Tunables",
+            "common/00000043E000.xml"
+          ]
+        }
+      ],
+      "note": "Lexical price/money candidates only; fields do not establish per-item prices."
+    },
+    {
+      "sectionUrl": "https://negentropy.studio/properties/",
+      "sectionSha256": "81d31dd090013d7bc6a6e46f4c35b743c572be11027339e525d9d51c02edffe0",
+      "url": "https://negentropy.studio/assets/data/en/propiedades.b1d4a344a0.json",
+      "sha256": "4fbb13d2f6483a1d9720be5a0ffb867ec610d357d91b1d7a895c6d2bbb9b466c",
+      "rows": 48,
+      "fieldDescriptors": [
+        {
+          "k": "distrito",
+          "l": "Region",
+          "t": "ref",
+          "i": 1
+        },
+        {
+          "k": "condado",
+          "l": "County",
+          "t": "ref",
+          "i": 1
+        },
+        {
+          "k": "entregaBienes",
+          "l": "Goods drop-off",
+          "t": "boolean"
+        },
+        {
+          "k": "cama",
+          "l": "Bed",
+          "t": "boolean"
+        },
+        {
+          "k": "armario",
+          "l": "Wardrobe",
+          "t": "boolean"
+        },
+        {
+          "k": "nevera",
+          "l": "Fridge",
+          "t": "boolean"
+        },
+        {
+          "k": "alijo",
+          "l": "Stash",
+          "t": "boolean"
+        },
+        {
+          "k": "ducha",
+          "l": "Shower",
+          "t": "boolean"
+        },
+        {
+          "k": "camas",
+          "l": "Beds",
+          "t": "integer"
+        },
+        {
+          "k": "camasJason",
+          "l": "Jason-only beds",
+          "t": "integer"
+        },
+        {
+          "k": "camasLucia",
+          "l": "Lucia-only beds",
+          "t": "integer"
+        },
+        {
+          "k": "servicios",
+          "l": "Services",
+          "t": "list"
+        },
+        {
+          "k": "puntosVehiculo",
+          "l": "\u201cVehicle\u201d points",
+          "t": "integer",
+          "i": 1
+        },
+        {
+          "k": "plantaVivienda",
+          "l": "Safehouse floor",
+          "t": "enum"
+        },
+        {
+          "k": "ascensor",
+          "l": "Elevator stops",
+          "t": "list",
+          "i": 1
+        },
+        {
+          "k": "puntos",
+          "l": "Points marked on the map",
+          "t": "list"
+        },
+        {
+          "k": "personaje",
+          "l": "Stationed character",
+          "t": "id"
+        },
+        {
+          "k": "relacionados",
+          "l": "Related properties",
+          "t": "reflist",
+          "i": 1
+        },
+        {
+          "k": "lugares",
+          "l": "Locations",
+          "t": "reflist",
+          "i": 1
+        },
+        {
+          "k": "interiores",
+          "l": "Interiors",
+          "t": "reflist",
+          "i": 1
+        },
+        {
+          "k": "estadisticas",
+          "l": "Stats",
+          "t": "reflist",
+          "i": 1
+        },
+        {
+          "k": "reglaPuerta",
+          "l": "Unlock tied to the property",
+          "t": "boolean",
+          "i": 1
+        },
+        {
+          "k": "reglaCartel",
+          "l": "\u201cSign\u201d state tied to the property",
+          "t": "boolean",
+          "i": 1
+        },
+        {
+          "k": "leyenda",
+          "l": "In the map legend",
+          "t": "list"
+        },
+        {
+          "k": "variante",
+          "l": "Variant",
+          "t": "id"
+        },
+        {
+          "k": "icono",
+          "l": "Icon",
+          "t": "id"
+        },
+        {
+          "k": "origenNombre",
+          "l": "Name source",
+          "t": "enum"
+        },
+        {
+          "k": "origen",
+          "l": "Icon database",
+          "t": "enum"
+        },
+        {
+          "k": "grupo",
+          "l": "Group",
+          "t": "id"
+        },
+        {
+          "k": "gruposServicios",
+          "l": "Service groups",
+          "t": "list",
+          "i": 1
+        },
+        {
+          "k": "nPosiciones",
+          "l": "Positions",
+          "t": "integer"
+        },
+        {
+          "k": "altura",
+          "l": "Height of its points",
+          "t": "range"
+        }
+      ],
+      "candidateRows": [],
+      "note": "Lexical price/money candidates only; fields do not establish per-item prices."
+    }
+  ]
+}
