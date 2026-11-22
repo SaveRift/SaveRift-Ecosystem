@@ -18,6 +18,8 @@ export async function localTemplates(directory = new URL('../plugins/', import.m
       for (const child of await readdir(new URL(relative || './', base), {withFileTypes: true})) {
         if (child.name.startsWith('.') || /^(?:node_modules|fixtures?|private|logs?)$/i.test(child.name)) continue;
         const path = `${relative}${child.name}`;
+        // Research receipts remain in the checkout, outside runnable source templates.
+        if (child.isDirectory() && path === 'docs/research') continue;
         if (child.isDirectory()) await scan(`${path}/`);
         else if (child.isFile() && (/\.(?:mjs|js|jsx|ts|tsx|json|html|css|md|txt)$/i.test(child.name) || /^(?:LICENSE|NOTICE|COPYING)$/.test(child.name))) files[path] = await readFile(new URL(path, base), 'utf8');
       }
