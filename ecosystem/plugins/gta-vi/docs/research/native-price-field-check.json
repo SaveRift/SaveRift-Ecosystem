@@ -1,0 +1,7 @@
+{
+  "schema": "saverift.native-price-field-check.v1",
+  "status": "complete",
+  "scope": "literal decoder-resolved field names only; unknown field hashes and semantic joins not included",
+  "fieldRows": [],
+  "elapsedSeconds": 20.903
+}

@@ -1,0 +1,8 @@
+{
+  "schema": "saverift.gta-vi.presentation-pointer-verification.v1",
+  "status": "passed",
+  "factPointerChecks": 27787,
+  "modelPointerChecks": 768,
+  "mediaPointerChecks": 762,
+  "catalogEntries": 1369
+}

@@ -13,20 +13,29 @@ save-container extraction remain in their respective local preparation paths.
 This package does not request an account token, decode an encrypted cloud save,
 claim a working edit/encode route, or restore a save to either console.
 
-The reviewed RPF9 contribution adds 2,280 identifier/configuration observations
-from eight recovered XML documents in the owner-supplied Xbox `common.rpf`.
-Each observation is Xbox-only, has an unknown game build, and retains its exact
-source identity and research role. Weapon references are unresolved references;
-loadouts and vehicle-map records do not establish player inventory or available
-vehicles. The 18 existing candidate save links remain separate and unchanged.
-See `docs/CATALOG.md` for counts, provenance and the bounded export command.
+The editor lookup crosswalk retains all 334 reviewed website vehicle identities,
+160 weapon specs, 227 presets, 176 recipes and 472 item claims. It also adds
+339 independently observed nonzero vehicle model hashes, including unresolved
+models. The 309 vehicle name/hash joins remain candidates; 25 unmatched
+website identities remain searchable reported model claims. Exact identifiers,
+calculated hash candidates, native scalar observations and save links retain
+separate evidence and domains.
+
+The catalog contains 3,692 rows and 20 sources, including the original 2,280
+RPF9 identifier/configuration observations. These rows are not a count of unique
+playable entities. The 18 candidate save links remain unchanged. Read
+`docs/EDITOR_CROSSWALK.md` for coverage and reproducibility,
+`docs/CATALOG.md` for the data contract, and `docs/EXPORTER_REUSE_REVIEW.md` for
+the source-backed parser and name-resolution review.
 
 ## Local development
 
-From the repository root, install the `ecosystem` dependencies with Node 22+,
-then run:
+From the repository root, install both the UI/build and SDK dependencies with
+Node 22+, then run:
 
 ```text
+npm --prefix ecosystem ci --ignore-scripts
+npm --prefix ecosystem/sdk ci --ignore-scripts
 node ecosystem/plugins/gta-vi/scripts/build.mjs
 node --test ecosystem/plugins/gta-vi/tests/*.test.mjs
 ```
@@ -35,7 +44,7 @@ Use only synthetic JSAV fixtures in public tests. Keep private player saves,
 account data and proprietary game files outside this checkout. The source files
 for the shared parser and platform preparation live under `src/shared`, `src/xbox`
 and `src/ps5` respectively. The package build includes the reviewed public
-catalog under `data` and emits a self-contained isolated runtime bundle.
+catalog under `data` and emits an offline isolated runtime with complete per-category modules.
 
 The `gameTargets` identity references are logical project references, **not**
 verified Xbox Connected Storage title IDs or PS5 package IDs. A trusted host

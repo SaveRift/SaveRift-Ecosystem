@@ -392,6 +392,374 @@
         "originalDirectoryMembershipProven": false,
         "method": "Checksum-valid RFC1950 stream recovery; bounded candidate-page joining where needed; complete XML parse; reviewed literal-identifier selection"
       }
+    },
+    {
+      "id": "saverift-native-model-crosswalk-2026-11-22",
+      "kind": "maintainer-research-summary",
+      "title": "Reviewed Xbox native vehicle model-reference scalar crosswalk",
+      "locator": "Maintainer-held RPF9 metadata; only selected identifier scalars and structural provenance exported",
+      "revision": "2026-11-22; observations-sha256:4d6d4b6752c82f67bec756fbe7b38ec6cb1e791cba0e5b4567c1467285d24e6b",
+      "license": "SaveRift original research metadata; no license to underlying game files or assets is granted",
+      "attribution": "SaveRift research; metadata field roles informed by the pinned SixNG vehicle parser",
+      "allowedUse": "Factual identifier scalars, candidate name joins and provenance; no payloads, assets or player state",
+      "provenance": {
+        "upstream": "https://github.com/holdmysocks/SixNG",
+        "upstreamCommit": "5a5a9761663315cdf61cec8b219ae5b808e556ae",
+        "decoderWorkerSha256": "f8c7c4c66be270c671a33289d52ef82be25ad769dd690cb84e8cced555979b1d",
+        "selectorPlanSha256": "aa24485812efa26be9157e8ad5a43832c999e81d3e181f3837f298babee0dda9",
+        "extractorSha256": "7b3e568cab97e427f5e92b3223e86ad01fa1afcfc5925fc1cae84eaf71665402",
+        "observationsSha256": "4d6d4b6752c82f67bec756fbe7b38ec6cb1e791cba0e5b4567c1467285d24e6b",
+        "byteVerificationReceiptSha256": "fad64dfa8ad3b63d7be805dc5d2def19ad0d45673949decd2882e80d293fa0a3",
+        "byteVerificationSha256": "90338c3402a227b8c0a6945f81e407a95cc18e462c59e04307682dda551c9116",
+        "exporter": "saverift-editor-crosswalk/1.0.0",
+        "exporterSha256": "950fe696a8c01f55d95a987c460593666bdd8b67754e36314fd4179511566d2a",
+        "gameBuild": null,
+        "originalDirectoryMembershipProven": false,
+        "method": "Explicit meta7a configuration/variation owner-model field 0xfb1f80ff; full u32 and source-byte checks; gameName and handlingId are separate domains"
+      }
+    },
+    {
+      "id": "saverift-website-20d96a5fe386ea7219a0ade8",
+      "kind": "captured-public-website-facts",
+      "title": "Attributed factual labels from gta6database.com",
+      "locator": "https://www.gta6database.com/",
+      "revision": "2026-11-20T17:04:58.555Z; capture-sha256:35c7aaff827f84f8aa80a33b7aceddeb2ef489f91ca34aab735d92aff7a31561",
+      "license": "Factual names and source locators only; no copied prose, artwork or source capture redistribution",
+      "attribution": "gta6database.com",
+      "allowedUse": "Attributed website labels and explicit candidate relationships to native scalar observations",
+      "provenance": {
+        "captureSha256": "35c7aaff827f84f8aa80a33b7aceddeb2ef489f91ca34aab735d92aff7a31561",
+        "captureBytes": "7126367",
+        "capturedAt": "2026-11-20T17:04:58.555Z",
+        "captureHashScope": "entire_original_har_file",
+        "sourceKind": "har",
+        "websiteIdentifiersAreNativeIds": false,
+        "gameBuild": null,
+        "crosswalkVerification": "candidate; hash equality alone does not establish identity"
+      }
+    },
+    {
+      "id": "gtazone-vehicles-identifiers-2026-11-22",
+      "kind": "public-website-factual-identifiers",
+      "title": "GTA.ZONE vehicle identifier claims",
+      "locator": "https://negentropy.studio/vehicles/",
+      "revision": "JSON SHA-256 a556f3b769a36eb192093e0c9cdf4d3ea0fc3b651c1d9a5d7019a8cd8e54441c",
+      "license": "No explicit dataset reuse license established; factual identifiers and source references only.",
+      "attribution": "GTA.ZONE; website claims kept separate from SaveRift native observations.",
+      "allowedUse": "Attributed factual names, identifiers and candidate relations; excludes prose, artwork, models and game payloads.",
+      "provenance": {
+        "dataUrl": "https://negentropy.studio/assets/data/en/vehiculos.5c062fad5b.json",
+        "dataSha256": "a556f3b769a36eb192093e0c9cdf4d3ea0fc3b651c1d9a5d7019a8cd8e54441c",
+        "dataBytes": "420135",
+        "pageUrl": "https://negentropy.studio/vehicles/",
+        "pageSha256": "14f17ec05506f75d49851148cbdc48d2cf6d17ee343a37508be3b4df0c3b19ab",
+        "dataLastModified": "Sun, 22 Nov 2026 13:15:45 GMT",
+        "websiteBuildClaim": {
+          "platform": "Xbox Series",
+          "build": "1.0.2.1",
+          "scope": "website-claim",
+          "sourceUrl": "https://negentropy.studio/about/",
+          "sourceSha256": "64cdc9918e46c24578f35d3f96af72b56d72cefbe6d05cd9996138a3c2dcdd62",
+          "independentlyVerified": false,
+          "appliesToSaveRiftArchiveBuild": false
+        },
+        "gameBuild": null,
+        "identityVerified": false,
+        "sourceClaimsOnly": true,
+        "saveMappingEstablished": false
+      }
+    },
+    {
+      "id": "gtazone-weapons-identifiers-2026-11-22",
+      "kind": "public-website-factual-identifiers",
+      "title": "GTA.ZONE weapon-spec identifier claims",
+      "locator": "https://negentropy.studio/weapons/",
+      "revision": "JSON SHA-256 85933f5fb560162602f3948121cebc5788f72d0de1cb52c9ff0aa0b4664ecfdd",
+      "license": "No explicit dataset reuse license established; factual identifiers and source references only.",
+      "attribution": "GTA.ZONE; website claims kept separate from SaveRift native observations.",
+      "allowedUse": "Attributed factual names, identifiers and candidate relations; excludes prose, artwork, models and game payloads.",
+      "provenance": {
+        "dataUrl": "https://negentropy.studio/assets/data/en/armas.8a77b0ac6c.json",
+        "dataSha256": "85933f5fb560162602f3948121cebc5788f72d0de1cb52c9ff0aa0b4664ecfdd",
+        "dataBytes": "313819",
+        "pageUrl": "https://negentropy.studio/weapons/",
+        "pageSha256": "cc43063db87f9b3cf354379cca75070d2955a34a0d367d3d6268912327c8e7c4",
+        "dataLastModified": "2026-11-22T10:37:57Z",
+        "websiteBuildClaim": {
+          "platform": "Xbox Series",
+          "build": "1.0.2.1",
+          "scope": "website-claim",
+          "sourceUrl": "https://negentropy.studio/about/",
+          "sourceSha256": "64cdc9918e46c24578f35d3f96af72b56d72cefbe6d05cd9996138a3c2dcdd62",
+          "independentlyVerified": false,
+          "appliesToSaveRiftArchiveBuild": false
+        },
+        "gameBuild": null,
+        "identityVerified": false,
+        "sourceClaimsOnly": true,
+        "saveMappingEstablished": false
+      }
+    },
+    {
+      "id": "gtazone-items-identifiers-2026-11-22",
+      "kind": "public-website-factual-identifiers",
+      "title": "GTA.ZONE drink and drug ItemId claims",
+      "locator": "https://negentropy.studio/drinks-and-drugs/",
+      "revision": "JSON SHA-256 bb4971a95b3633c2b9db442cf729f1a791c3327e310b06b80ac73137dabac2df",
+      "license": "No explicit dataset reuse license established; factual identifiers and source references only.",
+      "attribution": "GTA.ZONE; website claims kept separate from SaveRift native observations.",
+      "allowedUse": "Attributed factual names, identifiers and candidate relations; excludes prose, artwork, models and game payloads.",
+      "provenance": {
+        "dataUrl": "https://negentropy.studio/assets/data/en/bebidas-y-drogas.af5c5b34b5.json",
+        "dataSha256": "bb4971a95b3633c2b9db442cf729f1a791c3327e310b06b80ac73137dabac2df",
+        "dataBytes": "154179",
+        "pageUrl": "https://negentropy.studio/drinks-and-drugs/",
+        "pageSha256": "c0ef9411d6101fe3053005459b67df4a8af4e0d3a9706f349537436962d63ba6",
+        "dataLastModified": "Sun, 22 Nov 2026 13:15:46 GMT",
+        "websiteBuildClaim": {
+          "platform": "Xbox Series",
+          "build": "1.0.2.1",
+          "scope": "website-claim",
+          "sourceUrl": "https://negentropy.studio/about/",
+          "sourceSha256": "64cdc9918e46c24578f35d3f96af72b56d72cefbe6d05cd9996138a3c2dcdd62",
+          "independentlyVerified": false,
+          "appliesToSaveRiftArchiveBuild": false
+        },
+        "gameBuild": null,
+        "identityVerified": false,
+        "sourceClaimsOnly": true,
+        "saveMappingEstablished": false
+      }
+    },
+    {
+      "id": "gtazone-hunting-item-identifiers-2026-11-22",
+      "kind": "public-website-factual-identifiers",
+      "title": "GTA.ZONE hunting carcass Item-leaf identifier claims",
+      "locator": "https://negentropy.studio/hunting-loot/",
+      "revision": "JSON SHA-256 aa82f30b3e16eb791bf3a60e30c7aadabd3c5f67770d9102c6e6d2dd66ce84e0",
+      "license": "No explicit dataset reuse license established; factual identifiers and source references only.",
+      "attribution": "GTA.ZONE; website loot-item claims remain separate from native observations.",
+      "allowedUse": "Attributed factual identifiers, labels and Item leaf classification; excludes prose, artwork, models and payloads.",
+      "provenance": {
+        "dataUrl": "https://negentropy.studio/assets/data/en/piezas-caza.71fefc3e88.json",
+        "dataSha256": "aa82f30b3e16eb791bf3a60e30c7aadabd3c5f67770d9102c6e6d2dd66ce84e0",
+        "dataBytes": "1021767",
+        "pageUrl": "https://negentropy.studio/hunting-loot/",
+        "pageSha256": "121ba3a59bbfa4604225f9e38fd9af8efcbc3d34fe5f069175ffdcbb1b30ec8c",
+        "dataLastModified": "Sun, 22 Nov 2026 13:15:40 GMT",
+        "gameBuild": null,
+        "identityVerified": false,
+        "sourceClaimsOnly": true,
+        "saveMappingEstablished": false,
+        "websiteBuildClaim": {
+          "platform": "Xbox Series",
+          "build": "1.0.2.1",
+          "scope": "website-claim",
+          "sourceUrl": "https://negentropy.studio/",
+          "sourceSha256": "14564b1de2126f15795176431aa3200c6294ea0f7887c2a2e8b01dd610a7df71",
+          "independentlyVerified": false,
+          "appliesToSaveRiftArchiveBuild": false
+        },
+        "includedLeafType": "Item",
+        "originalDiscriminatorField": "Entries/Type",
+        "discriminatorDescriptorLocation": "/f/22",
+        "excludedLeafTypes": {
+          "Sellable": 321,
+          "missing": 4
+        }
+      }
+    },
+    {
+      "id": "saverift-native-weapon-spec-references-2026-11-22",
+      "kind": "maintainer-research-summary",
+      "title": "Reviewed native WeaponSpec reference scalar observations",
+      "locator": "Maintainer-held metadata; selected scalar identifiers and structural provenance only",
+      "revision": "2026-11-22; observations-sha256:a751c62ec9f37cae44b73b69f4501ee079c6c1a75d9bed2d06ae50c1a333fe43",
+      "license": "SaveRift original research metadata; no license to underlying game files or assets is granted",
+      "attribution": "SaveRift research using the pinned standalone SixNG metadata reader",
+      "allowedUse": "Factual identifier scalars, candidate website relationships and provenance; no payloads, assets or player state",
+      "provenance": {
+        "upstream": "https://github.com/holdmysocks/SixNG",
+        "upstreamCommit": "5a5a9761663315cdf61cec8b219ae5b808e556ae",
+        "decoderAdapter": "sixng-metadata-batch/0.1.0",
+        "decoderWorkerSha256": "f8c7c4c66be270c671a33289d52ef82be25ad769dd690cb84e8cced555979b1d",
+        "selectorPlanSha256": "b647ef0b2c9896bb1aff850e4d3b93f1a44fa00f75cd91db0997355d8b201507",
+        "extractorSha256": "7b3e568cab97e427f5e92b3223e86ad01fa1afcfc5925fc1cae84eaf71665402",
+        "extractorSummarySha256": "76e509017d5135eb252a6e6412c04f5bd5199c2244eac1b62a28d4d845de1d82",
+        "observationsSha256": "a751c62ec9f37cae44b73b69f4501ee079c6c1a75d9bed2d06ae50c1a333fe43",
+        "observationsBytes": 813910,
+        "byteVerifierSha256": "aa9e1e810edea88fe61f7d31bfe798ff9909dcc131f35c5f70c08f0cea596484",
+        "byteVerifierVersion": "saverift-native-lookup-byte-verification/0.1.0",
+        "byteVerificationReceiptSha256": "6b9d048b925007fd7c1558ca6338b1dceabe77a754a731b7e41209045ece82b2",
+        "byteVerificationSha256": "3e65e560b7865804694a57bc5df4429a9bfc77d1948312c00ae8be88ee19064f",
+        "originalMasterSha256": "7721ff0e18be82da09745f003a996f9a79fc356257452512c5269254bbca7953",
+        "exporter": "saverift-native-reference-augmentation/0.1.0",
+        "exporterSha256": "6d4f671a3aa51ccb0f14af0d02c85e8de8cae3da544001fe487e77f838e7c69c",
+        "platforms": [
+          "xbox"
+        ],
+        "gameBuild": null,
+        "originalDirectoryMembershipProven": false,
+        "selectedField": {
+          "id": "weapon-reference-table-spec",
+          "category": "weapons",
+          "namespace": "weapon.referenceTable.WeaponSpec",
+          "role": "weapon_spec_reference_candidate",
+          "format": "meta7a",
+          "struct_hash": "74bd18f6",
+          "struct_sizes": [
+            96
+          ],
+          "field_index": 1,
+          "field_hash": "1aba12c5",
+          "field_type": "4a",
+          "field_subtype": "00",
+          "reference_index": 0,
+          "extra_hex": "00000000",
+          "encoding": "u32"
+        },
+        "selectedFieldOffset": 4,
+        "sourcePayloadSha256": [
+          "1c7d9f8b75382dc44b97a815d5e7eb56b06fb281f66a4bcf410eec2173b49f64",
+          "b9a90c7e6585e16a8d83424f3ce25b17da0d11889b843612a15d22dca3a2dff0",
+          "fc00b7674d3418f1ebab8576c20646c5e24954a930103cffdbb67d9b6ceea2c9"
+        ],
+        "schemaLayoutSha256": [
+          "4b14d352e97905e2281bacccdccd770c1d719fe421a9d8f2d00cfda84bf797a4",
+          "ecc88a1f9778a3c96598e150c657c2c625fff64279d4f16fb95011ac42bef5c3"
+        ],
+        "semanticDomainConfidence": "candidate",
+        "saveMapping": "unvalidated"
+      }
+    },
+    {
+      "id": "saverift-native-item-id-references-2026-11-22",
+      "kind": "maintainer-research-summary",
+      "title": "Reviewed native ItemId reference scalar observations",
+      "locator": "Maintainer-held metadata; selected scalar identifiers and structural provenance only",
+      "revision": "2026-11-22; observations-sha256:44409af743e3cfffe06b040b829b1102df793da85c528374d4ffcd8ab59ed1f8",
+      "license": "SaveRift original research metadata; no license to underlying game files or assets is granted",
+      "attribution": "SaveRift research using the pinned standalone SixNG metadata reader",
+      "allowedUse": "Factual identifier scalars, candidate website relationships and provenance; no payloads, assets or player state",
+      "provenance": {
+        "upstream": "https://github.com/holdmysocks/SixNG",
+        "upstreamCommit": "5a5a9761663315cdf61cec8b219ae5b808e556ae",
+        "decoderAdapter": "sixng-metadata-batch/0.1.0",
+        "decoderWorkerSha256": "f8c7c4c66be270c671a33289d52ef82be25ad769dd690cb84e8cced555979b1d",
+        "selectorPlanSha256": "aa4d31c81777630794a5f3bab1c40e562ab42837d23098f3200f686026eeec78",
+        "extractorSha256": "7b3e568cab97e427f5e92b3223e86ad01fa1afcfc5925fc1cae84eaf71665402",
+        "extractorSummarySha256": "f33a9176b09fb831f59b2d0277cebaef11a38f0fcbb51cf0874bfe4fd8f42a02",
+        "observationsSha256": "44409af743e3cfffe06b040b829b1102df793da85c528374d4ffcd8ab59ed1f8",
+        "observationsBytes": 739948,
+        "byteVerifierSha256": "28e798951f047fceaed3298b00ace31e4a2ad26eee5d6c4f25450853ff330f0f",
+        "byteVerifierVersion": "saverift-native-lookup-byte-verification/0.2.0",
+        "byteVerificationReceiptSha256": "819b83c8396db1a42880806ede574cea9abeee5e82285ba84c885e9a48c60eb9",
+        "byteVerificationSha256": "3e179386773df07de228e1b13a55c7a57e97bf304914cf864596f36e1f6786c2",
+        "originalMasterSha256": "7721ff0e18be82da09745f003a996f9a79fc356257452512c5269254bbca7953",
+        "exporter": "saverift-native-reference-augmentation/0.1.0",
+        "exporterSha256": "6d4f671a3aa51ccb0f14af0d02c85e8de8cae3da544001fe487e77f838e7c69c",
+        "platforms": [
+          "xbox"
+        ],
+        "gameBuild": null,
+        "originalDirectoryMembershipProven": false,
+        "selectedField": {
+          "id": "item-reference-table-item-id",
+          "category": "items",
+          "namespace": "item.referenceTable.ItemId",
+          "role": "item_reference_candidate",
+          "format": "psin",
+          "struct_hash": "3f7f2239c0458831",
+          "struct_sizes": [
+            40
+          ],
+          "field_index": 0,
+          "field_hash": "f50c1b43",
+          "field_type": "4a",
+          "field_subtype": "00",
+          "reference_index": 0,
+          "extra_hex": "00000000",
+          "encoding": "u32"
+        },
+        "selectedFieldOffset": 16,
+        "sourcePayloadSha256": [
+          "73e32cfd16247613d61764d61302a1b984fa38db2ec29f1cd07be2b1eafe02f4",
+          "9afca131cbf3f1cb83081a307fa45ddeec29b78d31d2006ba451e4a2cbdf8fc3",
+          "ae73d6a45ea287fbaac66634e35c050bc6e9c603f3ace5e72d86c6c17b022040",
+          "b468d9e03f2c89c11f2cc521cd80db60bf848661fc885c04d0e5070a0f3c8124",
+          "d9ba7a17ca3d8b548f467efd836fe9644ba8c36ba86a4ef19df1e6b0db6aee89"
+        ],
+        "schemaLayoutSha256": [
+          "e0df5619383c25e8ff82292edb925825b5340108880bbc485c71f7745f850130"
+        ],
+        "semanticDomainConfidence": "candidate",
+        "saveMapping": "unvalidated"
+      }
+    },
+    {
+      "id": "saverift-psin-weapon-name-correlations-2026-11-22",
+      "kind": "maintainer-research-summary",
+      "title": "PSIN Name/u32 correlations with reported weapon tokens",
+      "locator": "Maintainer-held PSIN metadata and pinned website identifier facts; structural provenance and candidate relationships only",
+      "revision": "2026-11-22; probe-matches-sha256:89258982a3a037e4dee8799b4fa09a87f45c4f418d2892a4a7ba1b66cb1ea4c5",
+      "license": "SaveRift original research metadata; no license to game files or assets is granted",
+      "attribution": "SaveRift research using the pinned SixNG reader and attributed GTA.ZONE native-token claims",
+      "allowedUse": "Factual scalar observations, candidate token relationships and provenance; no payloads, assets or player state",
+      "provenance": {
+        "probe": "saverift-weapon-psin-name-probe/0.2.0",
+        "probeSha256": "b791523a331a652094776ee71a91a3a8f1f6f7f7ddcd6346676eab4cb58e3eb3",
+        "tokenPoolHelperSha256": "ed8a89c489c69d4597427a9fa4885b58f1288387890d2c55e271140b6cd9c98b",
+        "extractorHelperSha256": "7b3e568cab97e427f5e92b3223e86ad01fa1afcfc5925fc1cae84eaf71665402",
+        "upstreamCommit": "5a5a9761663315cdf61cec8b219ae5b808e556ae",
+        "decoderWorkerSha256": "f8c7c4c66be270c671a33289d52ef82be25ad769dd690cb84e8cced555979b1d",
+        "summarySha256": "462e2b89d7097f414f5d0cc7af698cb6bc5b7f54233a6002808883ee2d083831",
+        "matchesSha256": "89258982a3a037e4dee8799b4fa09a87f45c4f418d2892a4a7ba1b66cb1ea4c5",
+        "matchesBytes": 956027,
+        "websiteFactsSha256": "bccf556847a1417d2c21a00bcf26332528cadc0f88f46b2850d18c3d90eb2188",
+        "websiteDatasetSha256": "85933f5fb560162602f3948121cebc5788f72d0de1cb52c9ff0aa0b4664ecfdd",
+        "scope": {
+          "wrapperStructHash": "51e5454170a06c31",
+          "selectedFieldHash": "acec22be",
+          "selectedFieldPreimage": "Name",
+          "selectedFieldType": "4a",
+          "archive": "packs.rpf",
+          "archiveOffsetUnit": "decimal bytes",
+          "inclusiveRange": [
+            202600000,
+            205700000
+          ]
+        },
+        "rawByteVerification": {
+          "selectorPlanSha256": "457d6c685c79366dba084733b604859752fd4a2529a4967af445f310204b53a2",
+          "extractorSha256": "7b3e568cab97e427f5e92b3223e86ad01fa1afcfc5925fc1cae84eaf71665402",
+          "extractorSummarySha256": "dd0eec6740e2433efb66938461e9d881d9a645c4b67ad5624370675332195b81",
+          "observationsSha256": "abd6746b88e5f4fbc21719213b0c7d2a9bfdf6f2fe5b063ca3bd803de7081213",
+          "observationsBytes": 2496586,
+          "byteVerifierSha256": "28e798951f047fceaed3298b00ace31e4a2ad26eee5d6c4f25450853ff330f0f",
+          "byteVerifierVersion": "saverift-native-lookup-byte-verification/0.2.0",
+          "byteVerificationReceiptSha256": "03a0c192a6e1d6367ccc8e94a1504cd6b069cb650a843c18e76c3ec7042b7d94",
+          "byteVerificationSha256": "f8ce68159dae2ae54a50bf8f697913c583067c8704d42c2d804f863f49ea9c0a",
+          "verifiedInputOccurrences": 1060
+        },
+        "fullScalarByteCoverageEstablished": true,
+        "scalarByteVerificationScope": [
+          "WeaponSpec",
+          "WeaponPreset",
+          "WeaponRecipe"
+        ],
+        "excludedFromScalarByteCoverage": [
+          "WeaponType"
+        ],
+        "definitionIdentityVerified": false,
+        "nativeLiteralStringsObserved": false,
+        "saveMappingEstablished": false,
+        "platforms": [
+          "xbox"
+        ],
+        "gameBuild": null,
+        "exporter": "saverift-weapon-name-evidence/0.1.0",
+        "exporterSha256": "dd381452621a84c336a76bbc36ca980965bf54e5d528e9a98036397190c36c6d"
+      }
     }
   ]
 }

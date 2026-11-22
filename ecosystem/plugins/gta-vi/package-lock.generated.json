@@ -1,12 +1,32 @@
 {
   "schema": "saverift.package-build.v1",
-  "packageDigest": "345ed870833f405b6fda8fe5d0769f5a2eb5ceba540fadf43094064a1ad76f14",
-  "byteLength": 6525101,
+  "packageDigest": "526c953cc9427009f45fad003d579126d794a48c75944f561128f3a22a7e5b6a",
+  "byteLength": 29829485,
   "files": [
     {
       "path": "data/catalog.json",
-      "byteLength": 431,
-      "sha256": "fa19ce8d58ffed4c263603250ef4f9520084e38fd60a844c43dcfc03c328dfb0"
+      "byteLength": 483,
+      "sha256": "879f04c6296500500317595f2b5b7bcd14fd127609b23fb2ad9a50ef4a0983d9"
+    },
+    {
+      "path": "data/details/items.json",
+      "byteLength": 1149782,
+      "sha256": "b63a0273dba0d8fae8b0bccbc0a2ab05411e04c58f7c6b1943e1a039145fb962"
+    },
+    {
+      "path": "data/details/sources.json",
+      "byteLength": 5102,
+      "sha256": "ad0452f56b69bfb6c993d7deec8904638ecf1f315d0125aaa5be40777cbcb741"
+    },
+    {
+      "path": "data/details/vehicles.json",
+      "byteLength": 1000131,
+      "sha256": "77f5bd3ae8d03f3ded3ee2eb926953028db67d959d96f17a5c69764810827c33"
+    },
+    {
+      "path": "data/details/weapons.json",
+      "byteLength": 828427,
+      "sha256": "d99ad11e074ddcbcc73c35b87bc9b0d40a711122d12d899fb2c1eef0fa18527b"
     },
     {
       "path": "data/entities/activities.json",
@@ -30,8 +50,8 @@
     },
     {
       "path": "data/entities/items.json",
-      "byteLength": 750440,
-      "sha256": "e1e3b0818a8736d4fe122f9ded4a0282f203cbf8ef730a4a23bc706979f06092"
+      "byteLength": 2224147,
+      "sha256": "b4661df81f383b35673a3ae38b277ff1eaba13429de59d6c68715e3301e780b5"
     },
     {
       "path": "data/entities/locations.json",
@@ -45,13 +65,13 @@
     },
     {
       "path": "data/entities/vehicles.json",
-      "byteLength": 691452,
-      "sha256": "d363e555ed837e7ea7bb1f8edb3f17456d58873ad2b5cce004f142664df9cf8c"
+      "byteLength": 5174763,
+      "sha256": "832bff0eb48f49e040defc0cbcb7c2f63b4ca0949ebf3cf24a98fe09a157735b"
     },
     {
       "path": "data/entities/weapons.json",
-      "byteLength": 1143751,
-      "sha256": "70140d524db5eb872d66450d677391df09b1d2209bfa5e9728e5afa990ae4c6e"
+      "byteLength": 5551862,
+      "sha256": "9ddd17af92b928e6edf2d3af15c903ec7c1e0f4e8276a5eefabac802442496bb"
     },
     {
       "path": "data/save-mappings/ps5.json",
@@ -65,18 +85,18 @@
     },
     {
       "path": "data/schema.json",
-      "byteLength": 1488,
-      "sha256": "3b7dcdb780fde5dba26d140dfd4ad7b43503d096192b4ba4a0187db2ab7fb4ad"
+      "byteLength": 7080,
+      "sha256": "9688a9c742c556544b30158fc9fead7f0ed90b86e833c87c7e4d497224f6a449"
     },
     {
       "path": "data/sources.json",
-      "byteLength": 23395,
-      "sha256": "b4f61706104522e9a308c0889f39e0035af4cf1cfd748ba9d3c2620ed116b3d8"
+      "byteLength": 43988,
+      "sha256": "3bff2f6f03256c8bec3cb5fbb62e8e2400cfd41fa840e67806625d65287b5cb3"
     },
     {
       "path": "DEVELOPER_API.md",
-      "byteLength": 1579,
-      "sha256": "7d1bae7bb443394fb83c48cf562cd6c57b823b9a9c75a970dd8242f14d96f273"
+      "byteLength": 7084,
+      "sha256": "25d128dcad14142591a597e7bc16784191112ce2853f564e2fd9267f2bdb3cb3"
     },
     {
       "path": "LICENSE",
@@ -90,23 +110,88 @@
     },
     {
       "path": "README.md",
-      "byteLength": 3125,
-      "sha256": "c83fa9a50b68904de7722c42bf51089e3feb839083b62a873d262dca71b8f787"
+      "byteLength": 3615,
+      "sha256": "5d2d403a1288f03ba4c3e0eba83f3aa1b6a496e32d2ec49617fae7032f8fa4c2"
+    },
+    {
+      "path": "runtime/catalog/activities.mjs",
+      "byteLength": 138404,
+      "sha256": "d50cf934921a1dc5c76cfa3b75f9c283beb10385231072aad3b24994ce922579"
+    },
+    {
+      "path": "runtime/catalog/characters.mjs",
+      "byteLength": 681,
+      "sha256": "f693b3edbde4201de567bbd01d9da6615cd93946cebd7632567c64c9143976f4"
+    },
+    {
+      "path": "runtime/catalog/clothing.mjs",
+      "byteLength": 92,
+      "sha256": "ad1d8119b315396614e000770472858851b32598dcb39f6df8801f2b0c3130e0"
+    },
+    {
+      "path": "runtime/catalog/currencies.mjs",
+      "byteLength": 94,
+      "sha256": "12aacaf5a256568bbebef9b9fbdb48e4908aa0655fe0d0069ec9ed455ae78b21"
+    },
+    {
+      "path": "runtime/catalog/items.mjs",
+      "byteLength": 1687284,
+      "sha256": "31eba5a00613410dfc5668230c9dd1b269597d2078e34437bdef4fa06781862c"
+    },
+    {
+      "path": "runtime/catalog/locations.mjs",
+      "byteLength": 665,
+      "sha256": "780e33f3c6626725773368f653379bad6a335f80c0cfb868f98ab1c76e649b56"
+    },
+    {
+      "path": "runtime/catalog/systems.mjs",
+      "byteLength": 275755,
+      "sha256": "6e107e72817aa414b2b085be108951657d7b567d7a557086885386da8efde8f3"
+    },
+    {
+      "path": "runtime/catalog/vehicles.mjs",
+      "byteLength": 3823131,
+      "sha256": "cef2a2df73b379fcb265777c7c7dca11ccf3e0b847c1f4d88507b1c6cc4b84d9"
+    },
+    {
+      "path": "runtime/catalog/weapons.mjs",
+      "byteLength": 4054442,
+      "sha256": "40821e789e27909b0613f737ec3c2d45bd6fb3304747954a6a21e54ed7a851af"
     },
     {
       "path": "runtime/connector.mjs",
-      "byteLength": 3127731,
-      "sha256": "a20ff961e4f4621b199fab00903ad07dfdc52447201225498bb3750fba110039"
+      "byteLength": 77898,
+      "sha256": "4e12ba292351b8d4952cbbc49035b7efdbae3fe42515916a31912cd85629f563"
+    },
+    {
+      "path": "runtime/details/items.mjs",
+      "byteLength": 1149798,
+      "sha256": "a4ce2aa5f8c81c8dad43e47818e583a176ebf83f8aeaffea3fbe8aafccbdc3cf"
+    },
+    {
+      "path": "runtime/details/sources.mjs",
+      "byteLength": 4426,
+      "sha256": "5098d2e1dae838f7d8163d41f803987b5582843e157e89e62a66cf6311ddfdc4"
+    },
+    {
+      "path": "runtime/details/vehicles.mjs",
+      "byteLength": 1000169,
+      "sha256": "08c387f9ed68b665d77e1f13797fe91e688837b7b2f1b86d67ecd517136a6f79"
+    },
+    {
+      "path": "runtime/details/weapons.mjs",
+      "byteLength": 828443,
+      "sha256": "7978385bad5d981649f520f61a82250245c8bf5824c36303490a28f346a7d63d"
     },
     {
       "path": "ui/dist/entry.js",
-      "byteLength": 211628,
-      "sha256": "5cbac77cec828b1a631c6e725881cdc55e224c6b53ebe9f992172e68ca7edfde"
+      "byteLength": 219059,
+      "sha256": "16a25cb5756bd7e58a451d2613a46e589eb9d6f4bfe8faeecb2dcf2b46ac44ee"
     },
     {
       "path": "ui/dist/style.css",
-      "byteLength": 5881,
-      "sha256": "9350cff6551e41447027d02800127d7d61aac7a8a3d0d4400b2126fdf6166811"
+      "byteLength": 8480,
+      "sha256": "4d4fcd595595bbc87f874018960eab09f4a109347177b5535b3cd9b6c41608c6"
     },
     {
       "path": "ui/index.html",
@@ -129,6 +214,10 @@
     "../../sdk/node_modules/ieee754/index.js",
     "../../sdk/text-encoding.mjs",
     "connector.mjs",
+    "data/details/items.json",
+    "data/details/sources.json",
+    "data/details/vehicles.json",
+    "data/details/weapons.json",
     "data/entities/activities.json",
     "data/entities/characters.json",
     "data/entities/clothing.json",
@@ -140,6 +229,8 @@
     "data/entities/weapons.json",
     "src/connector.mjs",
     "src/shared/field-names.mjs",
+    "src/shared/gta-vi-catalog.mjs",
+    "src/shared/gta-vi-details.mjs",
     "src/shared/gta-vi-jsav.mjs"
   ]
 }

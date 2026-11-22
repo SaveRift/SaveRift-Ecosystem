@@ -1,0 +1,14 @@
+{
+  "schema": "saverift.gta-vi.native-lookup-selectors.v1",
+  "selection_basis": {
+    "upstream_commit": "5a5a9761663315cdf61cec8b219ae5b808e556ae",
+    "source": "https://github.com/holdmysocks/SixNG/blob/5a5a9761663315cdf61cec8b219ae5b808e556ae/crates/sixng-core/src/vehicles.rs",
+    "note": "Structure/field roles from pinned upstream code, with sizes, indexes and types checked against the completed R2 schema inventory. Roles remain metadata interpretation, not save mappings."
+  },
+  "selectors": [
+    {"id":"vehicle-model-game-name","category":"vehicles","namespace":"vehicle.model.gameName","role":"model_identifier_candidate","format":"meta7a","struct_hash":"e59aa857","struct_sizes":[1152],"field_index":22,"field_hash":"120e5836","field_type":"4a","field_subtype":"00","reference_index":0,"extra_hex":"00000000","encoding":"u32"},
+    {"id":"vehicle-model-handling-id","category":"vehicles","namespace":"vehicle.model.handlingId","role":"handling_reference","format":"meta7a","struct_hash":"e59aa857","struct_sizes":[1152],"field_index":21,"field_hash":"ec41bd9c","field_type":"4a","field_subtype":"00","reference_index":0,"extra_hex":"00000000","encoding":"u32"},
+    {"id":"vehicle-configuration-model-reference","category":"vehicles","namespace":"vehicle.configuration.modelReference","role":"model_reference","format":"meta7a","struct_hash":"51019114","struct_sizes":[144],"field_index":3,"field_hash":"fb1f80ff","field_type":"4a","field_subtype":"00","reference_index":0,"extra_hex":"00000000","encoding":"u32"},
+    {"id":"vehicle-variation-model-reference","category":"vehicles","namespace":"vehicle.variation.modelReference","role":"model_reference","format":"meta7a","struct_hash":"fc1c7000","struct_sizes":[168,240],"field_index":2,"field_hash":"fb1f80ff","field_type":"4a","field_subtype":"00","reference_index":0,"extra_hex":"00000000","encoding":"u32"}
+  ]
+}

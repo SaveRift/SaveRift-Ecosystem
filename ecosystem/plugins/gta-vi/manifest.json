@@ -23,7 +23,7 @@
   "extensionApiDefinitions": {
     "gtavi.catalog": {
       "apiVersion": "0.1.0",
-      "queries": ["gtavi.catalog.categories", "gtavi.catalog.list"],
+      "queries": ["gtavi.catalog.categories", "gtavi.catalog.list", "gtavi.catalog.details"],
       "operations": [],
       "scope": "bounded read-only review of the source-evidenced public game catalog",
       "stability": "experimental; entries retain their individual confidence and source labels"

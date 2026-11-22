@@ -8,8 +8,37 @@
   "properties": {
     "id": { "type": "string", "pattern": "^gta-vi:[a-z-]+:[a-z0-9-]+$" },
     "name": { "type": "object", "required": ["en"], "additionalProperties": { "type": "string", "minLength": 1 } },
-    "nativeIds": { "type": "object", "additionalProperties": { "type": "string" } },
-    "attributes": { "type": "object" },
+    "nativeIds": {
+      "type": "object", "additionalProperties": { "type": "string" },
+      "properties": {
+        "modelHash32": { "$ref": "#/$defs/hash32" },
+        "weaponSpecHash32": { "$ref": "#/$defs/hash32" },
+        "weaponPresetHash32": { "$ref": "#/$defs/hash32" },
+        "weaponRecipeHash32": { "$ref": "#/$defs/hash32" },
+        "itemHash32": { "$ref": "#/$defs/hash32" }
+      }
+    },
+    "attributes": {
+      "type": "object",
+      "properties": {
+        "identifierMetadata": {
+          "type": "object", "additionalProperties": false,
+          "properties": {
+            "modelHash32": { "allOf": [{ "$ref": "#/$defs/identifierMetadata" }, { "properties": { "domain": { "const": "model" } } }] },
+            "weaponSpecHash32": { "allOf": [{ "$ref": "#/$defs/identifierMetadata" }, { "properties": { "domain": { "const": "spec" } } }] },
+            "weaponPresetHash32": { "allOf": [{ "$ref": "#/$defs/identifierMetadata" }, { "properties": { "domain": { "const": "preset" } } }] },
+            "weaponRecipeHash32": { "allOf": [{ "$ref": "#/$defs/identifierMetadata" }, { "properties": { "domain": { "const": "recipe" } } }] },
+            "itemHash32": { "allOf": [{ "$ref": "#/$defs/identifierMetadata" }, { "properties": { "domain": { "const": "item" } } }] }
+          }
+        },
+        "reportedIdentifierMetadata": {
+          "type": "object", "additionalProperties": false, "required": ["referenceId"],
+          "properties": { "referenceId": { "$ref": "#/$defs/reportedIdentifierMetadata" } }
+        },
+        "hashCandidates": { "type": "array", "maxItems": 10, "items": { "$ref": "#/$defs/hashCandidate" } },
+        "crosswalk": { "type": "array", "items": { "$ref": "#/$defs/crosswalk" } }
+      }
+    },
     "confidence": { "enum": ["verified", "observed", "candidate", "unknown"] },
     "applicability": {
       "type": "object", "additionalProperties": false,
@@ -32,5 +61,71 @@
       }
     },
     "notes": { "type": "string" }
+  },
+  "$defs": {
+    "hash32": { "type": "string", "pattern": "^0[xX][0-9a-fA-F]{8}$" },
+    "domain": { "enum": ["model", "spec", "preset", "recipe", "item"] },
+    "identifierMetadata": {
+      "type": "object", "additionalProperties": false,
+      "required": ["domain", "representation", "bitWidth"],
+      "properties": {
+        "domain": { "$ref": "#/$defs/domain" },
+        "representation": { "const": "hex" },
+        "bitWidth": { "const": 32 }
+      }
+    },
+    "hashCandidate": {
+      "type": "object", "additionalProperties": false,
+      "required": ["nativeIdKey", "domain", "algorithm", "transform", "value", "confidence"],
+      "properties": {
+        "nativeIdKey": { "type": "string", "minLength": 1 },
+        "domain": { "$ref": "#/$defs/domain" },
+        "algorithm": { "const": "joaat32" },
+        "transform": { "enum": ["exact", "lowercase"] },
+        "value": { "$ref": "#/$defs/hash32" },
+        "confidence": { "const": "candidate" }
+      }
+    },
+    "reportedIdentifierMetadata": {
+      "type": "object", "additionalProperties": false,
+      "required": ["domain", "representation", "bitWidth", "confidence"],
+      "properties": {
+        "domain": { "$ref": "#/$defs/domain" },
+        "representation": { "enum": ["literal", "hex"] },
+        "bitWidth": { "enum": [null, 32, 64] },
+        "confidence": { "const": "candidate" }
+      },
+      "oneOf": [
+        { "properties": { "representation": { "const": "literal" }, "bitWidth": { "const": null } } },
+        { "properties": { "representation": { "const": "hex" }, "bitWidth": { "enum": [32, 64] } } }
+      ]
+    },
+    "crosswalk": {
+      "type": "object", "additionalProperties": false,
+      "required": ["kind", "nativeIdKey", "sourceRef", "matchMethod", "confidence"],
+      "properties": {
+        "kind": { "enum": ["website-label", "native-token-hash", "website-native-id"] },
+        "nativeIdKey": { "enum": ["modelHash32", "weaponSpecHash32", "weaponPresetHash32", "weaponRecipeHash32", "itemHash32", "referenceId"] },
+        "sourceRef": { "type": "string", "minLength": 1 },
+        "sourceRecordId": { "type": "string", "minLength": 1 },
+        "location": { "type": "string", "minLength": 1 },
+        "label": { "type": "string", "minLength": 1 },
+        "comparedText": { "type": "string", "minLength": 1 },
+        "token": { "type": "string", "minLength": 1 },
+        "namespace": { "type": "string", "minLength": 1 },
+        "url": { "type": "string", "minLength": 1 },
+        "matchMethod": { "enum": ["joaat32_exact", "joaat32_lowercase", "hash32_value_exact", "literal_exact"] },
+        "confidence": { "enum": ["candidate", "observed", "verified"] }
+      },
+      "allOf": [
+        { "anyOf": [{ "required": ["location"] }, { "required": ["sourceRecordId"] }] },
+        { "if": { "properties": { "kind": { "const": "website-label" }, "matchMethod": { "enum": ["joaat32_exact", "joaat32_lowercase", "hash32_value_exact"] } } }, "then": { "required": ["comparedText"], "properties": { "confidence": { "const": "candidate" } } } },
+        { "oneOf": [
+          { "properties": { "kind": { "const": "website-label" }, "nativeIdKey": { "enum": ["modelHash32", "weaponSpecHash32", "weaponPresetHash32", "weaponRecipeHash32", "itemHash32"] } }, "required": ["label"], "not": { "required": ["token"] } },
+          { "properties": { "kind": { "const": "native-token-hash" }, "nativeIdKey": { "enum": ["modelHash32", "weaponSpecHash32", "weaponPresetHash32", "weaponRecipeHash32", "itemHash32"] }, "matchMethod": { "enum": ["joaat32_exact", "joaat32_lowercase"] } }, "required": ["token"], "not": { "required": ["label"] } },
+          { "properties": { "kind": { "const": "website-native-id" }, "nativeIdKey": { "const": "referenceId" }, "matchMethod": { "const": "literal_exact" }, "confidence": { "const": "candidate" } }, "required": ["label", "comparedText"], "not": { "required": ["token"] } }
+        ] }
+      ]
+    }
   }
 }

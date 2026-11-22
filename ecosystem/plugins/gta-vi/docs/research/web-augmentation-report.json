@@ -1,0 +1,240 @@
+{
+  "schema": "saverift.gta-vi.website-augmentation-report.v3",
+  "augmenter": "saverift-website-catalog-augmentation/3.0.0",
+  "vehicleCoverage": {
+    "observedModels": 339,
+    "websiteVehicleRecords": 334,
+    "matchedWebsiteVehicleRecords": 309,
+    "modelsWithGtaZoneCandidates": 309,
+    "addedCrosswalkRowsByMethod": {
+      "joaat32_exact": 290,
+      "joaat32_lowercase": 307,
+      "hash32_value_exact": 2
+    },
+    "unmatchedWebsiteRecordKeys": [
+      "gtazone:vehiculos:journey",
+      "gtazone:vehiculos:guardiantx2",
+      "gtazone:vehiculos:dump",
+      "gtazone:vehiculos:0xb18b6fb0",
+      "gtazone:vehiculos:airmule",
+      "gtazone:vehiculos:freight",
+      "gtazone:vehiculos:freightcar",
+      "gtazone:vehiculos:freightgrain",
+      "gtazone:vehiculos:metromule",
+      "gtazone:vehiculos:tankercar",
+      "gtazone:vehiculos:train",
+      "gtazone:vehiculos:metrotrain2",
+      "gtazone:vehiculos:armyflatbed",
+      "gtazone:vehiculos:trailerbaggage1",
+      "gtazone:vehiculos:trailerbaggage2",
+      "gtazone:vehiculos:trailerboats1",
+      "gtazone:vehiculos:trailerboats2",
+      "gtazone:vehiculos:trailers",
+      "gtazone:vehiculos:0x48434af0",
+      "gtazone:vehiculos:0x7fc98542",
+      "gtazone:vehiculos:police",
+      "gtazone:vehiculos:bus2-dmg",
+      "gtazone:vehiculos:bus2-frag",
+      "gtazone:vehiculos:spreader",
+      "gtazone:vehiculos:voyager"
+    ],
+    "skippedNonAsciiVehiclePreimages": 0,
+    "modelsWithoutGtaZoneCandidates": [
+      "0x01ae51fc",
+      "0x045b363c",
+      "0x0d84c659",
+      "0x0de67a4d",
+      "0x1f3d44b5",
+      "0x2cc3f420",
+      "0x315268c0",
+      "0x3c88a599",
+      "0x42bd8f69",
+      "0x5b653ef6",
+      "0x5c27aa11",
+      "0x612a0778",
+      "0x6182bf35",
+      "0x6abd326b",
+      "0x6e85dd0b",
+      "0x74b7bc25",
+      "0x825a9f4c",
+      "0x85e85c24",
+      "0x88093e1b",
+      "0x88790415",
+      "0x9260426b",
+      "0x9370b19f",
+      "0xacfad21b",
+      "0xb0fa08f4",
+      "0xb460ae42",
+      "0xd577c962",
+      "0xdd9ae4f2",
+      "0xe5bf99c0",
+      "0xe679feaa",
+      "0xee6d0531"
+    ],
+    "modelsWithoutAnyCandidate": [
+      "0x01ae51fc",
+      "0x045b363c",
+      "0x0d84c659",
+      "0x0de67a4d",
+      "0x1f3d44b5",
+      "0x2cc3f420",
+      "0x315268c0",
+      "0x3c88a599",
+      "0x42bd8f69",
+      "0x5b653ef6",
+      "0x5c27aa11",
+      "0x612a0778",
+      "0x6182bf35",
+      "0x6abd326b",
+      "0x6e85dd0b",
+      "0x74b7bc25",
+      "0x825a9f4c",
+      "0x85e85c24",
+      "0x88093e1b",
+      "0x88790415",
+      "0x9260426b",
+      "0x9370b19f",
+      "0xacfad21b",
+      "0xb0fa08f4",
+      "0xb460ae42",
+      "0xdd9ae4f2",
+      "0xe5bf99c0",
+      "0xe679feaa",
+      "0xee6d0531"
+    ],
+    "numericDisplayModels": [
+      "0x01ae51fc",
+      "0x045b363c",
+      "0x0d84c659",
+      "0x0de67a4d",
+      "0x1f3d44b5",
+      "0x2cc3f420",
+      "0x315268c0",
+      "0x32f45821",
+      "0x3a196cea",
+      "0x3c88a599",
+      "0x42bd8f69",
+      "0x56d42971",
+      "0x5b653ef6",
+      "0x5c27aa11",
+      "0x612a0778",
+      "0x6182bf35",
+      "0x6abd326b",
+      "0x6e85dd0b",
+      "0x74b7bc25",
+      "0x7836ce2f",
+      "0x7a61b330",
+      "0x825a9f4c",
+      "0x85e85c24",
+      "0x88093e1b",
+      "0x88790415",
+      "0x9260426b",
+      "0x9370b19f",
+      "0xacfad21b",
+      "0xb0fa08f4",
+      "0xb460ae42",
+      "0xd756460c",
+      "0xdd9ae4f2",
+      "0xe5bf99c0",
+      "0xe679feaa",
+      "0xedd516c6",
+      "0xee6d0531",
+      "0xf26ceff9"
+    ],
+    "changedDisplayNamesOrConfidence": 242,
+    "displayNameKinds": {
+      "candidate-website-label": 283,
+      "observed-model-reference": 37,
+      "candidate-native-token": 19
+    },
+    "reportedModelCandidatesForUnjoinedRecords": 25,
+    "websiteIdentitiesRetained": 334
+  },
+  "addedWeaponSpecClaims": 160,
+  "weaponIdentifierRepresentations": {
+    "hex32": 23,
+    "literal": 137
+  },
+  "excludedWeaponKinds": {
+    "website-reported-weapon-entry-without-spec": 3
+  },
+  "addedItemClaims": 472,
+  "itemCategoryCounts": {
+    "Bebidas": 174,
+    "Drogas": 4,
+    "Reptiles y anfibios": 15,
+    "Aves": 183,
+    "Mamíferos": 27,
+    "Sin ficha del Récord": 6,
+    "Perros y gatos": 60,
+    "Otros": 3
+  },
+  "newSources": 4,
+  "newSaveLinks": 0,
+  "editabilityChanges": 0,
+  "observedIdentifierPromotions": 0,
+  "publishedSourcePins": {
+    "vehicles": {
+      "url": "https://negentropy.studio/assets/data/en/vehiculos.5c062fad5b.json",
+      "sha256": "a556f3b769a36eb192093e0c9cdf4d3ea0fc3b651c1d9a5d7019a8cd8e54441c"
+    },
+    "weapons": {
+      "url": "https://negentropy.studio/assets/data/en/armas.8a77b0ac6c.json",
+      "sha256": "85933f5fb560162602f3948121cebc5788f72d0de1cb52c9ff0aa0b4664ecfdd"
+    },
+    "items": {
+      "url": "https://negentropy.studio/assets/data/en/bebidas-y-drogas.af5c5b34b5.json",
+      "sha256": "bb4971a95b3633c2b9db442cf729f1a791c3327e310b06b80ac73137dabac2df"
+    },
+    "huntingItems": {
+      "url": "https://negentropy.studio/assets/data/en/piezas-caza.71fefc3e88.json",
+      "sha256": "aa82f30b3e16eb791bf3a60e30c7aadabd3c5f67770d9102c6e6d2dd66ce84e0"
+    }
+  },
+  "inputSha256": {
+    "facts": "8d76954f863a2804f755b73bad22d649f19b0f174e853a7079ed0eb4b4d20719",
+    "weapons_facts": "bccf556847a1417d2c21a00bcf26332528cadc0f88f46b2850d18c3d90eb2188",
+    "weapons_provenance": "9f47c45dfaadd9aa36a9ef5dd9c916d876a2a4435ef7ee9a92c44646190c20d7",
+    "baseline_items": "e1e3b0818a8736d4fe122f9ded4a0282f203cbf8ef730a4a23bc706979f06092",
+    "entities/vehicles.json": "dcda5dbb4c27049dc1d894c70d9630248889185534fa67c49004bb842e9d0c2b",
+    "entities/weapons.json": "d849405944243a9e02ebfee89092e92673201483db91fee670a09a4c458348ca",
+    "sources.json": "3bf839e5d92fa2ba3eff535702af22d596a67bb243d5f818722e566f1301bbc5",
+    "crosswalk-report.json": "f59163b06ce01a86ddb2da365d167be2eedeb70c85bbb13da30bf60a1918a64c"
+  },
+  "augmenterSha256": "413bda0ae9ef7d47d7d61b2c0c8eb6288053d1590467f0591b5c071f379ade47",
+  "foundationAugmenter": {
+    "version": "saverift-website-catalog-augmentation/1.0.0",
+    "sha256": "7cf2c7cf11c5d463420e89cf71d3cd8e3ce926ff632eda9712f8c9170cc04e7e"
+  },
+  "addedReportedModelClaims": 25,
+  "addedWeaponPresetClaims": 227,
+  "addedWeaponRecipeClaims": 176,
+  "namedWeaponRelationOccurrencesByDomain": {
+    "preset": 227,
+    "recipe": 176
+  },
+  "retainedVehicleWebsiteIdentities": 334,
+  "nativeProofRequiredForWebsiteClaimInclusion": false,
+  "addedWeaponClaimsTotal": 563,
+  "foundationV2Augmenter": {
+    "version": "saverift-website-catalog-augmentation/2.0.0",
+    "sha256": "c80619aa644c5c2cf3a84258b1749cd167ab89eaf97afa8e0c7dd7e8060a8b0a"
+  },
+  "addedDrinkDrugItemClaims": 178,
+  "addedHuntingItemClaims": 294,
+  "huntingLeafTypeCounts": {
+    "Item": 294,
+    "Sellable": 321,
+    "None": 4
+  },
+  "excludedHuntingLeafTypes": {
+    "Sellable": 321,
+    "missing": 4
+  },
+  "itemSubtypeCounts": {
+    "drink-or-drug": 178,
+    "hunting-carcass-loot-item": 294
+  },
+  "sharedNumericItemValuesAcrossWebsiteSources": 0,
+  "crossSourceItemClaimsMerged": 0
+}
